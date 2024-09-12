@@ -1,0 +1,143 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.login-container {
+  font-family: Georgia, 'Times New Roman', Times, serif, sans-serif;
+  background-color: #7f64a1;
+}
+
+.navbar {
+  background-color: #d9dbdf;
+  padding: 8px;
+}
+
+.navbar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-items a {
+  color:black;
+  font-family: 'Times New Roman', Times, serif;
+  margin-right: 110px;
+  text-decoration: none;
+}
+
+.login-btn {
+  background-color: #7f64a1;
+  color: white;
+  padding: 8px 40px;
+  border: none;
+  border-radius: 20px;
+}
+
+.image-text-overlay {
+  position: absolute;
+  top: 50%; 
+  left: 50%; 
+  transform: translate(-50%, -50%); 
+  color: black;
+  text-align: center;
+  text-shadow: 10px 10px 15px rgba(0, 0, 0, 0.7); 
+}
+
+.image-text-overlay h1 {
+  font-size: 90px;
+  font-family: 'Times New Roman', Times, serif;
+  margin: 0;
+}
+
+.image-text-overlay p {
+  font-size: 30px;
+  font-style: italic;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+
+.content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 40px 0;
+}
+
+.header h1 {
+  font-size: 66px;
+  color: white;
+  text-align: center;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+.header p {
+  font-size: 25px;
+  color: white;
+  font-family: 'Times New Roman', Times, serif;
+  text-align: center;
+}
+
+.login-panel {
+  background-color: white;
+  border-radius: 50px;
+  box-shadow: 0 15px 12px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  width: 350px;
+  height: 550px;
+  align-self: right;
+}
+
+.login-panel h1 {
+  color:#7f64a1;
+  font-size:xx-large;
+  font-family: 'Courier New', Courier, monospace;
+  text-align:center;
+}
+
+.login-panel h2 {
+  color: #7f64a1;
+  font-size: smaller;
+  font-family:cursive;
+  text-align:center;
+}
+
+.input-field {
+  margin-bottom: 20px;
+}
+
+.input-field label {
+  display: block;
+  margin-bottom: 8px;
+  color: #4b5563;
+}
+
+.input-field input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+}
+
+.sign-in-btn {
+  background-color: black;
+  color: white;
+  padding: 12px;
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.footer {
+  .footnav {
+    background-color: #d9dbdf;
+    padding: 35px;
+  }
+  background-color: #7f64a1;
+  text-align: center;
+  margin-top: 200px;
+  color: white;
+  font-family: 'Georgia', cursive;
+  font-style: italic;
+  font-size: xx-large;
+}
