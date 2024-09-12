@@ -36,7 +36,7 @@ export default function Login() {
       <main className="content">
         <header className="header">
           <h1>Welcome to </h1>
-            <h1>Admin Portal</h1>
+            <h1>Admin Portal pushpa</h1>
           <p>Please Login to Continue</p>
         </header>
 
