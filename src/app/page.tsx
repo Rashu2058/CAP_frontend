@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import './globals.css';  // Scoped styles for login page
+import './globals.css';  
 
 // navbar
 export default function Login() {
@@ -11,7 +11,7 @@ export default function Login() {
           <div className="nav-items">
             <a href="#">Dashboard</a>
             <a href="#">Room Management</a>
-            <a href="#">Reception Management</a>
+            <a href="#">Receptionist Management</a>
             <a href="#">Reports</a>
             <button className="login-btn">Login</button>
           </div>
@@ -35,15 +35,14 @@ export default function Login() {
      
       <main className="content">
         <header className="header">
-          <h1>Welcome to </h1>
-            <h1>Admin Portal Rashu</h1>
+          <h6>Welcome to Admin Portal</h6>
           <p>Please Login to Continue</p>
         </header>
 
         <div className="login-panel-container">
           <div className="login-panel">
             <h1>Admin Panel</h1>
-            <h2>Control Panel Login</h2>
+            <h2><i>Control Panel Login</i></h2>
             <form className="login-form">
               <div className="input-field">
                 <label>Email</label>
@@ -54,6 +53,14 @@ export default function Login() {
                 <input type="password" placeholder="Enter your password" />
               </div>
               <button type="submit" className="sign-in-btn">Sign in</button>
+
+            <div className="wave-container">
+              <svg viewBox="0 0 500 150" className="wave-svg">
+              <path d="M20,150 C-450,150 450,-100 600,50 L500,150 L0,150 Z" fill="#896caa"></path>
+              <path d="M0,150 C-500,50 350,150 500,10 L500,150 L0,150 Z" fill="#675180"></path>
+              <path d="M-45,135 C220,100 350,170 500,40 L500,150 L0,150 Z" fill="#463757"></path>
+              </svg>
+            </div>
             </form>
           </div>
         </div>
