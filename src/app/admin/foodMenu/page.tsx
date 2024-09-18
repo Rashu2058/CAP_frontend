@@ -49,7 +49,7 @@ export default function RoomManagement() {
 {/* Small screen menu */}
             <div className="hidden lg:flex" id="mobile-menu">
               <ul className="flex flex-col space-y-4 bg-gray-300 p-4">
-                <li><a href="#" className="block text-purple-800 hover:text-gray-200">Dashboard</a></li>
+              <li><a href="#" className="block text-purple-800 hover:text-gray-200">Dashboard</a></li>
                 <li><a href="#" className="block text-purple-800 hover:text-gray-200">Rooms</a></li>
                 <li><a href="#" className="block text-purple-800 hover:text-gray-200">Receptionists</a></li>
                 <li><a href="#" className="block text-purple-800 hover:text-gray-200">Food Menu</a></li>
@@ -73,19 +73,19 @@ export default function RoomManagement() {
               type="text"
               name="roomNo"
               placeholder="Room No"
-              className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-purple-500"
+              className="p-2 border rounded-lg"
             />
             <input
               type="text"
               name="roomType"
               placeholder="Room Type"
-              className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-purple-500"
+              className="p-2 border rounded-lg"
             />
             <input
               type="text"
               name="roomPrice"
               placeholder="Room Price"
-              className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-purple-500"
+              className="p-2 border rounded-lg"
             />
           </form>
           <div className="flex justify-end sm:justify-end px-6 py-4">

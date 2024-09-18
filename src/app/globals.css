@@ -9,13 +9,15 @@
 
 .navbar {
   background-color: #d9dbdf;
-  padding: 8px;
+  padding: 2px;
 }
 
 .navbar-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .nav-items a {
@@ -44,6 +46,15 @@
 }
 
 .image-text-overlay h1 {
+  font-size: 2.5rem; /* smaller font for mobile */
+}
+
+.image-text-overlay p {
+  font-size: 1.5rem; /* smaller font for mobile */
+}
+
+@media (min-width: 768px) {
+.image-text-overlay h1 {
   font-size: 90px;
   font-family: 'Times New Roman', Times, serif;
   margin: 0;
@@ -53,15 +64,24 @@
   font-size: 30px;
   font-style: italic;
   font-family: Georgia, 'Times New Roman', Times, serif;
+  }
+}
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 35px;
 }
 
-
+@media (min-width: 768px) {
 .content {
   display: flex;
   flex-direction: row;
   align-items: center;
   padding: 40px 35px;
+  }
 }
+
 .header h6 {
   font-size: 70px; 
   color: white;
@@ -80,8 +100,8 @@
 .login-panel-container {
   display: flex;
   justify-content: flex-end; 
-  width: 80%;
-  padding: 90px;
+  width: 100%;
+  padding: 40px;
 }
 
 

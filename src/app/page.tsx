@@ -10,8 +10,9 @@ export default function Login() {
           <img src="/Logo GraceInn.png" alt="Logo" className="logo" width={80} height={80} />
           <div className="nav-items">
             <a href="#">Dashboard</a>
-            <a href="#">Room Management</a>
-            <a href="#">Receptionist Management</a>
+            <a href="#">Rooms</a>
+            <a href="#">Receptionists</a>
+            <a href="#">Food Menu</a>
             <a href="#">Reports</a>
             <button className="login-btn">Login</button>
           </div>
