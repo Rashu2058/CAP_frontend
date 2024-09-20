@@ -5,7 +5,8 @@ import Image from "next/image";
 export default function Login() {
   return (
     <div className="login-container bg-purple-500 font-serif min-h-screen">
-      {/* Navbar */}
+
+{/* Navbar */}
       <nav className="navbar bg-gray-300 p-2">
         <div className="navbar-content flex justify-between items-center">
           <img
@@ -17,15 +18,16 @@ export default function Login() {
           />
           <div className="nav-items flex space-x-18 place-items-center">
             <a href="#" className="text-black hover:text-gray-100">Dashboard</a>
-            <a href="#" className="text-black hover:text-gray-100">Customer Management</a>
+            <a href="#" className="text-black hover:text-gray-100">Customer</a>
             <a href="#" className="text-black hover:text-gray-100">Reservation</a>
+            <a href="#" className="text-black hover:text-gray-100">Setting</a>
             <a href="#" className="text-black hover:text-gray-100">Reports</a>
             <button className="login-btn bg-purple-700 text-white py-2 px-10 rounded-full hover:bg-purple-500">Login</button>
           </div>
         </div>
       </nav>
 
-      {/* Hotel Image Section */}
+{/* Hotel Image Section */}
       <div className="hotel-image-container relative">
         <Image
           src="/logImage.jpg"
@@ -40,14 +42,14 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Main Content */}
+{/* Main Content */}
       <main className="content flex flex-col items-center py-10">
         <header className="header text-center">
           <h6 className="text-6xl text-white font-serif">Welcome Back!!</h6>
           <p className="text-2xl text-white">Please Login to Continue</p>
         </header>
 
-        {/* Login Panel */}
+{/* Login Panel */}
         <div className="login-panel-container flex justify-center items-center py-20 w-4/5">
           <div className="login-panel bg-white rounded-2xl shadow-lg p-10 w-[350px] h-[550px]">
             <h1 className="text-purple-700 text-2xl text-center font-mono">Receptionist Panel</h1>
@@ -76,7 +78,7 @@ export default function Login() {
                 Sign In
               </button>
 
-              {/* Wave Container */}
+{/* Wave Container */}
               <div className="wave-container relative w-full mt-12 overflow-hidden">
                 <svg
                   viewBox="0 0 500 243"
@@ -93,7 +95,7 @@ export default function Login() {
         </div>
       </main>
 
-      {/* Footer */}
+{/* Footer */}
       <footer className="footer bg-purple-500 text-center text-white py-10">
         <div className="footnav bg-gray-300 py-8"></div>
         <p className="text-white italic text-4xl">Hotel Grace Inn 2024</p>

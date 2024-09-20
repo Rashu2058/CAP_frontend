@@ -1,22 +1,31 @@
+"use client"; // For client-side rendering
+import { useState } from "react";
 import Image from "next/image";
 
 export default function RoomManagement() {
+{/* State to control modal visibility */}
+  const [isModalOpen, setIsModalOpen] = useState(false);
+ 
+{/* Open and close modal */}
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
   return (
     <div className="min-h-screen bg-gray-200">
 
 {/* Navigation bar */}
       <nav className="bg-gray-300 p-2 flex justify-between items-center">
-
+       
 {/* Logo Section */}
         <div className="flex items-center space-x-0 font-serif font-bold font-xl text-purple-800">
           <Image src="/Logo GraceInn.png" alt="Logo" width={65} height={65} />
           <h1>Grace Inn</h1>
         </div>
 
-{/* Navigation and Admin Section */}
+{/* Navigation and User Section */}
         <div className="flex items-center space-x-8">
-
-{/* Navigation bar for desktop screen */}
+          
+{/* Desktop Navigation */}
           <div className="hidden lg:flex space-x-4 justify-items-end font-serif">
             <a href="#" className="text-purple-800 hover:text-gray-200">Dashboard</a>
             <a href="#" className="text-purple-800 hover:text-gray-200">Rooms</a>
@@ -37,7 +46,7 @@ export default function RoomManagement() {
             </button>
           </div>
 
-{/* Navigation bar for small screen menu */}
+{/* Small screen menu */}
           <div className="lg:hidden">
             <input id="menu-toggle" type="checkbox" className="hidden" />
             <label htmlFor="menu-toggle" className="cursor-pointer block lg:hidden">
@@ -46,7 +55,7 @@ export default function RoomManagement() {
               </svg>
             </label>
 
-{/* Small screen menu */}
+{/* Small screen dropdown menu */}
             <div className="hidden lg:flex" id="mobile-menu">
               <ul className="flex flex-col space-y-4 bg-gray-300 p-4">
                 <li><a href="#" className="block text-purple-800 hover:text-gray-200">Dashboard</a></li>
@@ -89,18 +98,18 @@ export default function RoomManagement() {
             />
           </form>
           <div className="flex justify-end sm:justify-end px-6 py-4">
-          <button
+            <button
               type="button"
               className="bg-purple-600 text-white px-8 py-4 rounded-lg hover:bg-purple-700 text-xl flex items-center space-x-2 font-serif"
             >
-              <Image src="/add.png" alt="Delete" width={26} height={26} className="rounded-full" />
-            <span>Add</span> 
+              <Image src="/add.png" alt="Add" width={26} height={26} className="rounded-full" />
+              <span>Add</span>
             </button>
           </div>
         </div>
 
 {/* Delete Section */}
-        <div className="flex justify-end sm:justify-end px-6 py-4">
+          <div className="flex justify-end sm:justify-end px-6 py-4 space-x-10">
           <button
             type="button"
             className="bg-red-600 text-white text-xl font-serif px-8 py-4 rounded-lg hover:bg-red-700 flex items-center space-x-2"
@@ -109,40 +118,103 @@ export default function RoomManagement() {
             <span>Delete</span>
           </button>
         </div>
-
-{/* Room Details */}
+        
+{/* Room Details with Update Button */}
         <div className="bg-white p-6 rounded-lg">
-          <h3 className="text-lg text-black font-bold mb-8 font-serif bg-purple-300 p-3 px-6">
-            Room Details</h3>
+          <h3 className="text-lg text-black font-bold mb-8 font-serif bg-purple-300 p-3 px-6">Room Details</h3>
 
-{/* Table Header */}
           <table className="min-w-full bg-white border border-gray-300">
             <thead className="bg-purple-500 text-white">
               <tr>
                 <th className="py-3 px-6 text-center border border-gray-300">Room No</th>
-                <th className="py-3 px-6 text-center border border-gray-300 ">Room Type</th>
+                <th className="py-3 px-6 text-center border border-gray-300">Room Type</th>
                 <th className="py-3 px-6 text-center border border-gray-300">Room Price</th>
-                </tr>
+                <th className="py-3 px-6 text-center border border-gray-300">Action</th>
+              </tr>
             </thead>
             <tbody>
               <tr className="hover:bg-purple-100">
                 <td className="py-3 px-6 border border-gray-300 text-center"></td>
                 <td className="py-3 px-6 border border-gray-300 text-center"></td>
                 <td className="py-3 px-6 border border-gray-300 text-center"></td>
-              </tr>
-              <tr className="hover:bg-purple-100">
-                <td className="py-3 px-6 border border-gray-300 text-center"></td>
-                <td className="py-3 px-6 border border-gray-300 text-center"></td>
-                <td className="py-3 px-6 border border-gray-300 text-center"></td>
-              </tr>
-              <tr className="hover:bg-purple-100">
-                <td className="py-3 px-6 border border-gray-300 text-center"></td>
-                <td className="py-3 px-6 border border-gray-300 text-center"></td>
-                <td className="py-3 px-6 border border-gray-300 text-center"></td>
+                <td className="py-3 px-6 border border-gray-300 text-center">
+                <button
+                type="button"
+                className="bg-blue-600 text-white text-xl font-serif px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2"
+                onClick={openModal}
+                  >
+                  <Image src="/update.png" alt="Update" width={26} height={26} className="rounded-full" />
+                  Update
+          </button>
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
+
+{/* Update Modal */}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-purple-100 p-8 rounded-lg shadow-lg w-96">
+              <h2 className="text-xl font-bold font-serif mb-4">Update Room Details</h2>
+
+{/* Current Details Section */}
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold mb-3 font-serif">Current Details</h3>
+            <div className="text-sm text-gray-600 space-y-1">
+              <p>
+                <span className="font-semibold font-serif">Room No:</span> 
+              </p>
+              <p>
+                <span className="font-semibold font-serif">Room Type:</span> 
+              </p>
+              <p>
+                <span className="font-semibold font-serif">Room Price:</span> 
+              </p>
+            </div>
+          </div>
+
+{/* New Update Section */} 
+              <form className="space-y-4">
+              <h3 className="text-lg font-semibold mb-3 font-serif">Update Here</h3>
+                <div className="grid grid-cols-1 gap-4">
+                  <input
+                    type="text"
+                    placeholder="Enter Room No"
+                    className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-purple-500"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Enter Room Type"
+                    className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-purple-500"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Enter Room Price"
+                    className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-purple-500"
+                  />
+                </div>
+
+{/* Action Buttons */}
+                <div className="flex justify-end space-x-4">
+                  <button
+                    type="button"
+                    className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+                    onClick={closeModal}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700"
+                  >
+                    Save
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
 
 {/* Footer */}
