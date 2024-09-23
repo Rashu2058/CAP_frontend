@@ -168,14 +168,7 @@ export default function RoomManagement() {
                 <td className="py-3 px-6 border border-gray-300 text-center"></td>
                 <td className="py-3 px-6 border border-gray-300 text-center"></td>
                 <td className="py-3 px-6 border border-gray-300 text-center">
-                <button
-                type="button"
-                className="bg-blue-600 text-white text-xl font-serif px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2"
-                onClick={openModal}
-                  >
-                  <Image src="/update.png" alt="Update" width={26} height={26} className="rounded-full" />
-                  Update
-          </button>
+                <a href="#" className="text-purple-800 hover:text-purple-300 mr-2"onClick={openModal}>Edit</a>
                 </td>
               </tr>
             </tbody>

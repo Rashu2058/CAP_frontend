@@ -3,6 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 
 export default function FoodManagement() {
+
   const [items, setItems] = useState([
     "Main Courses",
     "Breakfast & Snacks",
@@ -184,10 +185,13 @@ export default function FoodManagement() {
                   alt={food.name}
                   className="w-full h-32 object-cover rounded-lg mb-4"
                 />
+                
               )}
               <h3 className="text-lg font-bold mb-2">{food.name}</h3>
               <p className="text-gray-700">Price: {food.price}</p>
               <p className="text-gray-700">Category: {food.category}</p>
+              <a href="#" className="text-black font-bold hover:text-purple-300 mr-2">Edit</a>
+              <a href="#" className="text-red-500 font-bold hover:text-purple-300 mr-2">Delete</a>
             </div>
           ))}
         </div>
