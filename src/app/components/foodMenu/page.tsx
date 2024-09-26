@@ -55,50 +55,14 @@ export default function FoodManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-200">
+    <div>
       
-{/* Navigation bar */}
-      <nav className="bg-gray-300 p-2 flex justify-between items-center">
-        
-{/* Logo Section */}
-        <div className="flex items-center space-x-0 font-serif font-bold text-purple-800 text-xl">
-          <Image src="/Logo GraceInn.png" alt="Logo" width={65} height={65} />
-          <h1>Grace Inn</h1>
-        </div>
-
-{/* Navigation and User Section */}
-        <div className="flex items-center space-x-8">
-
-{/* Desktop Navigation */}
-          <div className="hidden lg:flex space-x-4 justify-items-end font-serif">
-            <a href="#" className="text-purple-800 hover:text-gray-200">Dashboard</a>
-            <a href="#" className="text-purple-800 hover:text-gray-200">Rooms</a>
-            <a href="#" className="text-purple-800 hover:text-gray-200">Receptionists</a>
-            <a href="#" className="text-purple-800 hover:text-gray-200">Food Menu</a>
-            <a href="#" className="text-purple-800 hover:text-gray-200">Reports</a>
-            <a href="#" className="text-purple-800 hover:text-gray-200">Settings</a>
-          </div>
-
-{/* User Section */}
-          <div className="flex justify-end sm:justify-end px-3 py-2">
-            <button
-              type="button"
-              className="bg-gray-300 text-purple-800 font-serif px-3 py-2 rounded-lg flex items-center space-x-3"
-            >
-              <Image src="/admin.png" alt="Admin" width={25} height={25} className="rounded-full" />
-              <span>Admin</span>
-            </button>
-          </div>
-        </div>
-      </nav>
-
 {/* Food Menu Management Section */}
-      <div className="max-w-5xl mx-auto p-20">
-        <h2 className="text-2xl font-bold mb-6 font-serif">Food Menu Management</h2>
+      <div className="max-w-5xl mx-auto p-4">
 
 {/* Add New Food Menu Section */}
-        <div className="bg-purple-400 p-6 rounded-lg mb-6">
-          <h3 className="text-lg text-black font-bold mb-4 font-serif"><u>Add Food Menu</u></h3>
+        <div className="bg-white p-6 rounded-lg mb-6 align-right">
+          <h3 className="text-2xl text-gray-900 font-bold mb-4 font-sans">Food Menu</h3>
           <form className="grid grid-cols-1 gap-4 mb-4" onSubmit={(e) => e.preventDefault()}>
             <input
               type="text"
@@ -106,7 +70,7 @@ export default function FoodManagement() {
               value={foodName}
               onChange={(e) => setFoodName(e.target.value)}
               placeholder="Name"
-              className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-purple-500"
+              className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
             />
             <input
               type="text"
@@ -114,13 +78,13 @@ export default function FoodManagement() {
               value={foodPrice}
               onChange={(e) => setFoodPrice(e.target.value)}
               placeholder="Price"
-              className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-purple-500"
+              className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
             />
             <select
               name="category"
               value={foodCategory}
               onChange={(e) => setFoodCategory(e.target.value)}
-              className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-purple-500"
+              className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
             >
               <option value="" disabled>Select Food Category</option>
               {items.map((item, index) => (
@@ -136,11 +100,11 @@ export default function FoodManagement() {
               value={newItem}
               onChange={(e) => setNewItem(e.target.value)}
               placeholder="Add new category"
-              className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-purple-500"
+              className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
             />
             <button
               onClick={addItem}
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+              className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
             >
               Add Category
             </button>
@@ -167,10 +131,9 @@ export default function FoodManagement() {
           <div className="flex justify-end sm:justify-end px-6 py-4">
             <button
               onClick={addFoodItem}
-              className="bg-purple-600 text-white px-8 py-4 rounded-lg hover:bg-purple-700 text-xl flex items-center space-x-2 font-serif"
+              className="bg-gray-900 text-white px-8 py-4 rounded-lg hover:bg-gray-700 text-xl flex items-center space-x-2 font-serif"
             >
-              <Image src="/add.png" alt="Add" width={26} height={26} className="rounded-full" />
-              <span>Add</span>
+              Add
             </button>
           </div>
         </div>
@@ -195,21 +158,6 @@ export default function FoodManagement() {
             </div>
           ))}
         </div>
-      </div>
-
-{/* Footer */}
-      <footer className="bg-purple-500 text-white text-center py-4 font-serif text-2xl">
-        Hotel Grace Inn 2024
-      </footer>
-
-{/* Logout Section */}
-      <div className="flex justify-end sm:justify-end px-6 py-4">
-        <button
-          type="button"
-          className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700"
-        >
-          Logout
-        </button>
       </div>
     </div>
   );

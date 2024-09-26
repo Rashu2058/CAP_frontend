@@ -56,10 +56,10 @@ export default function Login() {
             <h2 className="text-purple-700 text-center italic">Control Panel Login</h2>
             <form className="login-form mt-6">
               <div className="input-field mb-4">
-                <label className="block text-gray-600 mb-2">Email</label>
+                <label className="block text-gray-600 mb-2">Username</label>
                 <input
-                  type="email"
-                  placeholder="Enter your email"
+                  type="username"
+                  placeholder="Enter your username"
                   className="w-full p-2 border border-gray-300 rounded-lg"
                 />
               </div>
