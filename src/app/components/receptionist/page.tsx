@@ -34,7 +34,7 @@ export default function ReceptionistManagement() {
             />
             <select
               name="gender"
-              className="p-2 border rounded-lg"
+              className="p-2 border rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
               defaultValue=""
             >
             <option value="" disabled>
@@ -140,7 +140,7 @@ export default function ReceptionistManagement() {
 {/* New Update Section */} 
               <form className="space-y-4">
               <h3 className="text-lg font-semibold mb-3 font-sans">Update Here</h3>
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <input
                     type="text"
                     placeholder="Enter Name"

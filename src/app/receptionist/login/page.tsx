@@ -12,7 +12,6 @@ export default function Login() {
           <img
             src="/Logo GraceInn.png"
             alt="Logo"
-            className="logo"
             width={80}
             height={80}
           />

@@ -76,7 +76,7 @@ export default function Dashboard() {
 {/* Search bar with custom icon inside */}
           <div className="relative w-1/3">
             <input
-              type="text"
+              type="text"y
               placeholder="Search..."
               className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent"
             />
