@@ -1,8 +1,39 @@
+"use client";
+
+import { useState} from 'react';
 import Image from 'next/image';
 import './globals.css';  
+import axios from 'axios'
 
 // navbar
 export default function Login() {
+  const [username, setUsername] = useState<string>(''); // Specify type for username
+  const [password, setPassword] = useState<string>(''); // Specify type for password
+  const [message, setMessage] = useState<string>(''); // Specify type for message
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); // Prevent page refresh
+
+    try {
+      const response = await axios.post('http://localhost:8080/api/v1/auth/signin', {
+        username,
+        password,
+      });
+
+      // Check if the response contains a token
+      if (response.status === 200 && response.data.token) {
+        localStorage.setItem('token', response.data.token); // Store the JWT in localStorage
+        setMessage('Signin successful!'); // Display success message
+        // Redirect to dashboard or perform any other action
+      } else {
+        setMessage('Signin failed. Please try again.'); // Handle other responses
+      }
+    } catch (error) {
+      console.error('Error signing in:', error);
+      setMessage('Signin failed. Please check your credentials.'); // Display error message
+    }
+  };
+
   return (
     <div className="login-container"> 
       <nav className="navbar">
@@ -44,16 +75,20 @@ export default function Login() {
           <div className="login-panel">
             <h1>Admin Panel</h1>
             <h2><i>Control Panel Login</i></h2>
-            <form className="login-form">
+
+            <form className="login-form" onSubmit={handleLogin}>
               <div className="input-field">
-                <label>Email</label>
-                <input type="email" placeholder="Enter your email" />
+                <label>Username</label>
+                <input type="text" placeholder="Enter your username"value={username}onChange={(e)=>setUsername(e.target.value)} />
+              
               </div>
               <div className="input-field">
                 <label>Password</label>
-                <input type="password" placeholder="Enter your password" />
+                <input type="password" placeholder="Enter your password"value={password}onChange={(e)=>setPassword(e.target.value)} />
               </div>
               <button type="submit" className="sign-in-btn">Sign in</button>
+
+              {message && <p>{message}</p>}
 
             <div className="wave-container">
               <svg viewBox="0 0 500 150" className="wave-svg">
