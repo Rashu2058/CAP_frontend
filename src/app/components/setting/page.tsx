@@ -69,10 +69,15 @@ export default function Settings() {
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Gender</label>
-            <select className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300">
-              <option>Male</option>
-              <option>Female</option>
-              <option>Others</option>
+            <select className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
+            defaultValue=""
+            >
+            <option value="" disabled>
+              Select Gender
+            </option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Others</option>
             </select>
           </div>
         </div>
