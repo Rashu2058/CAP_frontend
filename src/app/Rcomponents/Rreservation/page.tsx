@@ -27,7 +27,7 @@ export default function Reservation() {
 {/* Current Details Section */}
           <div className="mb-6">
             <h3 className="text-lg font-semibold mb-3 font-sans">Current Details</h3>
-            <div className="text-sm text-gray-600 space-y-1">
+            <div className="text-sm text-gray-600 space-y-1 grid grid-cols-2">
             <p>
                 <span className="font-semibold">ID No:</span> 
               </p>
@@ -42,6 +42,12 @@ export default function Reservation() {
               </p>
               <p>
                 <span className="font-semibold">Room Price:</span> 
+              </p>
+              <p>
+                <span className="font-semibold">Check In:</span> 
+              </p>
+              <p>
+                <span className="font-semibold">Check Out:</span> 
               </p>
             </div>
           </div>
@@ -87,6 +93,16 @@ export default function Reservation() {
                   <input
                     type="text"
                     placeholder="Enter Room Price"
+                    className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
+                  />
+                  <input
+                    type="datetime-local"
+                    placeholder="Check In"
+                    className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
+                  />
+                  <input
+                    type="date"
+                    placeholder="Check Out"
                     className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
                   />
                 </div>
@@ -259,7 +275,8 @@ const BookRoom = () => {
     roomType: "",
     roomNo: "",
     roomPrice: "",
-    checkIn: ""
+    checkIn: "",
+    checkOut: ""
   });
 
   {/* Handle input change */}
@@ -277,7 +294,8 @@ const BookRoom = () => {
       roomType: "",
       roomNo: "",
       roomPrice: "",
-      checkIn: ""
+      checkIn: "",
+      checkOut: ""
     });
   };
 
@@ -345,6 +363,14 @@ const BookRoom = () => {
             value={formData.checkIn}
             onChange={handleInputChange}
           />
+          <input
+            type="date"
+            name="checkOut"
+            placeholder="Check Out"
+            className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
+            value={formData.checkOut}
+            onChange={handleInputChange}
+          />
           
 {/* Action Buttons */}
           <div className="flex justify-end sm:justify-end px-2 py-2 space-x-2">
@@ -407,6 +433,7 @@ const ConfirmedList = () => {
         </div>
       </div>
 
+{/*Table*/}
       <table className="min-w-full bg-white border border-gray-300">
         <thead className="bg-gray-800 text-white">
           <tr>
@@ -416,11 +443,13 @@ const ConfirmedList = () => {
             <th className="py-3 px-6 text-center border border-gray-300">Room Type</th>
             <th className="py-3 px-6 text-center border border-gray-300">Room Price</th>
             <th className="py-3 px-6 text-center border border-gray-300">Check In</th>
+            <th className="py-3 px-6 text-center border border-gray-300">Check Out</th>
             <th className="py-3 px-6 text-center border border-gray-300">Action</th>
           </tr>
         </thead>
         <tbody>
           <tr className="hover:bg-purple-100">
+            <td className="py-3 px-6 border border-gray-300 text-center"></td>
             <td className="py-3 px-6 border border-gray-300 text-center"></td>
             <td className="py-3 px-6 border border-gray-300 text-center"></td>
             <td className="py-3 px-6 border border-gray-300 text-center"></td>
@@ -444,7 +473,7 @@ const ConfirmedList = () => {
 
   return (
     <div>
-      {/* Tabs for navigation */}
+{/* Tabs for navigation */}
       <div className="flex justify-center mt-6">
         {tabs.map((tab) => (
           <button
@@ -457,7 +486,7 @@ const ConfirmedList = () => {
         ))}
       </div>
 
-      {/* Render active component based on the selected tab */}
+{/* Render active component based on the selected tab */}
       <div className="mt-6">
         
         {activeTab === "addCustomer" && <AddCustomer />}
@@ -465,7 +494,7 @@ const ConfirmedList = () => {
         {activeTab === "confirmedList" && <ConfirmedList />}
       </div>
 
-      {/* Modal */}
+{/* Modal */}
       <Modal />
     </div>
   );

@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import Image from "next/image";
 
 export default function Checkout() {
+
+{/* Printing Invoice*/}
   const handlePrint = () => {
     const printContent = document.getElementById("invoice-section");
     if (!printContent) return;
@@ -27,7 +29,6 @@ export default function Checkout() {
 
 {/* Stay Duration Calculation */}
       <div className="w-1/2 border p-6 bg-gray-100 mr-4 rounded-lg shadow-lg">
-      
         <h2 className="bg-gray-950 text-xl font-bold mb-6 text-white text-center h-12 flex justify-center items-center">Stay Duration Calculation</h2>
       
         <label className="block text-sm font-semibold">ID No.</label>
@@ -75,35 +76,35 @@ export default function Checkout() {
         <label className="block text-sm font-semibold">Check In</label>
         <input
           type="text"
-          placeholder="Jun 10, 2024"
+          placeholder="Oct 08, 2024"
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
         />
 
         <label className="block text-sm font-semibold">Check Out</label>
         <input
-          type="datetime-local"
-          placeholder="Jun 12, 2024"
+          type="text"
+          placeholder="Oct 12, 2024"
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
         />
 
         <label className="block text-sm font-semibold">No. of Days</label>
         <input
           type="text"
-          placeholder="2"
+          placeholder="4"
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
         />
 
         <label className="block text-sm font-semibold">Room Price</label>
         <input
           type="text"
-          placeholder="2500"
+          placeholder="2000"
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
         />
 
         <label className="block text-sm font-semibold">Total</label>
         <input
           type="text"
-          placeholder="5000"
+          placeholder="8000"
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
         />
         <div className="flex justify-end sm:justify-end px-2 py-2">
@@ -184,7 +185,8 @@ export default function Checkout() {
       <div className=" space-x-2 mt-3">
         <label>Check In:</label>
         <input
-          type="date"
+          type="text"
+          placeholder="Oct 08,2024"
           className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
         />
       </div>
@@ -192,7 +194,8 @@ export default function Checkout() {
       <div className="space-x-2 mt-4">
         <label>Check Out:</label>
         <input
-          type="date"
+          type="text"
+          placeholder="Oct 12,2024"
           className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
         />
       </div>

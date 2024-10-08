@@ -1,27 +1,42 @@
-"use client"; // Needed for client-side interactions
+"use client"; 
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from "next/image";
 import Reservation from '@/app/Rcomponents/Rreservation/page';
-import FoodManagement from '../../components/foodMenu/page';
-import Settings from '../../components/setting/page';
+import RSettings from '@/app/Rcomponents/Rsetting/page';
 import Checkout from '@/app/Rcomponents/Rcheckout/page';
 import Customer from '@/app/Rcomponents/Rcustomer/page';
+import FoodOrders from '@/app/Rcomponents/FoodOrders/page';
+import RProfile from '@/app/Rcomponents/Rprofile/page';
 
 export default function Dashboard() {
-
-{/* Manage which setting to display */}
-  const [activeSetting, setActiveSetting] = useState("profile");
+  const [activeSetting, setActiveSetting] = useState("dashboard");
   const [isOpen, setIsOpen] = useState(false);
+
+  const dropdownRef = useRef<HTMLDivElement | null>(null); // Reference for dropdown menu
 
   const Dashboard = () => <h1>Dashboard</h1>;
   const Report = () => <h1>Report</h1>;
+  
+{/* Close the dropdown when clicking outside of it*/}
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false); // Close dropdown
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownRef]);
 
   return (
     <div className="min-h-screen flex bg-gray-200">
 
 {/* Sidebar section */}
-      <aside className="bg-gray-950 p-4 lg:p-8 max-h-full w-1/6">
+      <aside className="bg-gray-950 p-4 lg:p-8 max-h-full w-1/6 h-screen sticky top-0">
         <div className="flex flex-col space-y-16">
           <div className="flex items-center">
             <Image src="/logo.png" alt="Logo" width={150} height={150} />
@@ -45,9 +60,15 @@ export default function Dashboard() {
               <span className="ml-2 hidden lg:inline-block">Customer</span>
             </a>
 
-            <a href="#" onClick={() => setActiveSetting("checkout")}
+            <a href="#" onClick={() => setActiveSetting("foodOrders")}
               className="flex items-center px-4 py-2 text-xs hover:bg-gray-900 text-white font-sans">
               <Image src="/food.png" alt="food" width={20} height={20} className="rounded-full" />
+              <span className="ml-2 hidden lg:inline-block">Food Orders</span>
+            </a>
+
+            <a href="#" onClick={() => setActiveSetting("checkout")}
+              className="flex items-center px-4 py-2 text-xs hover:bg-gray-900 text-white font-sans">
+              <Image src="/receptionist.png" alt="checkout" width={20} height={20} className="rounded-full" />
               <span className="ml-2 hidden lg:inline-block">Checkout</span>
             </a>
 
@@ -62,37 +83,18 @@ export default function Dashboard() {
               <Image src="/report.png" alt="report" width={20} height={20} className="rounded-full" />
               <span className="ml-2 hidden lg:inline-block">Report</span>
             </a>
-
           </nav>
         </div>
       </aside>
 
 {/* Main Content Area */}
-      <div className="flex-grow">
+      <div className="flex-grow h-screen overflow-y-auto">
 
-{/* Navigation bar*/}
-        <nav className="bg-white p-2 flex justify-between items-center">
-
-{/* Search bar with custom icon inside */}
-          <div className="relative w-1/3">
-            <input
-              type="text"
-              placeholder="Search..."
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent"
-            />
-            
-{/*Search Icon */}
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-              <img
-                src="/search.png" 
-                alt="Search"
-                className="h-5 w-5 text-gray-400"
-              />
-            </div>
-          </div>
-
+{/* Navigation bar */}
+        <nav className="bg-white p-2 flex justify-end items-center">
+          
 {/* Profile Picture and Dropdown */}
-          <div className="relative">
+          <div className="relative" ref={dropdownRef}>
             <div
               className="flex items-center space-x-3 cursor-pointer"
               onClick={() => setIsOpen(!isOpen)}
@@ -104,10 +106,10 @@ export default function Dashboard() {
               />
             </div>
 
-{/* Dropdown Menu */}
+{/* Dropdown Menu for Profile and Logout */}
             {isOpen && (
               <div className="absolute right-0 mt-2 w-64 bg-gray-950 rounded-lg shadow-lg py-2 z-10">
-                <a href="#" onClick={() => setActiveSetting("profile")}
+                <a href="#" onClick={() => setActiveSetting("rProfile")}
                   className="flex items-center px-4 py-2 text-sm hover:bg-gray-900 text-white">
                   <Image src="/profilee.png" alt="profile" width={20} height={20} className="rounded-full" />
                   <span className="ml-2 hidden lg:inline-block">Profile</span>
@@ -128,9 +130,10 @@ export default function Dashboard() {
           {activeSetting === "dashboard" && <Dashboard />}
           {activeSetting === "reservation" && <Reservation />}
           {activeSetting === "customer" && <Customer />}
-          {activeSetting === "food" && <FoodManagement />}
-          {activeSetting === "settings" && <Settings />}
+          {activeSetting === "foodOrders" && <FoodOrders />}
+          {activeSetting === "settings" && <RSettings />}
           {activeSetting === "report" && <Report />}
+          {activeSetting === "rProfile" && <RProfile />}
         </div>
       </div>
     </div>

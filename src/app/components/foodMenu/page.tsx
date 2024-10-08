@@ -3,7 +3,6 @@ import { useState } from "react";
 import Image from "next/image";
 
 export default function FoodManagement() {
-
   const [items, setItems] = useState([
     "Main Courses",
     "Breakfast & Snacks",
@@ -14,14 +13,16 @@ export default function FoodManagement() {
   const [newItem, setNewItem] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-{/*State to store added food items*/}
+  {/*State to store added food items*/ }
   const [foodItems, setFoodItems] = useState<{ name: string; price: string; category: string; image: string | null }[]>([]);
 
   const [foodName, setFoodName] = useState("");
   const [foodPrice, setFoodPrice] = useState("");
   const [foodCategory, setFoodCategory] = useState("");
 
-{/*Function to handle adding a new food category*/}
+  const [dropdownOpen, setDropdownOpen] = useState(false); // State to toggle dropdown visibility
+
+  {/*Function to handle adding a new food category*/ }
   const addItem = () => {
     if (newItem.trim() && !items.includes(newItem)) {
       setItems([...items, newItem]);
@@ -29,7 +30,7 @@ export default function FoodManagement() {
     }
   };
 
-  {/*Function to handle the file for uploading a photo*/}
+  {/*Function to handle the file for uploading a photo*/ }
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; // Get the selected file
     if (file) {
@@ -37,7 +38,7 @@ export default function FoodManagement() {
     }
   };
 
-{/*Function to add food item*/}
+  {/*Function to add food item*/ }
   const addFoodItem = () => {
     if (foodName && foodPrice && foodCategory) {
       const newFood = {
@@ -54,9 +55,17 @@ export default function FoodManagement() {
     }
   };
 
+{/* Function to delete a food category */ }
+  const deleteCategory = (category: string) => {
+    setItems(items.filter(item => item !== category));
+    if (foodCategory === category) {
+      setFoodCategory(""); // Clear the selected category if it's deleted
+    }
+  };
+
   return (
     <div>
-      
+
 {/* Food Menu Management Section */}
       <div className="max-w-5xl mx-auto p-4">
 
@@ -80,17 +89,44 @@ export default function FoodManagement() {
               placeholder="Price"
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
             />
-            <select
-              name="category"
-              value={foodCategory}
-              onChange={(e) => setFoodCategory(e.target.value)}
-              className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-            >
-              <option value="" disabled>Select Food Category</option>
-              {items.map((item, index) => (
-                <option key={index} value={item}>{item}</option>
-              ))}
-            </select>
+
+{/* Food Category */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="w-full text-left p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
+              >
+                {foodCategory ? foodCategory : "Select Food Category"}
+              </button>
+              {dropdownOpen && (
+                <div className="absolute z-10 mt-2 w-full bg-white shadow-lg rounded-md max-h-60 overflow-y-auto">
+                  {items.length > 0 ? (
+                    items.map((item, index) => (
+                      <div key={index} className="flex justify-between items-center p-2 hover:bg-gray-100">
+                        <span
+                          onClick={() => {
+                            setFoodCategory(item);
+                            setDropdownOpen(false); // Close dropdown on select
+                          }}
+                          className="cursor-pointer"
+                        >
+                          {item}
+                        </span>
+                        <button
+                          onClick={() => deleteCategory(item)}
+                          className="text-red-500 font-bold hover:text-red-700"
+                        >
+                          <Image src="/delete.png" alt="profile" width={20} height={20} className="rounded-full" />
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="p-2 text-gray-700">No categories available</p>
+                  )}
+                </div>
+              )}
+            </div>
           </form>
 
 {/* Add new category input */}
@@ -148,7 +184,7 @@ export default function FoodManagement() {
                   alt={food.name}
                   className="w-full h-32 object-cover rounded-lg mb-4"
                 />
-                
+
               )}
               <h3 className="text-lg font-bold mb-2">{food.name}</h3>
               <p className="text-gray-700">Price: {food.price}</p>
