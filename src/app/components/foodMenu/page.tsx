@@ -13,7 +13,7 @@ export default function FoodManagement() {
   const [newItem, setNewItem] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-  {/*State to store added food items*/ }
+{/* State to store added food items*/}
   const [foodItems, setFoodItems] = useState<{ name: string; price: string; category: string; image: string | null }[]>([]);
 
   const [foodName, setFoodName] = useState("");
@@ -21,8 +21,9 @@ export default function FoodManagement() {
   const [foodCategory, setFoodCategory] = useState("");
 
   const [dropdownOpen, setDropdownOpen] = useState(false); // State to toggle dropdown visibility
+  const [editingIndex, setEditingIndex] = useState<number | null>(null); // Track index of item being edited
 
-  {/*Function to handle adding a new food category*/ }
+{/* Function to handle adding a new food category*/}
   const addItem = () => {
     if (newItem.trim() && !items.includes(newItem)) {
       setItems([...items, newItem]);
@@ -30,15 +31,15 @@ export default function FoodManagement() {
     }
   };
 
-  {/*Function to handle the file for uploading a photo*/ }
+{/* Function to handle the file for uploading a photo*/}
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]; // Get the selected file
+    const file = e.target.files?.[0]; 
     if (file) {
       setPreviewImage(URL.createObjectURL(file)); // Set image preview
     }
   };
 
-  {/*Function to add food item*/ }
+{/* Function to add or update a food item*/}
   const addFoodItem = () => {
     if (foodName && foodPrice && foodCategory) {
       const newFood = {
@@ -47,15 +48,25 @@ export default function FoodManagement() {
         category: foodCategory,
         image: previewImage,
       };
-      setFoodItems([...foodItems, newFood]); // Add new food item to the list
+
+{/* If editing, update the item at the index*/}
+      if (editingIndex !== null) {
+        const updatedFoodItems = [...foodItems];
+        updatedFoodItems[editingIndex] = newFood;
+        setFoodItems(updatedFoodItems);
+        setEditingIndex(null); 
+      } else {
+        setFoodItems([...foodItems, newFood]);
+      }
+
       setFoodName("");
       setFoodPrice("");
       setFoodCategory("");
-      setPreviewImage(null); // Reset after adding
+      setPreviewImage(null); 
     }
   };
 
-{/* Function to delete a food category */ }
+{/* Function to delete a food category*/}
   const deleteCategory = (category: string) => {
     setItems(items.filter(item => item !== category));
     if (foodCategory === category) {
@@ -63,9 +74,18 @@ export default function FoodManagement() {
     }
   };
 
+{/* Function to edit a food item*/}
+  const editFoodItem = (index: number) => {
+    const food = foodItems[index];
+    setFoodName(food.name);
+    setFoodPrice(food.price);
+    setFoodCategory(food.category);
+    setPreviewImage(food.image);
+    setEditingIndex(index); // Set the index of the item being edited
+  };
+
   return (
     <div>
-
 {/* Food Menu Management Section */}
       <div className="max-w-5xl mx-auto p-4">
 
@@ -117,7 +137,7 @@ export default function FoodManagement() {
                           onClick={() => deleteCategory(item)}
                           className="text-red-500 font-bold hover:text-red-700"
                         >
-                          <Image src="/delete.png" alt="profile" width={20} height={20} className="rounded-full" />
+                          <Image src="/delete.png" alt="delete" width={20} height={20} className="rounded-full" />
                         </button>
                       </div>
                     ))
@@ -163,13 +183,13 @@ export default function FoodManagement() {
             )}
           </div>
 
-{/* Add Button */}
+{/* Add Food Button */}
           <div className="flex justify-end sm:justify-end px-6 py-4">
             <button
               onClick={addFoodItem}
               className="bg-gray-900 text-white px-8 py-4 rounded-lg hover:bg-gray-700 text-xl flex items-center space-x-2 font-serif"
             >
-              Add
+              {editingIndex !== null ? "Update" : "Add"}
             </button>
           </div>
         </div>
@@ -184,13 +204,19 @@ export default function FoodManagement() {
                   alt={food.name}
                   className="w-full h-32 object-cover rounded-lg mb-4"
                 />
-
               )}
               <h3 className="text-lg font-bold mb-2">{food.name}</h3>
               <p className="text-gray-700">Price: {food.price}</p>
               <p className="text-gray-700">Category: {food.category}</p>
-              <a href="#" className="text-black font-bold hover:text-purple-300 mr-2">Edit</a>
-              <a href="#" className="text-red-500 font-bold hover:text-purple-300 mr-2">Delete</a>
+              <button
+                onClick={() => editFoodItem(index)}
+                className="text-black font-bold hover:text-purple-300 mr-2"
+              >
+                Edit
+              </button>
+              <button className="text-red-500 font-bold hover:text-purple-300">
+                Delete
+              </button>
             </div>
           ))}
         </div>

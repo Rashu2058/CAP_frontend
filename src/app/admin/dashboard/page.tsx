@@ -7,14 +7,14 @@ import ReceptionistManagement from '../../components/receptionist/page';
 import FoodManagement from '../../components/foodMenu/page';
 import Settings from '../../components/setting/page';
 import Profile from '../../components/profile/page';
+import Revenue from '@/app/components/revenue/page';
 
 export default function Dashboard() {
-  const [activeSetting, setActiveSetting] = useState("dashboard");
+  const [activeSetting, setActiveSetting] = useState("revenue");
   const [isOpen, setIsOpen] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement | null>(null); // Reference for dropdown menu
 
-  const Dashboard = () => <h1>Dashboard</h1>;
   const Report = () => <h1>Report</h1>;
 
 {/* Close the dropdown when clicking outside of it*/}
@@ -34,14 +34,15 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen flex bg-gray-200">
-      {/* Sidebar section */}
+
+{/* Sidebar section */}
       <aside className="bg-gray-950 p-4 lg:p-8 max-h-full w-1/6 h-screen sticky top-0">
         <div className="flex flex-col space-y-16">
           <div className="flex items-center">
             <Image src="/logo.png" alt="Logo" width={150} height={150} />
           </div>
           <nav className="space-y-4">
-            <a href="#" onClick={() => setActiveSetting("dashboard")}
+            <a href="#" onClick={() => setActiveSetting("revenue")}
               className="flex items-center px-4 py-2 text-xs hover:bg-gray-900 text-white font-sans">
               <Image src="/dashboard.png" alt="dashboard" width={20} height={20} className="rounded-full" />
               <span className="ml-2 hidden lg:inline-block">Dashboard</span>
@@ -106,7 +107,7 @@ useEffect(() => {
           </div>
 
 {/* Profile Picture and Dropdown */}
-          <div className="relative">
+          <div className="relative" ref={dropdownRef}>
             <div
               className="flex items-center space-x-3 cursor-pointer"
               onClick={() => setIsOpen(!isOpen)} 
@@ -139,6 +140,7 @@ useEffect(() => {
 {/* Dynamic Content Area */}
         <div className="p-8">
           {activeSetting === "profile" && <Profile />}
+          {activeSetting === "revenue" && <Revenue />}
           {activeSetting === "dashboard" && <Dashboard />}
           {activeSetting === "room" && <RoomManagement />}
           {activeSetting === "receptionist" && <ReceptionistManagement />}

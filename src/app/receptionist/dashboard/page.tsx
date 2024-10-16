@@ -8,14 +8,14 @@ import Checkout from '@/app/Rcomponents/Rcheckout/page';
 import Customer from '@/app/Rcomponents/Rcustomer/page';
 import FoodOrders from '@/app/Rcomponents/FoodOrders/page';
 import RProfile from '@/app/Rcomponents/Rprofile/page';
+import Rrevenue from '@/app/Rcomponents/Rrevenue/page';
 
 export default function Dashboard() {
-  const [activeSetting, setActiveSetting] = useState("dashboard");
+  const [activeSetting, setActiveSetting] = useState("revenue");
   const [isOpen, setIsOpen] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement | null>(null); // Reference for dropdown menu
 
-  const Dashboard = () => <h1>Dashboard</h1>;
   const Report = () => <h1>Report</h1>;
   
 {/* Close the dropdown when clicking outside of it*/}
@@ -42,7 +42,7 @@ export default function Dashboard() {
             <Image src="/logo.png" alt="Logo" width={150} height={150} />
           </div>
           <nav className="space-y-4">
-            <a href="#" onClick={() => setActiveSetting("dashboard")}
+            <a href="#" onClick={() => setActiveSetting("revenue")}
               className="flex items-center px-4 py-2 text-xs hover:bg-gray-900 text-white font-sans">
               <Image src="/dashboard.png" alt="dashboard" width={20} height={20} className="rounded-full" />
               <span className="ml-2 hidden lg:inline-block">Dashboard</span>
@@ -127,6 +127,7 @@ export default function Dashboard() {
 {/* Dynamic Content Area */}
         <div className="p-8">
           {activeSetting === "checkout" && <Checkout />}
+          {activeSetting === "revenue" && <Rrevenue />}
           {activeSetting === "dashboard" && <Dashboard />}
           {activeSetting === "reservation" && <Reservation />}
           {activeSetting === "customer" && <Customer />}
