@@ -60,7 +60,7 @@ export default function FoodManagement() {
           <div className="flex flex-col">
             <label className="block text-sm font-semibold">Room No</label>
             <select
-              name="roomNo"
+              name="room_no"
               className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
               defaultValue=""
             >

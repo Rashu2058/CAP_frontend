@@ -47,7 +47,7 @@ export default function Checkout() {
 
         <label className="block text-sm font-semibold">Room Type</label>
         <select
-          name="roomType"
+          name="room_type"
           defaultValue=""
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
         >

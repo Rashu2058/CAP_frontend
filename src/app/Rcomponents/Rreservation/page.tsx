@@ -272,9 +272,9 @@ export default function Reservation() {
 {/* Book Room Component */}
 const BookRoom = () => {
   const [formData, setFormData] = useState({
-    roomType: "",
-    roomNo: "",
-    roomPrice: "",
+    room_type: "",
+    room_no: "",
+    room_price: "",
     checkIn: "",
     checkOut: ""
   });
@@ -291,9 +291,9 @@ const BookRoom = () => {
   {/* Handle form reset */}
   const handleReset = () => {
     setFormData({
-      roomType: "",
-      roomNo: "",
-      roomPrice: "",
+      room_type: "",
+      room_no: "",
+      room_price: "",
       checkIn: "",
       checkOut: ""
     });
@@ -326,9 +326,9 @@ const BookRoom = () => {
       </div>
         <form className="grid grid-cols-1 gap-4 mb-4" onSubmit={handleNext}>
           <select
-            name="roomType"
+            name="room_type"
             className="p-2 border rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
-            value={formData.roomType}
+            value={formData.room_type}
             onChange={handleInputChange}
           >
             <option value="" disabled>Room Type</option>
@@ -337,9 +337,9 @@ const BookRoom = () => {
             <option value="suite">Suite</option>
           </select>
           <select
-            name="roomNo"
+            name="room_no"
             className="p-2 border rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
-            value={formData.roomNo}
+            value={formData.room_no}
             onChange={handleInputChange}
           >
             <option value="" disabled>Room No</option>
@@ -349,10 +349,10 @@ const BookRoom = () => {
           </select>
           <input
             type="text"
-            name="roomPrice"
+            name="room_price"
             placeholder="Room Price"
             className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-            value={formData.roomPrice}
+            value={formData.room_price}
             onChange={handleInputChange}
           />
           <input

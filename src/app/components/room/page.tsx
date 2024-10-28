@@ -1,56 +1,230 @@
 "use client"; // For client-side rendering
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import ErrorPopup from "../ErrorPopup";
+interface Room{
+  room_no:string;
+  room_type:string;
+  room_price:string;
+  new_room_no?: string; // Optional property for new room number
+  new_room_type?: string; // Optional property for new room type
+  new_room_price?: string; // Optional property for new room price
+}
 
 export default function RoomManagement() {
-{/* State to control modal visibility */}
+
   const [isModalOpen, setIsModalOpen] = useState(false);
- 
-{/* Open and close modal */}
-  const openModal = () => setIsModalOpen(true);
+  const [roomDetails, setRoomDetails] = useState<Room>({
+    room_no: "",
+    room_type: "",
+    room_price: "",
+    new_room_no: "", // Initialize for new room number
+    new_room_type: "", // Initialize for new room type
+    new_room_price: "", // Initialize for new room price
+  });
+  const[errorMessage,setErrorMessage]=useState<string>("");
+  const [rooms, setRooms] = useState<Room[]>([]); // Store room details
+
+  const openModal = (room:Room) => {
+    setRoomDetails(room);
+    setIsModalOpen(true);
+  };
+
   const closeModal = () => setIsModalOpen(false);
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setRoomDetails((prevDetails) => ({
+      ...prevDetails,
+      [name]: value
+    }));
+  };
+  const checkRoomExists=async(room_no:string)=>{
+    try{
+      const response=await axios.get(`http://localhost:8080/api/rooms/${room_no}`);
+      return response.status==200;
+    }catch(error){
+      return false;
+    }
+  };
+
+  const handleAddRoom = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setErrorMessage("");
+    
+    if(await checkRoomExists(roomDetails.room_no)){
+
+      setErrorMessage("Room already exist. Please enter a different one.");
+      return;
+    }
+    try {
+      const token =localStorage.getItem('token');
+      console.log("Token from localstorage:",token);
+
+      if(!token){
+        console.error("Token is missing");
+        console.log("You must be logged in as a admin to add rooms ");
+        return;
+      }
+      const response = await axios.post("http://localhost:8080/api/rooms", roomDetails, {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization":`Bearer ${token}`
+        },
+        withCredentials:true
+      });
+      fetchRooms();
+      setRoomDetails({room_no:"",room_type:"",room_price:""})
+      console.log("Room added successfully:", response.data);
+      setRoomDetails({ room_no: "", room_type: "", room_price: "" });
+    } catch (error) {
+      console.error("Error adding room:", error);
+    }
+  };
+
+  const fetchRooms=async()=>{
+    try{
+      const token =localStorage.getItem('token');
+      if(!token){
+        setErrorMessage("You must be logged in to fetch rooms");
+      }
+      const response =await axios.get("http://localhost:8080/api/rooms",{
+        headers:{
+          "Authorization":`Bearer ${token}`
+        }
+      });
+      console.log("Fetched rooms:",response.data);
+      setRooms(response.data);
+    }catch(error){
+        console.error("Error Fetcching room data:",error);
+        if(axios.isAxiosError(error)){
+        setErrorMessage("An error occured while fetching room data."); 
+      }else{
+        setErrorMessage("An unknown error occured.");
+      }
+  }
+  };
+  useEffect(()=>{
+    fetchRooms();
+  },[]);
+
+  const handleUpdateRoom = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setErrorMessage("");
+  
+    const updatedRoomDetails: Room = {
+      room_no: roomDetails.new_room_no || roomDetails.room_no, // Use new room number if provided
+      room_type: roomDetails.new_room_type || roomDetails.room_type, // Use new room type if provided
+      room_price: roomDetails.new_room_price || roomDetails.room_price, // Use new room price if provided
+    };
+  
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error("Token is missing");
+        return;
+      }
+  
+      const response = await axios.put(`http://localhost:8080/api/rooms/${roomDetails.room_no}`, updatedRoomDetails, {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
+  
+      fetchRooms(); // Refresh the room list
+      closeModal(); // Close the modal after updating
+      console.log("Room updated successfully:", response.data);
+    } catch (error) {
+      console.error("Error updating room:", error);
+      setErrorMessage("Error updating room details.");
+    }
+  };
+  
+
+  // Function to set room details for editing
+  const handleEditRoom = (room: Room) => {
+    openModal(room); // Open the modal
+  };
+
+  const handleDeleteRoom = async (room_no: string) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this room?");
+    if (!confirmDelete) return; // Exit if the user cancels
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setErrorMessage("You must be logged in to delete rooms");
+        return;
+      }
+
+      // Send delete request to the API
+      await axios.delete(`http://localhost:8080/api/rooms/${room_no}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
+        withCredentials: true
+      });
+
+      // Refresh the room list after deletion
+      fetchRooms();
+      console.log("Room deleted successfully");
+    } catch (error) {
+      console.error("Error deleting room:", error);
+      setErrorMessage("Error deleting room.");
+    }
+  };
+
+
+
   return (
-    <div>
-
-{/* Room Management Section */}
-      <div className="max-w-5xl mx-auto p-4">
-
-{/* Add New Rooms Section */}
-        <div className="bg-white p-6 rounded-lg mb-6 align-right">
-          <h3 className="text-2xl text-gray-900 font-bold mb-4 font-sans">Room</h3>
-          <form className="grid grid-cols-1 gap-4 mb-4" action="/add-room" method="POST">
-            <input
-              type="text"
-              name="roomNo"
-              placeholder="Room No"
-              className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-            />
-            <input
-              type="text"
-              name="roomType"
-              placeholder="Room Type"
-              className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-            />
-            <input
-              type="text"
-              name="roomPrice"
-              placeholder="Room Price"
-              className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-            />
-          </form>
-          <div className="flex justify-end sm:justify-end px-2 py-2">
-            <button
-              type="button"
-              className="bg-gray-900 text-white px-8 py-4 rounded-lg hover:bg-gray-700 text-xl flex items-center space-x-2 font-sans"
-            >
-              Add
-            </button>
-          </div>
+    <div className="max-w-5xl mx-auto p-4">
+      <div className="bg-white p-6 rounded-lg mb-6">
+        <h3 className="text-2xl text-gray-900 font-bold mb-4 font-sans">Room</h3>
         
-{/* Room Details with Action Buttons */}
+        {/* Form for Adding Room */}
+        <form className="grid grid-cols-1 gap-4 mb-4" onSubmit={handleAddRoom}>
+          <input
+            type="text"
+            name="room_no"
+            placeholder="Room No"
+            value={roomDetails.room_no}
+            onChange={handleInputChange}
+            className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
+          />
+          <input
+            type="text"
+            name="room_type"
+            placeholder="Room Type"
+            value={roomDetails.room_type}
+            onChange={handleInputChange}
+            className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
+          />
+          <input
+            type="text"
+            name="room_price"
+            placeholder="Room Price"
+            value={roomDetails.room_price}
+            onChange={handleInputChange}
+            className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
+          />
+          
+          <button
+            type="submit"
+            className="bg-gray-900 text-white px-8 py-4 rounded-lg hover:bg-gray-700 text-xl flex items-center space-x-2 font-sans"
+          >
+            Add
+          </button>
+        </form>
+
+       {/* Error Popup */}
+       <ErrorPopup message={errorMessage} onClose={() => setErrorMessage("")} />
+
+
+        {/* Room Details Section */}
         <div className="bg-white p-6 rounded-lg">
           <h3 className="text-lg text-black font-bold mb-8 font-sans bg-gray-200 p-3 px-8">Room Details</h3>
-
           <table className="min-w-full bg-white border border-gray-300">
             <thead className="bg-gray-800 text-white">
               <tr>
@@ -61,84 +235,81 @@ export default function RoomManagement() {
               </tr>
             </thead>
             <tbody>
+              {rooms.map((room, index)=>(
               <tr className="hover:bg-purple-100">
-                <td className="py-3 px-6 border border-gray-300 text-center"></td>
-                <td className="py-3 px-6 border border-gray-300 text-center"></td>
-                <td className="py-3 px-6 border border-gray-300 text-center"></td>
+                <td className="py-3 px-6 border border-gray-300 text-center">{room.room_no}</td>
+                <td className="py-3 px-6 border border-gray-300 text-center">{room.room_type}</td>
+                <td className="py-3 px-6 border border-gray-300 text-center">{room.room_price}</td>
                 <td className="py-3 px-6 border border-gray-300 text-center">
-                <a href="#" className="text-gray-600 hover:text-gray-700 mr-2"onClick={openModal}>Edit</a>
-                <a href="#" className="text-red-600 hover:text-red-700 mr-2">Delete</a>
+                  <a href="#" className="text-gray-600 hover:text-gray-700 mr-2" onClick={()=> handleEditRoom(room)}>Edit</a>
+                  <a href="#" className="text-red-600 hover:text-red-700 mr-2" onClick={()=>handleDeleteRoom(room.room_no)}>Delete</a>
                 </td>
               </tr>
+              ))}
             </tbody>
           </table>
         </div>
+      </div>
+
+      {isModalOpen && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-gray-100 p-8 rounded-lg shadow-lg w-96">
+      <h2 className="text-xl font-bold font-sans mb-4">Update Room Details</h2>
+      <form className="space-y-4" onSubmit={handleUpdateRoom}>
+        {/* Current Room Details - Read-Only */}
+        <div className="p-2 border rounded-md bg-gray-200">
+          <strong>Current Room No:</strong> {roomDetails.room_no}
+        </div>
+        <div className="p-2 border rounded-md bg-gray-200">
+          <strong>Current Room Type:</strong> {roomDetails.room_type}
+        </div>
+        <div className="p-2 border rounded-md bg-gray-200">
+          <strong>Current Room Price:</strong> {roomDetails.room_price}
         </div>
 
-{/* Update Modal */}
-        {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-gray-100 p-8 rounded-lg shadow-lg w-96">
-              <h2 className="text-xl font-bold font-sans mb-4">Update Room Details</h2>
+        {/* New Details for Updating */}
+        <input
+          type="text"
+          name="new_room_no"
+          placeholder="New Room No" // Separate input for the new room number
+          value={roomDetails.new_room_no || ""} // State for new room number
+          onChange={handleInputChange} // Update state on change
+          className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
+        />
+        <input
+          type="text"
+          name="new_room_type"
+          placeholder="New Room Type"
+          value={roomDetails.new_room_type || ""} // State for new room type
+          onChange={handleInputChange} // Update state on change
+          className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
+        />
+        <input
+          type="text"
+          name="new_room_price"
+          placeholder="New Room Price"
+          value={roomDetails.new_room_price || ""} // State for new room price
+          onChange={handleInputChange} // Update state on change
+          className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
+        />
 
-{/* Current Details Section */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3 font-serif">Current Details</h3>
-            <div className="text-sm text-gray-600 space-y-1">
-              <p>
-                <span className="font-semibold font-serif">Room No:</span> 
-              </p>
-              <p>
-                <span className="font-semibold font-serif">Room Type:</span> 
-              </p>
-              <p>
-                <span className="font-semibold font-serif">Room Price:</span> 
-              </p>
-            </div>
-          </div>
-
-{/* New Update Section */} 
-              <form className="space-y-4">
-              <h3 className="text-lg font-semibold mb-3 font-serif">Update Here</h3>
-                <div className="grid grid-cols-1 gap-4">
-                  <input
-                    type="text"
-                    placeholder="Enter Room No"
-                    className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Enter Room Type"
-                    className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Enter Room Price"
-                    className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-                  />
-                </div>
-
-{/* Action Buttons */}
-                <div className="flex justify-end space-x-4">
-                  <button
-                    type="button"
-                    className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
-                    onClick={closeModal}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-900"
-                  >
-                    Save
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-      </div>
+        <button
+          type="submit"
+          className="bg-gray-900 text-white px-8 py-4 rounded-lg hover:bg-gray-700 text-xl font-sans"
+        >
+          Update
+        </button>
+        <button
+          type="button"
+          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-500"
+          onClick={closeModal}
+        >
+          Cancel
+        </button>
+      </form>
     </div>
+  </div>
+)}
+</div>
   );
 }
