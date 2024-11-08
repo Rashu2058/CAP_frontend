@@ -129,34 +129,41 @@ export default function FoodOrders() {
             </div>
           </div>
 
-          <div className="flex items-center mb-4">
-            <div className="mr-4">
-              <label className="block text-sm font-semibold">Room No</label>
-              <select
-                name="roomNo"
-                value={roomNo}
-                onChange={(e) => setRoomNo(e.target.value)}
-                className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
-              >
-                <option value="" disabled>
-                  Room No
-                </option>
-                <option value="101">101</option>
-                <option value="102">102</option>
-                <option value="103">103</option>
-              </select>
-            </div>
-            <div className="mr-4">
-              <label className="block text-sm font-semibold">Customer Name</label>
-              <input
-                type="text"
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                placeholder="Robert Wilson"
-                className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
-              />
-            </div>
+        {/* Form for adding new food item */}
+        <form
+          className="grid grid-cols-2 gap-4 mb-4"
+          onSubmit={(e) => {
+            e.preventDefault(); // Prevent form submission
+            addFoodItem(); // Add food item
+          }}
+        >
+          {/* Room No */}
+          <div className="flex flex-col">
+            <label className="block text-sm font-semibold">Room No</label>
+            <select
+              name="roomNo"
+              className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
+              defaultValue=""
+            >
+              <option value="" disabled>
+                Select Room No
+              </option>
+              <option value="101">101</option>
+              <option value="102">102</option>
+              <option value="103">103</option>
+            </select>
           </div>
+
+{/* Customer Name */}
+          <div className="flex flex-col">
+            <label className="block text-sm font-semibold">Customer Name</label>
+            <input
+              type="text"
+              placeholder="Robert Wilson"
+              className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
+            />
+          </div>
+        </form>
 
 {/* Display food items */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

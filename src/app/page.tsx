@@ -21,10 +21,18 @@ export default function Login() {
       });
 
       // Check if the response contains a token
-      if (response.status === 200 && response.data.token) {
+      if (response.status === 200 && response.data.token && response.data.role) {
         localStorage.setItem('token', response.data.token); // Store the JWT in localStorage
+        localStorage.setItem('role',response.data.role);// store the user role 
         setMessage('Signin successful!'); // Display success message
-        // Redirect to dashboard or perform any other action
+        // Redirect to dashboard on the basis of user roles
+        if(response.data.role=='ADMIN'){
+          window.location.href='/admin/dashboard#';
+        }else if(response.data.role=='RECEPTIONIST'){
+          window.location.href='/receptionist/dashboard#';  
+        }else{
+          setMessage('Unauthorized login');
+        }
       } else {
         setMessage('Signin failed. Please try again.'); // Handle other responses
       }
