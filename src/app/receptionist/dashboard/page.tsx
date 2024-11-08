@@ -17,8 +17,8 @@ export default function Dashboard() {
   const dropdownRef = useRef<HTMLDivElement | null>(null); // Reference for dropdown menu
 
   const Report = () => <h1>Report</h1>;
-  
-{/* Close the dropdown when clicking outside of it*/}
+
+  // Close the dropdown when clicking outside of it
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -35,7 +35,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen flex bg-gray-200">
 
-{/* Sidebar section */}
+      {/* Sidebar section */}
       <aside className="bg-gray-950 p-4 lg:p-8 max-h-full w-1/6 h-screen sticky top-0">
         <div className="flex flex-col space-y-16">
           <div className="flex items-center">
@@ -43,43 +43,57 @@ export default function Dashboard() {
           </div>
           <nav className="space-y-4">
             <a href="#" onClick={() => setActiveSetting("revenue")}
-              className="flex items-center px-4 py-2 text-xs hover:bg-gray-900 text-white font-sans">
+              className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
+                activeSetting === "revenue" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
+              }`}>
               <Image src="/dashboard.png" alt="dashboard" width={20} height={20} className="rounded-full" />
               <span className="ml-2 hidden lg:inline-block">Dashboard</span>
             </a>
 
             <a href="#" onClick={() => setActiveSetting("reservation")}
-              className="flex items-center px-4 py-2 text-xs hover:bg-gray-900 text-white font-sans">
+              className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
+                activeSetting === "reservation" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
+              }`}>
               <Image src="/rooom.png" alt="room" width={20} height={20} className="rounded-full" />
               <span className="ml-2 hidden lg:inline-block">Reservation</span>
             </a>
 
             <a href="#" onClick={() => setActiveSetting("customer")}
-              className="flex items-center px-4 py-2 text-xs hover:bg-gray-900 text-white font-sans">
+              className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
+                activeSetting === "customer" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
+              }`}>
               <Image src="/profilee.png" alt="customer" width={20} height={20} className="rounded-full" />
               <span className="ml-2 hidden lg:inline-block">Customer</span>
             </a>
 
             <a href="#" onClick={() => setActiveSetting("foodOrders")}
-              className="flex items-center px-4 py-2 text-xs hover:bg-gray-900 text-white font-sans">
+              className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
+                activeSetting === "foodOrders" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
+              }`}>
               <Image src="/food.png" alt="food" width={20} height={20} className="rounded-full" />
               <span className="ml-2 hidden lg:inline-block">Food Orders</span>
             </a>
 
             <a href="#" onClick={() => setActiveSetting("checkout")}
-              className="flex items-center px-4 py-2 text-xs hover:bg-gray-900 text-white font-sans">
+              className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
+                activeSetting === "checkout" ? "bg-gray-800 white" : "hover:bg-gray-900"
+              }`}>
               <Image src="/receptionist.png" alt="checkout" width={20} height={20} className="rounded-full" />
               <span className="ml-2 hidden lg:inline-block">Checkout</span>
             </a>
 
             <a href="#" onClick={() => setActiveSetting("settings")}
-              className="flex items-center px-4 py-2 text-xs hover:bg-gray-900 text-white font-sans">
+              className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
+                activeSetting === "settings" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
+              }`}>
               <Image src="/settings.png" alt="settings" width={20} height={20} className="rounded-full" />
               <span className="ml-2 hidden lg:inline-block">Settings</span>
             </a>
 
             <a href="#" onClick={() => setActiveSetting("report")}
-              className="flex items-center px-4 py-2 text-xs hover:bg-gray-900 text-white font-sans">
+              className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
+                activeSetting === "report" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
+              }`}>
               <Image src="/report.png" alt="report" width={20} height={20} className="rounded-full" />
               <span className="ml-2 hidden lg:inline-block">Report</span>
             </a>
@@ -87,13 +101,13 @@ export default function Dashboard() {
         </div>
       </aside>
 
-{/* Main Content Area */}
+      {/* Main Content Area */}
       <div className="flex-grow h-screen overflow-y-auto">
 
-{/* Navigation bar */}
+        {/* Navigation bar */}
         <nav className="bg-white p-2 flex justify-end items-center">
           
-{/* Profile Picture and Dropdown */}
+          {/* Profile Picture and Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <div
               className="flex items-center space-x-3 cursor-pointer"
@@ -106,7 +120,7 @@ export default function Dashboard() {
               />
             </div>
 
-{/* Dropdown Menu for Profile and Logout */}
+            {/* Dropdown Menu for Profile and Logout */}
             {isOpen && (
               <div className="absolute right-0 mt-2 w-64 bg-gray-950 rounded-lg shadow-lg py-2 z-10">
                 <a href="#" onClick={() => setActiveSetting("rProfile")}
@@ -124,7 +138,7 @@ export default function Dashboard() {
           </div>
         </nav>
 
-{/* Dynamic Content Area */}
+        {/* Dynamic Content Area */}
         <div className="p-8">
           {activeSetting === "checkout" && <Checkout />}
           {activeSetting === "revenue" && <Rrevenue />}

@@ -76,14 +76,14 @@ export default function Checkout() {
         <label className="block text-sm font-semibold">Check In</label>
         <input
           type="text"
-          placeholder="Oct 08, 2024"
+          placeholder="10/08/2024 06:36 PM"
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
         />
 
         <label className="block text-sm font-semibold">Check Out</label>
         <input
           type="text"
-          placeholder="Oct 12, 2024"
+          placeholder="10/12/2024"
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
         />
 
@@ -186,7 +186,7 @@ export default function Checkout() {
         <label>Check In:</label>
         <input
           type="text"
-          placeholder="Oct 08,2024"
+          placeholder="10/08/2024 06:36 PM"
           className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
         />
       </div>
@@ -195,7 +195,7 @@ export default function Checkout() {
         <label>Check Out:</label>
         <input
           type="text"
-          placeholder="Oct 12,2024"
+          placeholder="10/12/2024"
           className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
         />
       </div>

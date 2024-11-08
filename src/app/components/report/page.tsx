@@ -1,68 +1,83 @@
-"use client"; // For client-side rendering
 import { useState } from "react";
 
-export default function UpdatePage() {
-  // State to control modal visibility
-  const [isModalOpen, setIsModalOpen] = useState(false);
+export default function Reports() {
+  const [activeTab, setActiveTab] = useState("receptionistAnalytics");
+  const [reportType, setReportType] = useState("Management report");
+  const [date, setDate] = useState("2021-10-12");
 
-  // Open the modal
-  const openModal = () => setIsModalOpen(true);
+  {/* Tab Data*/}
+  const tabs = [
+    { id: "receptionistAnalytics", label: "Receptionist analytics" },
+    { id: "financial", label: "Financial" },
+    { id: "guestLedger", label: "Guest ledger" },
+    { id: "dailyList", label: "Daily list" },
+    { id: "statistics", label: "Statistics" },
+  ];
 
-  // Close the modal
-  const closeModal = () => setIsModalOpen(false);
+  {/* Render content based on the selected tab*/}
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "managerAnalytics":
+        return (
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700">
+              Report Type
+            </label>
+            <select
+              value={reportType}
+              onChange={(e) => setReportType(e.target.value)}
+              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            >
+              <option>Management report</option>
+              <option>Performance report</option>
+              <option>Revenue report</option>
+            </select>
+
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700">
+                Date
+              </label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              />
+            </div>
+          </div>
+        );
+      
+{/* Similarly, you can add content for other tabs*/}
+      default:
+        return <div className="mt-4">Content for {activeTab}</div>;
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-200 flex items-center justify-center">
-      <button
-        className="bg-blue-500 text-white px-4 py-2 rounded-lg"
-        onClick={openModal}
-      >
-        Open Update Popup
-      </button>
+    <div className="p-8 bg-gray-50 min-h-screen">
+      <h3 className="text-2xl text-gray-900 font-bold mb-4 font-sans">Report</h3>
 
-      {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg w-96">
-            <h2 className="text-xl font-bold mb-4">Update Information</h2>
+{/* Tab Navigation */}
+      <div className="flex justify-start space-x-4 border-b mt-4">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            className={`py-2 px-4 ${
+              activeTab === tab.id
+                ? "border-b-4 border-gray-600 text-gray-700 font-bold"
+                : "text-gray-700 hover:text-gray-400"
+            }`}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-            <form className="space-y-4">
-              <div>
-                <label className="block text-gray-700">Name</label>
-                <input
-                  type="text"
-                  placeholder="Enter name"
-                  className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700">Email</label>
-                <input
-                  type="email"
-                  placeholder="Enter email"
-                  className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="flex justify-end space-x-4">
-                <button
-                  type="button"
-                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md"
-                  onClick={closeModal}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-blue-500 text-white px-4 py-2 rounded-md"
-                >
-                  Update
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+{/* Tab Content */}
+      <div className="mt-6 bg-white p-4 shadow rounded-md">
+        {renderTabContent()}
+      </div>
     </div>
   );
 }

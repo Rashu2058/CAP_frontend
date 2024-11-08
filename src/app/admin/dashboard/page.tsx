@@ -8,14 +8,13 @@ import FoodManagement from '../../components/foodMenu/page';
 import Settings from '../../components/setting/page';
 import Profile from '../../components/profile/page';
 import Revenue from '@/app/components/revenue/page';
+import Report from '@/app/components/report/page';
 
 export default function Dashboard() {
   const [activeSetting, setActiveSetting] = useState("revenue");
   const [isOpen, setIsOpen] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement | null>(null); // Reference for dropdown menu
-
-  const Report = () => <h1>Report</h1>;
 
 {/* Close the dropdown when clicking outside of it*/}
 useEffect(() => {
@@ -43,37 +42,49 @@ useEffect(() => {
           </div>
           <nav className="space-y-4">
             <a href="#" onClick={() => setActiveSetting("revenue")}
-              className="flex items-center px-4 py-2 text-xs hover:bg-gray-900 text-white font-sans">
+               className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
+                activeSetting === "revenue" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
+              }`}>
               <Image src="/dashboard.png" alt="dashboard" width={20} height={20} className="rounded-full" />
               <span className="ml-2 hidden lg:inline-block">Dashboard</span>
             </a>
 
             <a href="#" onClick={() => setActiveSetting("room")}
-              className="flex items-center px-4 py-2 text-xs hover:bg-gray-900 text-white font-sans">
+              className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
+                activeSetting === "room" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
+              }`}>
               <Image src="/rooom.png" alt="room" width={20} height={20} className="rounded-full" />
               <span className="ml-2 hidden lg:inline-block">Room</span>
             </a>
 
             <a href="#" onClick={() => setActiveSetting("receptionist")}
-              className="flex items-center px-4 py-2 text-xs hover:bg-gray-900 text-white font-sans">
+               className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
+                activeSetting === "receptionist" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
+              }`}>
               <Image src="/receptionist.png" alt="receptionist" width={20} height={20} className="rounded-full" />
               <span className="ml-2 hidden lg:inline-block">Receptionist</span>
             </a>
 
             <a href="#" onClick={() => setActiveSetting("food")}
-              className="flex items-center px-4 py-2 text-xs hover:bg-gray-900 text-white font-sans">
+               className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
+                activeSetting === "food" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
+              }`}>
               <Image src="/food.png" alt="food" width={20} height={20} className="rounded-full" />
               <span className="ml-2 hidden lg:inline-block">Food Menu</span>
             </a>
 
             <a href="#" onClick={() => setActiveSetting("settings")}
-              className="flex items-center px-4 py-2 text-xs hover:bg-gray-900 text-white font-sans">
+              className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
+                activeSetting === "settings" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
+              }`}>
               <Image src="/settings.png" alt="settings" width={20} height={20} className="rounded-full" />
               <span className="ml-2 hidden lg:inline-block">Settings</span>
             </a>
 
             <a href="#" onClick={() => setActiveSetting("report")}
-              className="flex items-center px-4 py-2 text-xs hover:bg-gray-900 text-white font-sans">
+               className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
+                activeSetting === "report" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
+              }`}>
               <Image src="/report.png" alt="report" width={20} height={20} className="rounded-full" />
               <span className="ml-2 hidden lg:inline-block">Report</span>
             </a>

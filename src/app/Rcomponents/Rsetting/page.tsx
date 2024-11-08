@@ -143,7 +143,7 @@ export default function RSettings() {
               checked={selectedHelpOption === "how-to-guides"}
               onChange={handleHelpOptionChange}
             />
-            <span>How-to guides</span>
+            <span>Guides</span>
           </label>
 
           <label className="flex items-center space-x-2">
@@ -195,14 +195,16 @@ export default function RSettings() {
   );
 
   return (
-    <div>
+    <div className="p-8">
 
 {/* Tabs for navigation */}
-      <div className="flex justify-center mt-6">
+      <div className="flex justify-center space-x-4 border-b">
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            className={`px-4 py-2 rounded-md ${activeTab === tab.id ? 'bg-gray-900 text-white text-lg font-serif' : 'bg-gray-200 text-gray-900 hover:bg-gray-100'}`}
+            className={`px-4 py-2 ${activeTab === tab.id ? 
+            'border-b-4 border-gray-600 text-gray-700 font-bold' 
+            : 'text-gray-700 hover:text-gray-400'}`}
             onClick={() => setActiveTab(tab.id)}
           >
             {tab.label}

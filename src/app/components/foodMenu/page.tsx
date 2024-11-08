@@ -206,7 +206,7 @@ export default function FoodManagement() {
                 />
               )}
               <h3 className="text-lg font-bold mb-2">{food.name}</h3>
-              <p className="text-gray-700">Price: {food.price}</p>
+              <p className="text-gray-700">Price:NPR {food.price}</p>
               <p className="text-gray-700">Category: {food.category}</p>
               <button
                 onClick={() => editFoodItem(index)}

@@ -13,21 +13,21 @@ export default function Reservation() {
   const [activeTab, setActiveTab] = useState("addCustomer");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  {/* Open and close modal */}
+{/* Open and close modal */}
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  {/* Modal Component */}
+{/* Modal Component */}
   const Modal = () => (
     isModalOpen && (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-gray-100 p-8 rounded-lg shadow-lg w-96">
+        <div className="bg-gray-100 p-8 rounded-lg shadow-lg">
           <h2 className="text-xl font-bold font-sans mb-4">Update Reservation</h2>
 
 {/* Current Details Section */}
           <div className="mb-6">
             <h3 className="text-lg font-semibold mb-3 font-sans">Current Details</h3>
-            <div className="text-sm text-gray-600 space-y-1 grid grid-cols-2">
+            <div className="text-sm text-gray-600 space-y-1 grid grid-cols-2 gap-2">
             <p>
                 <span className="font-semibold">ID No:</span> 
               </p>
@@ -472,13 +472,16 @@ const ConfirmedList = () => {
 };
 
   return (
-    <div>
+    <div className="p-8">
+
 {/* Tabs for navigation */}
-      <div className="flex justify-center mt-6">
+      <div className="flex justify-start space-x-4 border-b">
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            className={`px-4 py-2 rounded-md ${activeTab === tab.id ? 'bg-gray-900 text-white text-lg font-serif' : 'bg-gray-200 text-gray-900 hover:bg-gray-100'}`}
+            className={`px-4 py-2 ${activeTab === tab.id ? 
+              'border-b-4 border-gray-600 text-gray-700 font-bold' 
+              : 'text-gray-700 hover:text-gray-400'}`}
             onClick={() => setActiveTab(tab.id)}
           >
             {tab.label}

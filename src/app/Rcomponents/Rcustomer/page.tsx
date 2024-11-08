@@ -18,7 +18,7 @@ export default function Customer() {
 {/* Current Details Section */}
           <div className="mb-6">
             <h3 className="text-lg font-semibold mb-3 font-sans">Current Details</h3>
-            <div className="text-sm text-gray-600 space-y-1 grid grid-cols-2 gap-4">
+            <div className="text-sm text-gray-600 space-y-1 grid grid-cols-2 gap-2">
               <p>
                 <span className="font-semibold">ID Type:</span> 
               </p>
