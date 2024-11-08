@@ -48,12 +48,12 @@ export const updateCustomer = async (customerId: string, updatedData: Customer):
 };
 
 // Delete Customer Function
-export const deleteCustomer = async (customerId: string): Promise<void> => {
+export const deleteCustomer = async (id_no: string): Promise<void> => {
   try {
     const token = localStorage.getItem("token");
     const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
-    const response = await axios.delete(`${BASE_URL}/delete/${customerId}`, { headers });
+    const response = await axios.delete(`${BASE_URL}/delete/${id_no}`, { headers });
     console.log("Customer deleted successfully:", response.data);
   } catch (error) {
     console.error("Failed to delete customer:", error);

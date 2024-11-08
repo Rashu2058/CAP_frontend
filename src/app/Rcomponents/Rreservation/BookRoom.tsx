@@ -4,6 +4,7 @@ import Image from "next/image";
 import axios from "axios";
 import ConfirmedList from "./confirmedList";
 
+
 interface AvailableRoom {
   room_no: number;
 }
@@ -139,6 +140,7 @@ export default function BookRoom() {
               }
           );
           console.log("Reservation added successfully", response.data);
+         
       } catch (error:any) {
           console.error("Error adding reservation", error);
           if (error.response && error.response.status === 401) {
