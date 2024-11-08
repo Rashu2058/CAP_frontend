@@ -1,6 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import axios from "axios";
+import { addCustomer } from "./AddCustomer";
+import BookRoom from "./BookRoom";
+import ConfirmedList from "./confirmedList";
+
 
 {/* Tab data and corresponding components */}
 const tabs = [
@@ -11,6 +16,8 @@ const tabs = [
 
 export default function Reservation() {
   const [activeTab, setActiveTab] = useState("addCustomer");
+  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   {/* Open and close modal */}
@@ -132,12 +139,13 @@ export default function Reservation() {
 {/* Add Customer Component */}
   const AddCustomer = () => {
     const [formData, setFormData] = useState({
-      idType: "",
-      idNo: "",
+      c_id:0,
+      id_type: "",
+      id_no: "",
       name: "",
-      phoneNo: "",
+      phone_number: 0,
       address: "",
-      gender: "",
+      gender_type: "",
       email: "",
       nationality: ""
     });
@@ -154,46 +162,62 @@ export default function Reservation() {
 {/* Handle form reset*/}
     const handleReset = () => {
       setFormData({
-        idType: "",
-        idNo: "",
+        c_id:0,
+        id_type: "",
+        id_no: "",
         name: "",
-        phoneNo: "",
+        phone_number: 0,
         address: "",
-        gender: "",
+        gender_type: "",
         email: "",
         nationality: ""
       });
     };
 
 {/* Handle form submission (Next button)*/}
-    const handleNext = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleAddCustomer = async(e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      setActiveTab("bookRoom");
+      try {
+        // Convert phoneNo to BigInt
+        const customerData = {
+            ...formData,
+            phoneNo: Number(formData.phone_number), // Convert to BigInt
+        };
+        
+        await addCustomer(customerData);
+
+        handleReset();
+        setActiveTab("bookRoom");
+        
+    } catch (error) {
+        console.error("Error adding customer", error);
+    }
     };
+ 
    
 
     return (
       <div className="max-w-5xl mx-auto p-4">
         <div className="bg-white p-6 rounded-lg mb-6 align-right">
-          <form className="grid grid-cols-1 gap-4 mb-4" onSubmit={handleNext}>
+          <form className="grid grid-cols-1 gap-4 mb-4" onSubmit={handleAddCustomer}>
             <select
-              name="idType"
+              name="id_type"
               className="p-2 border rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
-              value={formData.idType}
+              value={formData.id_type}
               onChange={handleInputChange}
             >
               <option value="" disabled>ID Type</option>
-              <option value="citizenship">Citizenship</option>
-              <option value="passport">Passport</option>
-              <option value="drivingLiscense">Driving License</option>
-              <option value="nationalIdCard">National ID Card</option>
+              <option value="CITIZENSHIP">Citizenship</option>
+              <option value="PASSPORT">Passport</option>
+              <option value="DRIVING_LICENSE">Driving License</option>
+              <option value="NID_CARD">National ID Card</option>
             </select>
             <input
               type="text"
-              name="idNo"
+              name="id_no"
               placeholder="ID No."
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-              value={formData.idNo}
+              value={formData.id_no}
               onChange={handleInputChange}
             />
             <input
@@ -206,10 +230,10 @@ export default function Reservation() {
             />
             <input
               type="text"
-              name="phoneNo"
+              name="phone_number"
               placeholder="Phone No"
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-              value={formData.phoneNo}
+              value={formData.phone_number}
               onChange={handleInputChange}
             />
             <input
@@ -221,15 +245,15 @@ export default function Reservation() {
               onChange={handleInputChange}
             />
             <select
-              name="gender"
+              name="gender_type"
               className="p-2 border rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
-              value={formData.gender}
+              value={formData.gender_type}
               onChange={handleInputChange}
             >
               <option value="" disabled>Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="others">Others</option>
+              <option value="MALE">Male</option>
+              <option value="FEMALE">Female</option>
+              <option value="OTHERS">Others</option>
             </select>
             <input
               type="text"
@@ -260,7 +284,7 @@ export default function Reservation() {
                 type="submit"
                 className="bg-gray-900 text-white px-8 py-4 rounded-lg hover:bg-gray-700 text-xl flex items-center space-x-2 font-sans"
               >
-                Next
+                Add
               </button>
             </div>
           </form>
@@ -268,208 +292,6 @@ export default function Reservation() {
       </div>
     );
   };
-
-{/* Book Room Component */}
-const BookRoom = () => {
-  const [formData, setFormData] = useState({
-    room_type: "",
-    room_no: "",
-    room_price: "",
-    checkIn: "",
-    checkOut: ""
-  });
-
-  {/* Handle input change */}
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
-
-  {/* Handle form reset */}
-  const handleReset = () => {
-    setFormData({
-      room_type: "",
-      room_no: "",
-      room_price: "",
-      checkIn: "",
-      checkOut: ""
-    });
-  };
-
-  {/* Handle form submission */}
-  const handleNext = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setActiveTab("confirmedList");
-  };
-
-  {/* Handle back button */}
-  const handleBack = () => {
-    setActiveTab("addCustomer");
-  };
-
-  return (
-    <div className="max-w-5xl mx-auto p-4">
-      <div className="bg-white p-6 rounded-lg mb-6 align-right">
-
-{/* Back Button */}
-      <div className="flex justify-start mb-5">
-        <button
-          type="button"
-          onClick={handleBack}
-        >
-         <Image src="/back.png" alt="room" width={50} height={50} className="rounded-full" />
-        </button>
-
-      </div>
-        <form className="grid grid-cols-1 gap-4 mb-4" onSubmit={handleNext}>
-          <select
-            name="room_type"
-            className="p-2 border rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
-            value={formData.room_type}
-            onChange={handleInputChange}
-          >
-            <option value="" disabled>Room Type</option>
-            <option value="single">Single</option>
-            <option value="double">Double</option>
-            <option value="suite">Suite</option>
-          </select>
-          <select
-            name="room_no"
-            className="p-2 border rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
-            value={formData.room_no}
-            onChange={handleInputChange}
-          >
-            <option value="" disabled>Room No</option>
-            <option value="101">101</option>
-            <option value="102">102</option>
-            <option value="103">103</option>
-          </select>
-          <input
-            type="text"
-            name="room_price"
-            placeholder="Room Price"
-            className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-            value={formData.room_price}
-            onChange={handleInputChange}
-          />
-          <input
-            type="datetime-local"
-            name="checkIn"
-            placeholder="Check In"
-            className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-            value={formData.checkIn}
-            onChange={handleInputChange}
-          />
-          <input
-            type="date"
-            name="checkOut"
-            placeholder="Check Out"
-            className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-            value={formData.checkOut}
-            onChange={handleInputChange}
-          />
-          
-{/* Action Buttons */}
-          <div className="flex justify-end sm:justify-end px-2 py-2 space-x-2">
-            <div className="flex space-x-2">
-              <button
-                type="button"
-                onClick={handleReset}
-                className="bg-gray-800 text-white px-8 py-4 rounded-lg hover:bg-gray-600 text-xl"
-              >
-                Reset
-              </button>
-              <button
-                type="submit"
-                className="bg-gray-900 text-white px-8 py-4 rounded-lg hover:bg-gray-700 text-xl"
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
-{/* Confirmed List Component */}
-const ConfirmedList = () => {
-  const handleBack = () => {
-    setActiveTab("bookRoom");
-  };
-
-  return (
-    <div className="bg-white p-6 rounded-lg">
-      
-{/* Back Button */}
-      <div className="flex justify-start mb-5">
-        <button
-          type="button"
-          onClick={handleBack}
-        >
-         <Image src="/back.png" alt="room" width={50} height={50} className="rounded-full" />
-        </button>
-      </div>
-
-{/* Search bar with custom icon inside */}
-      <div className="flex justify-center mb-4">
-        <div className="relative w-full max-w-md">
-          <input
-            type="text"
-            placeholder="Search..."
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent"
-          />
-          <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-            <img
-              src="/search.png"
-              alt="Search"
-              className="h-5 w-5 text-gray-400"
-            />
-          </div>
-        </div>
-      </div>
-
-{/*Table*/}
-      <table className="min-w-full bg-white border border-gray-300">
-        <thead className="bg-gray-800 text-white">
-          <tr>
-            <th className="py-3 px-6 text-center border border-gray-300">ID No.</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Customer Name</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Room No</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Room Type</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Room Price</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Check In</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Check Out</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr className="hover:bg-purple-100">
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center">
-              <a href="#" className="text-gray-600 hover:text-gray-700 mr-2" onClick={openModal}>
-                Edit
-              </a>
-              <a href="#" className="text-red-600 hover:text-red-700 mr-2">
-                Delete
-              </a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  );
-};
 
   return (
     <div>
