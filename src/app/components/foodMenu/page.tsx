@@ -229,13 +229,13 @@ const clearInputs = () => {
               {food.image && (
                 <img
                   src={food.image}
-                  alt={food.name}
+                  alt={food.food_name}
                   className="w-full h-32 object-cover rounded-lg mb-4"
                 />
               )}
-              <h3 className="text-lg font-bold mb-2">{food.name}</h3>
-              <p className="text-gray-700">Price: {food.price}</p>
-              <p className="text-gray-700">Category: {food.category}</p>
+              <h3 className="text-lg font-bold mb-2">{food.food_name}</h3>
+              <p className="text-gray-700">Price: {food.food_price}</p>
+              <p className="text-gray-700">Category: {food.food_category}</p>
               <button
                 onClick={() => editFoodItem(index)}
                 className="text-black font-bold hover:text-purple-300 mr-2"
@@ -249,6 +249,5 @@ const clearInputs = () => {
           ))}
         </div>
       </div>
-    </div>
   );
 }

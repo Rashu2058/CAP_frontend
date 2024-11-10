@@ -129,21 +129,21 @@ export default function FoodOrders() {
             </div>
           </div>
 
-        {/* Form for adding new food item */}
+{/* Form for adding new food item */}
         <form
           className="grid grid-cols-2 gap-4 mb-4"
           onSubmit={(e) => {
             e.preventDefault(); // Prevent form submission
-            addFoodItem(); // Add food item
           }}
         >
-          {/* Room No */}
+{/* Room No */}
           <div className="flex flex-col">
             <label className="block text-sm font-semibold">Room No</label>
             <select
               name="roomNo"
+              value={roomNo}
+              onChange={(e) => setRoomNo(e.target.value)}
               className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
-              defaultValue=""
             >
               <option value="" disabled>
                 Select Room No
@@ -159,6 +159,8 @@ export default function FoodOrders() {
             <label className="block text-sm font-semibold">Customer Name</label>
             <input
               type="text"
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
               placeholder="Robert Wilson"
               className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
             />
@@ -190,7 +192,7 @@ export default function FoodOrders() {
           </div>
         </div>
 
-        {/* Right Section - Cart */}
+{/* Right Section - Cart */}
         <div className="w-1/3 p-4 bg-white rounded-lg">
           <h2 className="text-lg font-bold mb-4">Orders</h2>
           {cart.length === 0 ? (
@@ -263,7 +265,8 @@ export default function FoodOrders() {
   {confirmedOrders.length > 0 && (
   <div className="mt-8 bg-white rounded-lg p-4">
     <h2 className="text-lg font-bold mb-4">Confirmed Orders</h2>
-    {/* Search bar */}
+    
+{/* Search bar */}
           <div className="flex justify-center mb-4">
             <div className="relative w-full max-w-md">
               <input
@@ -283,7 +286,7 @@ export default function FoodOrders() {
     <table className="min-w-full bg-white border rounded-lg">
       <thead>
         <tr>
-          <th className="border px-4 py-2">Order</th>
+          <th className="border px-4 py-2">Order No</th>
           <th className="border px-4 py-2">Room No</th>
           <th className="border px-4 py-2">Customer Name</th>
           <th className="border px-4 py-2">Items with Quantity</th>
@@ -312,7 +315,6 @@ export default function FoodOrders() {
               <td className="border px-4 py-2">{itemsList}</td>
               <td className="border px-4 py-2">NPR {totalOrderPrice}</td>
               <td className="border px-4 py-2">
-              <a href="#" className="text-green-600 hover:text-green-700 mr-2">Checkout</a>
               <a href="#" className="text-gray-900 hover:text-gray-700 mr-2" 
               onClick={() => editOrder(order)}>Edit</a>
               <a href="#" className="text-red-600 hover:text-red-700 mr-2">Delete</a>

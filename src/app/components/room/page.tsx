@@ -256,7 +256,8 @@ export default function RoomManagement() {
     <div className="bg-gray-100 p-8 rounded-lg shadow-lg w-96">
       <h2 className="text-xl font-bold font-sans mb-4">Update Room Details</h2>
       <form className="space-y-4" onSubmit={handleUpdateRoom}>
-        {/* Current Room Details - Read-Only */}
+        
+{/* Current Room Details - Read-Only */}
         <div className="p-2 border rounded-md bg-gray-200">
           <strong>Current Room No:</strong> {roomDetails.room_no}
         </div>
@@ -267,7 +268,7 @@ export default function RoomManagement() {
           <strong>Current Room Price:</strong> {roomDetails.room_price}
         </div>
 
-        {/* New Details for Updating */}
+{/* New Details for Updating */}
         <input
           type="text"
           name="new_room_no"

@@ -64,7 +64,7 @@ export default function Revenue() {
         type: 'bar',
         label: 'Revenue',
         data: [5000, 10000, 7500, 8000, 9000, 9500],
-        backgroundColor: '#6b5b95',
+        backgroundColor: 'grey',
       },
       {
         type: 'line',
@@ -80,10 +80,10 @@ export default function Revenue() {
   return (
     <div className="min-h-screen bg-gray-200 p-6">
       
-      {/* Grid Layout for Dashboard Sections */}
+{/* Grid Layout for Dashboard Sections */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         
-        {/* Overview Section */}
+{/* Overview Section */}
         <div className="lg:col-span-3 bg-gray-800 text-white rounded-lg p-4 shadow-md">
           <h2 className="text-2xl font-semibold mb-4">Overview</h2>
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
@@ -106,7 +106,7 @@ export default function Revenue() {
           </div>
         </div>
 
-        {/* Room Occupancy Section */}
+{/* Room Occupancy Section */}
         <div className="bg-gray-800 text-white rounded-lg p-6 shadow-md">
           <h2 className="text-lg font-semibold mb-4">Room Occupancy</h2>
           <div className="text-lg font-bold mb-2">{occupancyData.totalRooms}</div> 
@@ -124,12 +124,12 @@ export default function Revenue() {
         </div>
       </div>
 
-      {/* Revenue Chart Section */}
+{/* Revenue Chart Section */}
       <div className="mt-6 bg-gray-800 text-white rounded-lg p-6 shadow-md">
         <h2 className="text-2xl font-semibold mb-4">Revenue</h2>
         <div className="bg-white rounded-lg p-4">
           
-          {/* Use static chartData */}
+{/* Use static chartData */}
           <Chart type="bar" data={chartData} options={{ responsive: true }} />
         </div>
       </div>

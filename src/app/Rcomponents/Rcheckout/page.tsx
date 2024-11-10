@@ -101,10 +101,17 @@ export default function Checkout() {
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
         />
 
+        <label className="block text-sm font-semibold">Food Orders</label>
+        <input
+          type="text"
+          placeholder="3000"
+          className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
+        />
+
         <label className="block text-sm font-semibold">Total</label>
         <input
           type="text"
-          placeholder="8000"
+          placeholder="11000"
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
         />
         <div className="flex justify-end sm:justify-end px-2 py-2">
