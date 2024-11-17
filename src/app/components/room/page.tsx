@@ -15,7 +15,7 @@ export default function RoomManagement() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [roomDetails, setRoomDetails] = useState<Room>({
-    room_no: "",
+    room_no: "", 
     room_type: "",
     room_price: "",
     new_room_no: "", // Initialize for new room number
@@ -111,36 +111,48 @@ export default function RoomManagement() {
   const handleUpdateRoom = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMessage("");
-  
+
     const updatedRoomDetails: Room = {
-      room_no: roomDetails.new_room_no || roomDetails.room_no, // Use new room number if provided
-      room_type: roomDetails.new_room_type || roomDetails.room_type, // Use new room type if provided
-      room_price: roomDetails.new_room_price || roomDetails.room_price, // Use new room price if provided
+        room_no: roomDetails.new_room_no || roomDetails.room_no,  // Check room number (new or existing)
+        room_type: roomDetails.new_room_type || roomDetails.room_type,  // Check room type
+        room_price: roomDetails.new_room_price || roomDetails.room_price  // Check room price
     };
-  
+
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        console.error("Token is missing");
-        return;
-      }
-  
-      const response = await axios.put(`http://localhost:8080/api/rooms/${roomDetails.room_no}`, updatedRoomDetails, {
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        withCredentials: true,
-      });
-  
-      fetchRooms(); // Refresh the room list
-      closeModal(); // Close the modal after updating
-      console.log("Room updated successfully:", response.data);
+        const token = localStorage.getItem("token");
+        if (!token) {
+            setErrorMessage("You must be logged in as admin to update rooms.");
+            return;
+        }
+
+        const response = await axios.put(`http://localhost:8080/api/rooms/update/${roomDetails.room_no}`, updatedRoomDetails, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            withCredentials: true,
+        });
+
+        console.log("Room updated successfully:", response.data);
+
+        // Refresh room list and close modal
+        await fetchRooms();
+        closeModal();
+
+        setRoomDetails({
+            room_no: "",
+            room_type: "",
+            room_price: "",
+            new_room_no: "",
+            new_room_type: "",
+            new_room_price: "",
+        });
     } catch (error) {
-      console.error("Error updating room:", error);
-      setErrorMessage("Error updating room details.");
+        console.error("Error updating room:", error);
+        setErrorMessage("Error updating room details.");
     }
-  };
+};
+
   
 
   // Function to set room details for editing
@@ -175,7 +187,7 @@ export default function RoomManagement() {
       setErrorMessage("Error deleting room.");
     }
   };
-
+  
 
 
   return (

@@ -13,7 +13,6 @@ interface Receptionist{
   password?: string;
   address:string;
 };
-const token = localStorage.getItem("token") || "";
 
 export default function ReceptionistManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -62,11 +61,13 @@ export default function ReceptionistManagement() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const token = localStorage.getItem("token") || "";
     const url = selectedReceptionist
       ? `http://localhost:8080/api/v1/admin/updateReceptionist/${selectedReceptionist.id}`
       : `http://localhost:8080/api/v1/admin/registerReceptionist`;
 
     const method = selectedReceptionist ? 'PUT' : 'POST';
+    handleReset();
 
     await fetch(url, {
       method,
@@ -79,11 +80,26 @@ export default function ReceptionistManagement() {
   
     // Fetch updated receptionist data
     fetchReceptionists();
+
     closeModal();
   };
+  const handleReset = () => {
+    setFormData({
+      id: 0,
+      name: '',
+      phoneno: '',
+      gender: '',
+      email: '',
+      username: '',
+      password: '',
+      address:'',
+    });
+  };
+
 
   const fetchReceptionists = async () => {
     try {
+      const token = localStorage.getItem("token") || "";
       const response = await fetch('http://localhost:8080/api/v1/admin/receptionists', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -99,6 +115,7 @@ export default function ReceptionistManagement() {
   };
 
   const deleteReceptionist = async (id: number) => {
+    const token = localStorage.getItem("token") || "";
     await fetch(`http://localhost:8080/api/v1/admin/deleteReceptionist/${id}`, {
       method: 'DELETE',
       headers: {

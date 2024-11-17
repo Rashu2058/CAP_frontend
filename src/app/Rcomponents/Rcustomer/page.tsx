@@ -1,13 +1,103 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
+import { fetchCustomers,deleteCustomer,updateCustomer } from "../Rreservation/AddCustomer";
+import type { Customer } from "../Rreservation/AddCustomer";
 
 export default function Customer() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [formData, setFormData] = useState<Customer>({
+    c_id: 0,
+    id_type: "",
+    id_no: null,
+    name: "",
+    phone_number: null,
+    address: "",
+    gender_type: "",
+    email: "",
+    nationality: "",
+  });
+
+
+  useEffect(() => {
+    const loadCustomers = async () => {
+      try {
+        const customerData = await fetchCustomers();
+        setCustomers(customerData);
+      } catch (error) {
+        console.error("Error loading customers:", error);
+      }
+    };
+    loadCustomers();
+  }, []);
+
+
+  const handleDelete = async (id_no: number) => {
+    try {
+      await deleteCustomer(id_no);
+      // Fetch the updated customer list after deletion
+      const updatedCustomers = await fetchCustomers();
+      setCustomers(updatedCustomers); // Update state with the new customer list
+    } catch (error) {
+      console.error("Error deleting customer:", error);
+    }
+  };
 
   // Open and close modal
-  const openModal = () => setIsModalOpen(true);
+  const openModal = (customer:Customer) => {
+    setSelectedCustomer(customer);
+    setIsModalOpen(true);
+  };
   const closeModal = () => setIsModalOpen(false);
 
+
+  const handleUpdate = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!selectedCustomer) return;
+  
+    const updatedCustomer = { ...selectedCustomer };
+    const formElements = event.target as HTMLFormElement;
+  
+    updatedCustomer.id_type = formElements["id_type"].value;
+    updatedCustomer.phone_number = formElements["phone_number"].value;
+    updatedCustomer.address = formElements["address"].value;
+    updatedCustomer.gender_type = formElements["gender_type"].value;
+    updatedCustomer.email = formElements["email"].value;
+    updatedCustomer.nationality = formElements["nationality"].value;
+  
+    if (!updatedCustomer.phone_number || !updatedCustomer.email) {
+      alert("Please fill in all required fields!");
+      return;
+    }
+  
+    const { id_no } = selectedCustomer;  // Ensure this is correct
+    console.log("Updating customer with id_no:", id_no);
+    console.log("Updated customer:", updatedCustomer);
+  
+    try {
+      await updateCustomer(id_no, updatedCustomer);  // Pass id_no and updated data
+      const updatedCustomers = await fetchCustomers();
+      setCustomers(updatedCustomers);
+      closeModal();
+    } catch (error) {
+      console.error("Error updating customer:", error);
+    }
+  };
+    
+  
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    if (selectedCustomer) {
+      const { name, value } = event.target;
+      setSelectedCustomer({
+        ...selectedCustomer,
+        [name]: value,
+      });
+    }
+  };
+  
+
+      
   // Modal Component
   const Modal = () => (
     isModalOpen && (
@@ -20,88 +110,100 @@ export default function Customer() {
             <h3 className="text-lg font-semibold mb-3 font-sans">Current Details</h3>
             <div className="text-sm text-gray-600 space-y-1 grid grid-cols-2 gap-2">
               <p>
-                <span className="font-semibold">ID Type:</span> 
-              </p>
+                <span className="font-semibold">ID Type:</span>{selectedCustomer?.id_type}</p> 
               <p>
-                <span className="font-semibold">ID No:</span> 
-              </p>
+                <span className="font-semibold">ID No:</span>{selectedCustomer?.id_no}</p> 
               <p>
-                <span className="font-semibold">Name:</span> 
-              </p>
+                <span className="font-semibold">Name:</span> {selectedCustomer?.name}</p>
               <p>
-                <span className="font-semibold">Phone No:</span> 
-              </p>
+                <span className="font-semibold">Phone No:</span>{selectedCustomer?.phone_number}</p> 
               <p>
-                <span className="font-semibold">Address:</span> 
-              </p>
+                <span className="font-semibold">Address:</span>{selectedCustomer?.address}</p> 
               <p>
-                <span className="font-semibold">Gender:</span> 
-              </p>
+                <span className="font-semibold">Gender:</span>{selectedCustomer?.gender_type}</p> 
               <p>
-                <span className="font-semibold">Email:</span> 
-              </p>
+                <span className="font-semibold">Email:</span>{selectedCustomer?.email}</p> 
               <p>
-                <span className="font-semibold">Nationality:</span> 
-              </p>
+                <span className="font-semibold">Nationality:</span>{selectedCustomer?.nationality}</p>
             </div>
           </div>
 
 {/* New Update Section */} 
-          <form className="space-y-4">
+          <form onSubmit={handleUpdate}className="space-y-4">
             <h3 className="text-lg font-semibold mb-3 font-sans">Update Here</h3>
             <div className="grid grid-cols-2 gap-4">
               <select
-                name="ID Type"
+                name="id_type"
                 className="p-2 border rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
-                defaultValue=""
+                value={selectedCustomer?.id_type}
+                onChange={handleInputChange}
               >
                 <option value="" disabled>
                   Select ID Type
                 </option>
-                <option value="citizenship">Citizenship</option>
-                <option value="passport">Passport</option>
-                <option value="drivingLiscense">Driving Liscense</option>
-                <option value="nationalId">National ID Card</option>
+                <option value="CITIZENSHIP">Citizenship</option>
+                <option value="PASSPORT">Passport</option>
+                <option value="DRIVING_LICENSE">Driving Liscense</option>
+                <option value="NID_CARD">National ID Card</option>
               </select>
               <input
                 type="text"
+                name="id_no"
                 placeholder="Enter ID No."
+                value={selectedCustomer?.id_no||""}
+                onChange={handleInputChange}
                 className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
               />
               <input
                 type="text"
+                name="name"
+                value={selectedCustomer?.name||""}
                 placeholder="Enter Name"
+                onChange={handleInputChange}
                 className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
               />
               <input
                 type="text"
+                name="phone_number"
+                value={selectedCustomer?.phone_number||""}
                 placeholder="Enter Phone No."
+                onChange={handleInputChange}
                 className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
               />
               <input
                 type="text"
+                name="address"
+                value={selectedCustomer?.address||""}
                 placeholder="Enter Address"
+                onChange={handleInputChange}
                 className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
               />
               <select
-                name="Gender"
+                name="gender_type"
                 className="p-2 border rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
-                defaultValue=""
+               value={selectedCustomer?.gender_type||""}
+                onChange={handleInputChange}
               >
                 <option value="" disabled>
                   Select Gender
                 </option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="others">Others</option>
+                <option value="MALE">Male</option>
+                <option value="FEMALE">Female</option>
+                <option value="OTHERS">Others</option>
               </select>
               <input
                 type="email"
+                name="email"
+                value={selectedCustomer?.email||""}
                 placeholder="Enter Email"
+                onChange={handleInputChange}
                 className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
               />
               <input
                 type="text"
+                name="nationality"
+                value={selectedCustomer?.nationality||""}
+                onChange={handleInputChange}
                 placeholder="Enter Nationality"
                 className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
               />
@@ -168,23 +270,31 @@ export default function Customer() {
             <th className="py-3 px-6 text-center border border-gray-300">Action</th>
           </tr>
         </thead>
-        <tbody>
-          <tr className="hover:bg-purple-100">
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center">
-              <a href="#" className="text-gray-600 hover:text-gray-700 mr-2" onClick={openModal}>
-                Edit
-              </a>
-              <a href="#" className="text-red-600 hover:text-red-700 mr-2">Delete</a>
+         <tbody>
+          {customers.map((customer) => (
+            <tr key={customer.c_id} className="hover:bg-purple-100">
+              <td className="py-3 px-6 border border-gray-300 text-center">{customer.id_type}</td>
+              <td className="py-3 px-6 border border-gray-300 text-center">{customer.id_no}</td>
+              <td className="py-3 px-6 border border-gray-300 text-center">{customer.name}</td>
+              <td className="py-3 px-6 border border-gray-300 text-center">{customer.phone_number}</td>
+              <td className="py-3 px-6 border border-gray-300 text-center">{customer.address}</td>
+              <td className="py-3 px-6 border border-gray-300 text-center">{customer.gender_type}</td>
+              <td className="py-3 px-6 border border-gray-300 text-center">{customer.email}</td>
+              <td className="py-3 px-6 border border-gray-300 text-center">{customer.nationality}</td>
+              <td className="py-3 px-6 border border-gray-300 text-center">
+                <a
+                  href="#"
+                  className="text-gray-600 hover:text-gray-700 mr-2"
+                  onClick={()=>openModal(customer)}
+                >
+                  Edit
+                </a>
+                <a href="#" className="text-red-600 hover:text-red-700" onClick={() => handleDelete(customer.id_no??0)}>
+                  Delete
+                </a>
             </td>
           </tr>
+          ))}
         </tbody>
       </table>
     </div>
