@@ -2,10 +2,6 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import axios from "axios";
-import { headers } from "next/headers";
-
-const token =localStorage.getItem('token');
-console.log("Token from localstorage:",token);
 
 interface Food {
   f_id: number;
@@ -32,107 +28,107 @@ export default function FoodManagement() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
-  // Fetch food items on component load
   useEffect(() => {
     fetchFoodItems();
   }, []);
 
   const fetchFoodItems = async () => {
     try {
-      
+      const token = localStorage.getItem("token") || "";
       const response = await axios.get("http://localhost:8080/api/foods", {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'Application/json',
+          "Content-Type": "application/json",
         },
       });
-      setFoodItems(response.data); // Assuming response.data contains the food items
+      setFoodItems(response.data);
     } catch (error) {
       console.error("Error fetching food items:", error);
     }
   };
 
-  // Add or update food item
+  // Add a new food item
   const addFood = async () => {
     if (foodName && foodPrice && foodCategory) {
       const formData = new FormData();
       formData.append("food_name", foodName);
       formData.append("food_price", foodPrice);
       formData.append("food_category", foodCategory);
-  
+
       const imageInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-    if (imageInput && imageInput.files && imageInput.files[0]) {
-      const imageFile = imageInput.files[0];
-      formData.append("image", imageFile);
-    }
+      if (imageInput && imageInput.files && imageInput.files[0]) {
+        const imageFile = imageInput.files[0];
+        formData.append("image", imageFile);
+      }
 
-    try {
-      const response = await axios.post("http://localhost:8080/api/foods", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      setFoodItems([...foodItems, response.data]);
-      clearInputs();
-    } catch (error) {
-      console.error("Error adding food item:", error);
-    }
-  }
-};
-
-// Update existing food item
-const updateFood = async () => {
-  if (editingIndex !== null && foodName && foodPrice && foodCategory) {
-    const updatedFood: Partial<Food> = {
-      food_name: foodName,
-      food_price: parseFloat(foodPrice),
-      food_category: foodCategory,
-      // Only include the image if it's been updated
-      ...(previewImage && { image: previewImage }), 
-    };
-
-    try {
-      const response = await axios.put(
-        `http://localhost:8080/api/foods/${foodItems[editingIndex].f_id}`,
-        updatedFood,
-        {
+      try {
+        const token = localStorage.getItem("token") || "";
+        const response = await axios.post("http://localhost:8080/api/foods", formData, {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            "Content-Type": "multipart/form-data",
           },
-        }
-      );
-
-      // Ensure response.data is the updated food item
-      const updatedFoodItems = [...foodItems];
-      updatedFoodItems[editingIndex] = response.data; // Ensure the response has the updated data
-      setFoodItems(updatedFoodItems);
-      clearInputs();
-      setEditingIndex(null);
-    } catch (error) {
-      console.error("Error updating food item:", error);
+        });
+        setFoodItems([...foodItems, response.data]);
+        clearInputs();
+      } catch (error) {
+        console.error("Error adding food item:", error);
+      }
     }
-  }
-};
+  };
 
+  // Update an existing food item
+  const updateFood = async () => {
+    if (editingIndex !== null && foodName && foodPrice && foodCategory) {
+      const formData = new FormData();
+      formData.append("food_name", foodName);
+      formData.append("food_price", foodPrice);
+      formData.append("food_category", foodCategory);
 
-// Clear input fields
-const clearInputs = () => {
-  setFoodName("");
-  setFoodPrice("");
-  setFoodCategory("");
-  setPreviewImage(null);
-};
+      const imageInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      if (imageInput && imageInput.files && imageInput.files[0]) {
+        const imageFile = imageInput.files[0];
+        formData.append("image", imageFile);
+      }
+
+      try {
+        const token = localStorage.getItem("token") || "";
+        const foodId = foodItems[editingIndex].f_id;
+        const response = await axios.put(`http://localhost:8080/api/foods/${foodId}`, formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        
+        const updatedFoodItems = [...foodItems];
+        updatedFoodItems[editingIndex] = response.data;
+        setFoodItems(updatedFoodItems);
+        clearInputs();
+        setEditingIndex(null);
+      } catch (error) {
+        console.error("Error updating food item:", error);
+      }
+    }
+  };
+
+  // Clear input fields
+  const clearInputs = () => {
+    setFoodName("");
+    setFoodPrice("");
+    setFoodCategory("");
+    setPreviewImage(null);
+    setEditingIndex(null);
+    
+  };
 
   // Delete a food item
   const deleteFoodItem = async (index: number) => {
     const foodId = foodItems[index].f_id;
     try {
-      await axios.delete(`http://localhost:8080/api/foods/${foodId}`,{
-        headers:{
-          Authorization:`Bearer ${token}`,
-        },
+      const token = localStorage.getItem("token") || "";
+      await axios.delete(`http://localhost:8080/api/foods/${foodId}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       setFoodItems(foodItems.filter((_, i) => i !== index));
     } catch (error) {
@@ -183,9 +179,6 @@ const clearInputs = () => {
                 {items.map((item, index) => (
                   <div key={index} className="flex justify-between items-center p-2 hover:bg-gray-100">
                     <span onClick={() => { setFoodCategory(item); setDropdownOpen(false); }} className="cursor-pointer">{item}</span>
-                    <button onClick={() => deleteFoodItem(index)} className="text-red-500 font-bold hover:text-red-700">
-                      <Image src="/delete.png" alt="delete" width={20} height={20} />
-                    </button>
                   </div>
                 ))}
               </div>
@@ -229,13 +222,13 @@ const clearInputs = () => {
               {food.image && (
                 <img
                   src={food.image}
-                  alt={food.food_name}
+                  alt={food.name}
                   className="w-full h-32 object-cover rounded-lg mb-4"
                 />
               )}
-              <h3 className="text-lg font-bold mb-2">{food.food_name}</h3>
-              <p className="text-gray-700">Price: {food.food_price}</p>
-              <p className="text-gray-700">Category: {food.food_category}</p>
+              <h3 className="text-lg font-bold mb-2">{food.name}</h3>
+              <p className="text-gray-700">Price: {food.price}</p>
+              <p className="text-gray-700">Category: {food.category}</p>
               <button
                 onClick={() => editFoodItem(index)}
                 className="text-black font-bold hover:text-purple-300 mr-2"
@@ -249,5 +242,6 @@ const clearInputs = () => {
           ))}
         </div>
       </div>
+    </div>
   );
 }

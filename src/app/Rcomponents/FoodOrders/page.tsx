@@ -134,6 +134,7 @@ export default function FoodOrders() {
           className="grid grid-cols-2 gap-4 mb-4"
           onSubmit={(e) => {
             e.preventDefault(); // Prevent form submission
+            addFoodItem(); // Add food item
           }}
         >
 {/* Room No */}

@@ -4,12 +4,12 @@ import axios from "axios";
 const BASE_URL = "http://localhost:8080/api/customers";
 
 // Define a type for Customer data
-interface Customer {
+export interface Customer {
   c_id: number;
   id_type: string;
-  id_no: string;
+  id_no: number|null;
   name: string;
-  phone_number: number;
+  phone_number: number|null;
   address: string;
   gender_type: string;
   email: string;
@@ -32,31 +32,42 @@ export const addCustomer = async (customerData: Customer): Promise<Customer> => 
   }
 };
 
-// Update Customer Function
-export const updateCustomer = async (customerId: string, updatedData: Customer): Promise<Customer> => {
+export const deleteCustomer = async (id_no: number|null): Promise<void> => {
   try {
     const token = localStorage.getItem("token");
     const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+    await axios.delete(`${BASE_URL}/delete/${id_no}`, { headers });
+    console.log("Customer deleted successfully");
+  } catch (error) {
+    console.error("Error deleting customer:", error);
+  }
+};
 
-    const response = await axios.put(`${BASE_URL}/update/${customerId}`, updatedData, { headers });
+// Update Customer Function
+export const updateCustomer = async (id_no: number|null, updatedCustomerData: Customer): Promise<Customer> => {
+  try {
+    const token = localStorage.getItem("token");
+    const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+    const response = await axios.put(`${BASE_URL}/update/${id_no}`, updatedCustomerData, { headers });
     console.log("Customer updated successfully:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Failed to update customer:", error);
+    console.error("Error updating customer:", error);
     throw error;
   }
 };
 
-// Delete Customer Function
-export const deleteCustomer = async (customerId: string): Promise<void> => {
+export const fetchCustomers = async (): Promise<Customer[]> => {
   try {
     const token = localStorage.getItem("token");
     const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
-    const response = await axios.delete(`${BASE_URL}/delete/${customerId}`, { headers });
-    console.log("Customer deleted successfully:", response.data);
+    const response = await axios.get(`${BASE_URL}`, { headers });
+    console.log("Fetched customers:", response.data);
+    return response.data;
   } catch (error) {
-    console.error("Failed to delete customer:", error);
+    console.error("Failed to fetch customers:", error);
     throw error;
   }
 };
+

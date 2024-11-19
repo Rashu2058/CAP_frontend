@@ -58,79 +58,6 @@ export default function Reservation() {
               </p>
             </div>
           </div>
-
-{/* New Update Section */} 
-          <form className="space-y-4">
-              <h3 className="text-lg font-semibold mb-3 font-sans">Update Here</h3>
-                <div className="grid grid-cols-2 gap-4">
-                <input
-                    type="text"
-                    placeholder="Enter ID No."
-                    className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
-                  />
-                   <input
-                    type="text"
-                    placeholder="Enter Customer Name"
-                    className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
-                  />
-                  <select
-                    name="Room No"
-                    className="p-2 border rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
-                    defaultValue=""
-                  >
-                   <option value="" disabled>
-                    Select Room No
-                 </option>
-                  <option value="101">101</option>
-                  <option value="102">102</option>
-                  <option value="103">103</option>
-                  </select>
-                  <select
-                    name="Room Type"
-                    className="p-2 border rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
-                    defaultValue=""
-                  >
-                   <option value="" disabled>
-                    Select Room Type
-                 </option>
-                  <option value="single">Single</option>
-                  <option value="double">Double</option>
-                  <option value="suite">Suite</option>
-                  </select>
-                  <input
-                    type="text"
-                    placeholder="Enter Room Price"
-                    className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
-                  />
-                  <input
-                    type="datetime-local"
-                    placeholder="Check In"
-                    className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
-                  />
-                  <input
-                    type="date"
-                    placeholder="Check Out"
-                    className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
-                  />
-                </div>
-
-{/* Action Buttons */}
-                <div className="flex justify-end space-x-4">
-                  <button
-                    type="button"
-                    className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
-                    onClick={closeModal}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-900"
-                  >
-                    Save
-                  </button>
-                </div>
-              </form>
         </div>
         </div>
     )
@@ -141,9 +68,9 @@ export default function Reservation() {
     const [formData, setFormData] = useState({
       c_id:0,
       id_type: "",
-      id_no: "",
+      id_no: null,
       name: "",
-      phone_number: 0,
+      phone_number: null,
       address: "",
       gender_type: "",
       email: "",
@@ -151,22 +78,32 @@ export default function Reservation() {
     });
   
 {/* Handle input change*/}
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      const { name, value } = e.target;
-      setFormData((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
-    };
+const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const { name, value } = e.target;
+
+  // For number fields, treat empty values as null
+  if (name === "id_no" || name === "phone_number") {
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value === "" ? null : Number(value),  // Convert empty string to null
+    }));
+  } else {
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  }
+};
+
 
 {/* Handle form reset*/}
     const handleReset = () => {
       setFormData({
         c_id:0,
         id_type: "",
-        id_no: "",
+        id_no: null,
         name: "",
-        phone_number: 0,
+        phone_number: null,
         address: "",
         gender_type: "",
         email: "",
@@ -181,7 +118,9 @@ export default function Reservation() {
         // Convert phoneNo to BigInt
         const customerData = {
             ...formData,
-            phoneNo: Number(formData.phone_number), // Convert to BigInt
+            phoneNo: Number(formData.phone_number),
+            id_no: formData.id_no||0,
+            c_id:formData.c_id||0 // Convert to BigInt
         };
         
         await addCustomer(customerData);
@@ -217,7 +156,7 @@ export default function Reservation() {
               name="id_no"
               placeholder="ID No."
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-              value={formData.id_no}
+              value={formData.id_no||""}
               onChange={handleInputChange}
             />
             <input
@@ -233,7 +172,7 @@ export default function Reservation() {
               name="phone_number"
               placeholder="Phone No"
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-              value={formData.phone_number}
+              value={formData.phone_number||""}
               onChange={handleInputChange}
             />
             <input
@@ -315,7 +254,7 @@ export default function Reservation() {
       <div className="mt-6">
         
         {activeTab === "addCustomer" && <AddCustomer />}
-        {activeTab === "bookRoom" && <BookRoom />}
+        {activeTab === "bookRoom" && <BookRoom/>}
         {activeTab === "confirmedList" && <ConfirmedList />}
       </div>
 
