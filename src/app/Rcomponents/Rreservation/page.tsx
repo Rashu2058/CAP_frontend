@@ -65,8 +65,18 @@ export default function Reservation() {
       
 {/* Add Customer Component */}
   const AddCustomer = () => {
-    const [formData, setFormData] = useState({
-      c_id:0,
+    const [formData, setFormData] = useState<{
+      c_id: number;
+      id_type: string;
+      id_no: number | null;
+      name: string;
+      phone_number: number | null;
+      address: string;
+      gender_type: string;
+      email: string;
+      nationality: string;
+    }>({
+      c_id: 0,
       id_type: "",
       id_no: null,
       name: "",
@@ -74,9 +84,11 @@ export default function Reservation() {
       address: "",
       gender_type: "",
       email: "",
-      nationality: ""
+      nationality: "",
     });
-  
+
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
 {/* Handle input change*/}
 const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
   const { name, value } = e.target;
@@ -96,6 +108,7 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
 };
 
 
+
 {/* Handle form reset*/}
     const handleReset = () => {
       setFormData({
@@ -110,10 +123,41 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
         nationality: ""
       });
     };
+{/*check valid email*/}
+    const isValidEmail = (email: string): boolean => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    };
+
+{/*validate form*/}
+    const validateForm = () => {
+      const newErrors: { [key: string]: string } = {};
+    
+      if (!formData.id_type) newErrors.id_type = "ID Type is required.";
+      if (!formData.id_no) newErrors.id_no = "ID No. is required.";
+      if (!formData.name) newErrors.name = "Name is required.";
+      if (!formData.phone_number) newErrors.phone_number = "Phone number is required.";
+      if (formData.phone_number && formData.phone_number.toString().length !== 10) {
+        newErrors.phone_number = "Phone number must be 10 digits.";
+      }
+      if (!formData.address) newErrors.address = "Address is required.";
+      if (!formData.gender_type) newErrors.gender_type = "Gender is required.";
+      if (!formData.email) newErrors.email = "Email is required.";
+      if (formData.email && !isValidEmail(formData.email)) {
+        newErrors.email = "Invalid email format.";
+      }
+      if (!formData.nationality) newErrors.nationality = "Nationality is required.";
+    
+      setErrors(newErrors);
+    
+      return Object.keys(newErrors).length === 0;
+    };
 
 {/* Handle form submission (Next button)*/}
     const handleAddCustomer = async(e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
+      if(!validateForm()) return;
+
       try {
         // Convert phoneNo to BigInt
         const customerData = {
@@ -130,6 +174,7 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
         
     } catch (error) {
         console.error("Error adding customer", error);
+        alert("Failed to add customer.Please try again");
     }
     };
  
@@ -159,6 +204,7 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
               value={formData.id_no||""}
               onChange={handleInputChange}
             />
+            {errors.id_no && <p className="text-red-500 text-sm">{errors.id_no}</p>}
             <input
               type="text"
               name="name"
@@ -167,6 +213,7 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
               value={formData.name}
               onChange={handleInputChange}
             />
+            {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
             <input
               type="text"
               name="phone_number"
@@ -174,7 +221,9 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
               value={formData.phone_number||""}
               onChange={handleInputChange}
+              maxLength={10}
             />
+            {errors.phone_number && <p className="text-red-500 text-sm">{errors.phone_number}</p>}
             <input
               type="text"
               name="address"
@@ -182,7 +231,9 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
               value={formData.address}
               onChange={handleInputChange}
+              maxLength={20}
             />
+            {errors.address && <p className="text-red-500 text-sm">{errors.address}</p>}
             <select
               name="gender_type"
               className="p-2 border rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
@@ -194,6 +245,7 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
               <option value="FEMALE">Female</option>
               <option value="OTHERS">Others</option>
             </select>
+            {errors.gender_type && <p className="text-red-500 text-sm">{errors.gender_type}</p>}
             <input
               type="text"
               name="email"
@@ -202,6 +254,7 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
               value={formData.email}
               onChange={handleInputChange}
             />
+            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
             <input
               type="text"
               name="nationality"
@@ -210,6 +263,7 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
               value={formData.nationality}
               onChange={handleInputChange}
             />
+            {errors.nationality && <p className="text-red-500 text-sm">{errors.nationality}</p>}
 
             <div className="flex justify-end sm:justify-end px-2 py-2 space-x-2">
               <button

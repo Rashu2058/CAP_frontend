@@ -11,6 +11,16 @@ export default function Login() {
   const [message, setMessage] = useState<string>('');
   const loginPanelRef = useRef<HTMLDivElement>(null);
   const [isInView, setIsInView] = useState(false);
+  const[isLoginPanelvisible,setIsLoginPanelVisible]=useState(false)
+
+  const scrollToLoginPanel = () => {
+    setIsLoginPanelVisible(true);
+    setTimeout(()=>{
+    if (loginPanelRef.current) {
+      loginPanelRef.current.scrollIntoView({ behavior: "smooth" });
+  }
+},100);
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -63,13 +73,14 @@ export default function Login() {
 
   return (
     <div className="login-container">
+      
 
 {/* Navbar */}
       <nav className="navbar">
         <div className="navbar-content">
           <img src="/Logo GraceInn.png" alt="Logo" className="logo" width={80} height={80} />
           <div className="nav-items">
-            <button className="login-btn">Login</button>
+            <button className="login-btn"onClick={scrollToLoginPanel}>Login</button>
           </div>
         </div>
       </nav>
@@ -96,8 +107,9 @@ export default function Login() {
         </header>
 
 {/* Login Panel */}
+      {isLoginPanelvisible &&(
         <div className="login-panel-container" ref={loginPanelRef}>
-          <div className={`login-panel transform transition-opacity duration-700 ease-in-out ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className={"login-panel"}>
             <h1>Login Panel</h1>
             <h2><i>Control Panel Login</i></h2>
 
@@ -135,6 +147,7 @@ export default function Login() {
             </form>
           </div>
         </div>
+      )}
       </main>
 
 {/* Footer */}
