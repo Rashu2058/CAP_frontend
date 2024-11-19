@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
-type CartItem = {
+
+type orderItem = {
   id: number;
   name: string;
   price: number;
@@ -11,48 +13,75 @@ type CartItem = {
 type ConfirmedOrder = {
   roomNo: string;
   customerName: string;
-  items: CartItem[];
+  items: orderItem[];
 };
+type Room={
+  roomNo:string;
+  customerName:string;
+}
+
 
 export default function FoodOrders() {
-  const foodItems: CartItem[] = [
+  const foodItems: orderItem[] = [
     { id: 1, name: 'Pizza', price: 500, image: '/pizza.jpeg', quantity: 0 },
     { id: 2, name: 'Burger', price: 300, image: '/burger.jpg', quantity: 0 },
     { id: 3, name: 'Pasta', price: 400, image: '/pasta.jpeg', quantity: 0 },
   ];
 
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [order, setorder] = useState<orderItem[]>([]);
   const [confirmedOrders, setConfirmedOrders] = useState<ConfirmedOrder[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [roomNo, setRoomNo] = useState('');
-  const [customerName, setCustomerName] = useState('');
+  const [customerName, setcustomerName] = useState('');
+  const [searchMenu, setSearchMenu] = useState("");
+  const [searchOrders, setSearchOrders] = useState("");
   const [orderConfirmed, setOrderConfirmed] = useState(false);
 
-  const addToCart = (item: CartItem) => {
-    const existingItem = cart.find((cartItem) => cartItem.id === item.id);
+{/*fetch available rooms and customer names*/}
+useEffect(() => {
+  const token = localStorage.getItem('token'); // Assuming the token is stored in localStorage
+  if (token) {
+    axios
+      .get('http://localhost:8080/api/v1/food-orders/reserved-rooms', {
+        headers: {
+          Authorization: `Bearer ${token}`, // Send the token in the Authorization header
+        },
+      })
+      .then((response) => {
+        console.log('Rooms Respose:',response.data);
+        setRooms(response.data)
+      })
+      .catch((error) => console.error('Error fetching rooms:', error));
+  }
+}, []);
+
+
+  const addToorder = (item: orderItem) => {
+    const existingItem = order.find((orderItem) => orderItem.id === item.id);
     if (existingItem) {
-      setCart(
-        cart.map((cartItem) =>
-          cartItem.id === item.id
-            ? { ...cartItem, quantity: cartItem.quantity + 1 }
-            : cartItem
+      setorder(
+        order.map((orderItem) =>
+          orderItem.id === item.id
+            ? { ...orderItem, quantity: orderItem.quantity + 1 }
+            : orderItem
         )
       );
     } else {
-      setCart([...cart, { ...item, quantity: 1 }]);
+      setorder([...order, { ...item, quantity: 1 }]);
     }
   };
 
   const increaseQuantity = (id: number) => {
-    setCart(
-      cart.map((item) =>
+    setorder(
+      order.map((item) =>
         item.id === id ? { ...item, quantity: item.quantity + 1 } : item
       )
     );
   };
 
   const decreaseQuantity = (id: number) => {
-    setCart(
-      cart.map((item) =>
+    setorder(
+      order.map((item) =>
         item.id === id
           ? { ...item, quantity: item.quantity > 1 ? item.quantity - 1 : 1 }
           : item
@@ -60,17 +89,17 @@ export default function FoodOrders() {
     );
   };
 
-  const removeFromCart = (id: number) => {
-    setCart(cart.filter((item) => item.id !== id));
+  const removeFromorder = (id: number) => {
+    setorder(order.filter((item) => item.id !== id));
   };
 
-  const totalAmount = cart.reduce(
+  const totalAmount = order.reduce(
     (total, item) => total + item.price * item.quantity,
     0
   );
 
   const onConfirmOrder = () => {
-    if (cart.length > 0 && roomNo && customerName) {
+    if (order.length > 0 && roomNo && customerName) {
       // Check if an order with the same room number and customer name already exists
       const existingOrderIndex = confirmedOrders.findIndex(
         (order) => order.roomNo === roomNo && order.customerName === customerName
@@ -79,30 +108,48 @@ export default function FoodOrders() {
       if (existingOrderIndex !== -1) {
         // Update the existing order's items
         const updatedOrders = [...confirmedOrders];
-        updatedOrders[existingOrderIndex].items = cart;
+        updatedOrders[existingOrderIndex].items = order;
         setConfirmedOrders(updatedOrders);
       } else {
         // Add a new order if no matching order is found
         setConfirmedOrders([
           ...confirmedOrders,
-          { roomNo, customerName, items: cart },
+          { roomNo, customerName, items: order },
         ]);
       }
   
-      // Clear the cart and reset form fields
-      setCart([]);
+      // Clear the order and reset form fields
+      setorder([]);
       setRoomNo('');
-      setCustomerName('');
+      setcustomerName('');
       setOrderConfirmed(true);
       setTimeout(() => setOrderConfirmed(false), 3000); // Hide message after 3 seconds
     }
   };
+   
+  const handleRoomChange = (selectedRoomNo: string) => {
+    setRoomNo(selectedRoomNo);
   
+    // Find the selected room in the rooms array
+    const selectedRoom = rooms.find((room) => room.roomNo === selectedRoomNo);
+    
+    // Debugging log
+    console.log('Selected Room:', selectedRoom);
+    
+    if (selectedRoom) {
+      setcustomerName(selectedRoom.customerName);
+    } else {
+      setcustomerName('');
+    }
+  };
+  
+  
+
   const editOrder = (order: ConfirmedOrder) => {
-    // Populate cart with items from the selected order
-    setCart(order.items);
+    // Populate order with items from the selected order
+    setorder(order.items);
     setRoomNo(order.roomNo);
-    setCustomerName(order.customerName);
+    setcustomerName(order.customerName);
   };
   return (
     <div className="p-4">
@@ -142,23 +189,29 @@ export default function FoodOrders() {
             <label className="block text-sm font-semibold">Room No</label>
             <select
               name="roomNo"
+              value={roomNo}
+              onChange={(e)=>handleRoomChange(e.target.value)}
               className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
               defaultValue=""
             >
-              <option value="" disabled>
-                Select Room No
-              </option>
-              <option value="101">101</option>
-              <option value="102">102</option>
-              <option value="103">103</option>
-            </select>
-          </div>
+               <option value="" disabled>
+                  Select Room No
+                </option>
+                {rooms.map((room) => (
+                  <option key={room.roomNo} value={room.roomNo}>
+                    {room.roomNo}
+                  </option>
+                ))}
+              </select>
+            </div>
 
 {/* Customer Name */}
           <div className="flex flex-col">
             <label className="block text-sm font-semibold">Customer Name</label>
             <input
               type="text"
+              value={customerName}
+              readOnly
               placeholder="Robert Wilson"
               className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
             />
@@ -181,23 +234,23 @@ export default function FoodOrders() {
                 <p className="text-gray-600">Price: NPR {item.price}</p>
                 <button
                   className="mt-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
-                  onClick={() => addToCart(item)}
+                  onClick={() => addToorder(item)}
                 >
-                  Add to Cart
+                  Add to order
                 </button>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Right Section - Cart */}
+        {/* Right Section - order */}
         <div className="w-1/3 p-4 bg-white rounded-lg">
           <h2 className="text-lg font-bold mb-4">Orders</h2>
-          {cart.length === 0 ? (
+          {order.length === 0 ? (
             <p className="text-gray-500">Your order is empty.</p>
           ) : (
             <>
-              {cart.map((item) => (
+              {order.map((item) => (
                 <div
                   key={item.id}
                   className="flex justify-between items-center border-b py-2"
@@ -224,7 +277,7 @@ export default function FoodOrders() {
                     </button>
                     <button
                       className="text-red-500 hover:text-red-700 ml-4"
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={() => removeFromorder(item.id)}
                     >
                       Delete
                     </button>

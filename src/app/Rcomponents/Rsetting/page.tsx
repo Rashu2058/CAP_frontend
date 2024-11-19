@@ -76,22 +76,6 @@ export default function RSettings() {
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Name</label>
-            <input
-              type="text"
-              className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-              placeholder="User"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Username</label>
-            <input
-              type="text"
-              className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-              placeholder="user123"
-            />
-          </div>
-          <div>
             <label className="block text-sm font-medium mb-1">Email</label>
             <input
               type="text"
@@ -106,20 +90,6 @@ export default function RSettings() {
               className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
               placeholder="9800000000"
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Gender</label>
-            <select
-              className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-              defaultValue=""
-            >
-              <option value="" disabled>
-                Select Gender
-              </option>
-              <option>Male</option>
-              <option>Female</option>
-              <option>Others</option>
-            </select>
           </div>
         </div>
       </div>

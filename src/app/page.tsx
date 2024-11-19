@@ -63,6 +63,8 @@ export default function Login() {
 
   return (
     <div className="login-container">
+
+{/* Navbar */}
       <nav className="navbar">
         <div className="navbar-content">
           <img src="/Logo GraceInn.png" alt="Logo" className="logo" width={80} height={80} />
@@ -72,6 +74,7 @@ export default function Login() {
         </div>
       </nav>
 
+{/* Hotel Image Section */}
       <div className="hotel-image-container">
         <Image
           src="/logImage.jpg"
@@ -86,11 +89,13 @@ export default function Login() {
         </div>
       </div>
 
+{/* Main Content */}
       <main className="content">
         <header className="header">
           <h6>Please Login to Continue</h6>
         </header>
 
+{/* Login Panel */}
         <div className="login-panel-container" ref={loginPanelRef}>
           <div className={`login-panel transform transition-opacity duration-700 ease-in-out ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <h1>Login Panel</h1>
@@ -99,16 +104,27 @@ export default function Login() {
             <form className="login-form" onSubmit={handleLogin}>
               <div className="input-field">
                 <label>Username</label>
-                <input type="text" placeholder="Enter your username" value={username} onChange={(e) => setUsername(e.target.value)} />
+                <input type="text" 
+                placeholder="Enter your username" 
+                value={username} 
+                onChange={(e) => setUsername(e.target.value)} 
+                maxLength={15}
+                />
               </div>
               <div className="input-field">
                 <label>Password</label>
-                <input type="password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <input type="password" 
+                placeholder="Enter your password" 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)}
+                maxLength={8}
+                />
               </div>
               <button type="submit" className="sign-in-btn">Sign in</button>
 
               {message && <p>{message}</p>}
 
+{/* Wave Container */}
               <div className="wave-container">
                 <svg viewBox="0 0 500 150" className="wave-svg">
                   <path d="M20,150 C-450,150 450,-100 600,50 L500,150 L0,150 Z" fill="#896caa"></path>
@@ -121,7 +137,10 @@ export default function Login() {
         </div>
       </main>
 
-      <footer className="footer">Hotel Grace Inn</footer>
+{/* Footer */}
+      <footer className="footer">
+      <div className="footnav bg-gray-300 py-8"></div>
+      Hotel Grace Inn</footer>
     </div>
   );
 }

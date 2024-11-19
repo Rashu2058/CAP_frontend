@@ -7,8 +7,8 @@ interface Food {
   f_id: number;
   food_price: number;
   food_name: string;
-  food_category: string;
-  image: string | null;
+  foodCategory: string;
+  imagePath: string ;
 }
 
 export default function FoodManagement() {
@@ -19,18 +19,22 @@ export default function FoodManagement() {
     "Drinks",
     "Desserts",
   ]);
+
+  {/*state and store added food items*/}
   const [newItem, setNewItem] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [foodItems, setFoodItems] = useState<Food[]>([]);
   const [foodName, setFoodName] = useState("");
   const [foodPrice, setFoodPrice] = useState("");
-  const [foodCategory, setFoodCategory] = useState("");
+  const [foodCategory, setfoodCategory] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   useEffect(() => {
     fetchFoodItems();
   }, []);
+
+  {/* fetch food items from the database */}
 
   const fetchFoodItems = async () => {
     try {
@@ -41,6 +45,7 @@ export default function FoodManagement() {
           "Content-Type": "application/json",
         },
       });
+      console.log("Fetched food items:",response.data);
       setFoodItems(response.data);
     } catch (error) {
       console.error("Error fetching food items:", error);
@@ -53,7 +58,7 @@ export default function FoodManagement() {
       const formData = new FormData();
       formData.append("food_name", foodName);
       formData.append("food_price", foodPrice);
-      formData.append("food_category", foodCategory);
+      formData.append("foodCategory", foodCategory);
 
       const imageInput = document.querySelector('input[type="file"]') as HTMLInputElement;
       if (imageInput && imageInput.files && imageInput.files[0]) {
@@ -83,8 +88,8 @@ export default function FoodManagement() {
       const formData = new FormData();
       formData.append("food_name", foodName);
       formData.append("food_price", foodPrice);
-      formData.append("food_category", foodCategory);
-
+      formData.append("foodCategory", foodCategory);
+  
       const imageInput = document.querySelector('input[type="file"]') as HTMLInputElement;
       if (imageInput && imageInput.files && imageInput.files[0]) {
         const imageFile = imageInput.files[0];
@@ -116,9 +121,10 @@ export default function FoodManagement() {
   const clearInputs = () => {
     setFoodName("");
     setFoodPrice("");
-    setFoodCategory("");
+    setfoodCategory("");
     setPreviewImage(null);
     setEditingIndex(null);
+    
     
   };
 
@@ -157,28 +163,49 @@ export default function FoodManagement() {
     const food = foodItems[index];
     setFoodName(food.food_name);
     setFoodPrice(food.food_price.toString());
-    setFoodCategory(food.food_category);
-    setPreviewImage(food.image);
+    setfoodCategory(food.foodCategory);
+    setPreviewImage(food.imagePath);
     setEditingIndex(index);
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-4">
-      <div className="bg-white p-6 rounded-lg mb-6 align-right">
+    <div>    
+{/*Food Menu Management Section*/} 
+    <div className="max-w-5xl mx-auto p-4">  
+
+{/*Add New Food Menu Section*/}   
+      <div className="bg-white p-6 rounded-lg mb-6 align-right">    
         <h3 className="text-2xl text-gray-900 font-bold mb-4 font-sans">Food Menu</h3>
         <form className="grid grid-cols-1 gap-4 mb-4" onSubmit={(e) => e.preventDefault()}>
-          <input type="text" value={foodName} onChange={(e) => setFoodName(e.target.value)} placeholder="Name" className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300" />
-          <input type="text" value={foodPrice} onChange={(e) => setFoodPrice(e.target.value)} placeholder="Price" className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300" />
+          <input type="text" 
+          value={foodName} 
+          onChange={(e) => setFoodName(e.target.value)}
+           placeholder="Name" 
+           className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300" />
+          <input type="text" 
+          value={foodPrice}
+           onChange={(e) => setFoodPrice(e.target.value)}
+            placeholder="Price" 
+            className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300" />
           
+{/*Food Category*/}           
           <div className="relative">
-            <button type="button" onClick={() => setDropdownOpen(!dropdownOpen)} className="w-full text-left p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300">
+            <button type="button" 
+            onClick={() => setDropdownOpen(!dropdownOpen)} 
+            className="w-full text-left p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300">
               {foodCategory ? foodCategory : "Select Food Category"}
             </button>
             {dropdownOpen && (
               <div className="absolute z-10 mt-2 w-full bg-white shadow-lg rounded-md max-h-60 overflow-y-auto">
                 {items.map((item, index) => (
                   <div key={index} className="flex justify-between items-center p-2 hover:bg-gray-100">
-                    <span onClick={() => { setFoodCategory(item); setDropdownOpen(false); }} className="cursor-pointer">{item}</span>
+                    <span 
+                    onClick={() => {
+                       setfoodCategory(item); 
+                       setDropdownOpen(false); 
+                       }}
+                      className="cursor-pointer">
+                        {item}</span>
                   </div>
                 ))}
               </div>
@@ -186,6 +213,7 @@ export default function FoodManagement() {
           </div>
         </form>
 
+{/*Add  new category input*/} 
         <div className="flex flex-row items-center space-y-0 gap-x-4">
           <input type="text" value={newItem} onChange={(e) => setNewItem(e.target.value)} placeholder="Add new category" className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300" />
           <button onClick={addItem} className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700">Add Category</button>
@@ -215,25 +243,37 @@ export default function FoodManagement() {
         </div>
       </div>
 
+{/*Display added food items as card*/}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {foodItems.map((food, index) => (
-          <div key={index} className="bg-white p-4 rounded-lg shadow-lg">
-            {food.image && (
-              <img
-                src={food.image}
-                alt={food.food_name}
-                className="w-full h-40 object-cover rounded-lg"
-              />
-            )}
-            <div className="mt-4">
-              <h4 className="text-lg font-bold">{food.food_name}</h4>
-              <p className="text-gray-700">Category: {food.food_category}</p>
-              <p className="text-gray-900 font-semibold mt-1">Price: Rs.{food.food_price}</p>
-              <div className="flex items-center justify-end mt-4 space-x-2">
-                <button onClick={() => editFoodItem(index)} className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
-                  Edit
-                </button>
-                <button onClick={() => deleteFoodItem(index)} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+        <div key={index} className="bg-white p-4 rounded-lg shadow-lg">
+        {food.imagePath ? (
+          <img
+            src={`http://localhost:8080${food.imagePath}`}
+            alt={food.food_name}
+            className="w-full h-40 object-cover rounded-lg"
+          />
+        ) : (
+          <img
+            src="/placeholder-image.jpg"
+            alt="No Image Available"
+            className="w-full h-40 object-cover rounded-lg"
+          />
+        )}
+        <div className="mt-4">
+          <h4 className="text-lg font-bold">{food.food_name}</h4>
+          <p className="text-gray-700">
+            Category: {food.foodCategory ? food.foodCategory : "No category specified"}
+          </p>
+          <p className="text-gray-900 font-semibold mt-1">Price: NPR.{food.food_price}</p>
+          <div className="flex items-center justify-end mt-4 space-x-2">
+            <button
+              onClick={() => editFoodItem(index)}
+              className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+            >
+              Edit
+            </button>      
+              <button onClick={() => deleteFoodItem(index)} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-700">
                   Delete
                 </button>
               </div>
@@ -241,6 +281,7 @@ export default function FoodManagement() {
           </div>
         ))}
       </div>
+    </div>
     </div>
   );
 }
