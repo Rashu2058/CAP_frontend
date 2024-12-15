@@ -9,14 +9,23 @@ import Customer from '@/app/Rcomponents/Rcustomer/page';
 import FoodOrders from '@/app/Rcomponents/FoodOrders/page';
 import RProfile from '@/app/Rcomponents/Rprofile/page';
 import Rrevenue from '@/app/Rcomponents/Rrevenue/page';
+import { useRouter } from 'next/navigation';
+
 
 export default function Dashboard() {
   const [activeSetting, setActiveSetting] = useState("revenue");
   const [isOpen, setIsOpen] = useState(false);
-
   const dropdownRef = useRef<HTMLDivElement | null>(null); // Reference for dropdown menu
+  const router = useRouter();
 
   const Report = () => <h1>Report</h1>;
+
+  {/*handle logout*/}
+  const handlelogout=()=>{
+    localStorage.removeItem("authtoken");
+    router.push("/");
+  };
+
 
   // Close the dropdown when clicking outside of it
   useEffect(() => {
@@ -31,6 +40,7 @@ export default function Dashboard() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [dropdownRef]);
+  
 
   return (
     <div className="min-h-screen flex bg-gray-200">
@@ -129,7 +139,7 @@ export default function Dashboard() {
                   <span className="ml-2 hidden lg:inline-block">Profile</span>
                 </a>
 
-                <a href="#" className="flex items-center px-4 py-2 text-sm hover:bg-gray-900 text-white">
+                <a href="#" onClick={handlelogout}className="flex items-center px-4 py-2 text-sm hover:bg-gray-900 text-white">
                   <Image src="/logoutt.png" alt="Logout" width={20} height={20} className="rounded-full" />
                   <span className="ml-2 hidden lg:inline-block">Logout</span>
                 </a>

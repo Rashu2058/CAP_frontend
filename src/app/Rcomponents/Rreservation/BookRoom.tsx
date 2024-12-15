@@ -32,7 +32,7 @@ export default function BookRoom() {
   });
   const [availableRooms, setAvailableRooms] = useState<AvailableRoom[]>([]);
   const [activeTab, setActiveTab] = useState("ConfirmedList");
-
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   // Fetch available rooms
   useEffect(() => {
     const fetchAvailableRooms = async () => {
@@ -98,8 +98,23 @@ export default function BookRoom() {
     const storedCustomerIdNo = localStorage.getItem("customer_idno");
     if (storedCustomerIdNo) {
       setFormData((prev) => ({ ...prev, customer_idno: storedCustomerIdNo }));
+    
     }
   }, []);
+
+{/*validate form*/}
+const validateForm = () => {
+  const newErrors: { [key: string]: string } = {};
+
+  if (!formData.room_type) newErrors.room_type = "Room Type is required.";
+  if (!formData.room_no) newErrors.room_no = "Room no is required.";
+  if (!formData.check_in_date) newErrors.check_in_date = "CheckIn date is required.";
+  if (!formData.check_out_date) newErrors.check_out_date = "CheckOut date is required.";
+
+  setErrors(newErrors);
+
+  return Object.keys(newErrors).length === 0;
+};
 
   // Handle input changes
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -122,6 +137,7 @@ export default function BookRoom() {
 
     // Submit reservation to backend
     const submitReservation = async () => {
+      if(!validateForm()) return;
       try {
           const token = localStorage.getItem("token");
           const reservationData = {
@@ -145,11 +161,7 @@ export default function BookRoom() {
           handleReset();
       } catch (error:any) {
           console.error("Error adding reservation", error);
-          if (error.response && error.response.status === 401) {
-              alert("Unauthorized. Please log in.");
-          } else {
-              alert("There was an error adding the reservation. Please try again.");
-          }
+          
       }
   };
   
@@ -171,7 +183,9 @@ export default function BookRoom() {
             className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
             value={formData.customer_idno}
             onChange={handleInputChange}
+            readOnly
           />
+          
           <select
             name="room_type"
             className="p-2 border rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
@@ -184,6 +198,7 @@ export default function BookRoom() {
             <option value="SUITE">Suite</option>
           </select>
           
+          {errors.room_type && <p className="text-red-500 text-sm">{errors.room_type}</p>}
           <select
             name="room_no"
             className="p-2 border rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
@@ -197,7 +212,9 @@ export default function BookRoom() {
               <option key={rooms.room_no} value={rooms.room_no}>
                 {rooms.room_no}
               </option>
-            ))}
+            ))}       
+          {errors.room_no && <p className="text-red-500 text-sm">{errors.room_no}</p>}
+          
 
           </select>
           <input
@@ -214,15 +231,16 @@ export default function BookRoom() {
             className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
             value={formData.check_in_date}
             onChange={handleInputChange}
-          />
+          />    
+          {errors.check_in_date && <p className="text-red-500 text-sm">{errors.check_in_date}</p>}
           <input
             type="datetime-local"
             name="check_out_date"
             className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
             value={formData.check_out_date}
             onChange={handleInputChange}
-          />
-
+          />        
+          {errors.check_out_date && <p className="text-red-500 text-sm">{errors.check_out_date}</p>}
           {/* Action Buttons */}
           <div className="flex justify-end space-x-2">
             <button

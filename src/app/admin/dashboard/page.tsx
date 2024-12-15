@@ -9,13 +9,19 @@ import Settings from '../../components/setting/page';
 import Profile from '../../components/profile/page';
 import Revenue from '@/app/components/revenue/page';
 import Report from '@/app/components/report/page';
+import { useRouter } from 'next/navigation';
 
 export default function Dashboard() {
   const [activeSetting, setActiveSetting] = useState("revenue");
   const [isOpen, setIsOpen] = useState(false);
+  const router=useRouter();
 
   const dropdownRef = useRef<HTMLDivElement | null>(null); // Reference for dropdown menu
-
+  {/*handle logout*/}
+  const handlelogout=()=>{
+    localStorage.removeItem("authtoken");
+    router.push("/");
+  };
 {/* Close the dropdown when clicking outside of it*/}
 useEffect(() => {
   function handleClickOutside(event: MouseEvent) {
@@ -139,7 +145,7 @@ useEffect(() => {
                   <span className="ml-2 hidden lg:inline-block">Profile</span>
                 </a>
 
-                <a href="#" className="flex items-center px-4 py-2 text-sm hover:bg-gray-900 text-white">
+                <a href="#" onClick={handlelogout}className="flex items-center px-4 py-2 text-sm hover:bg-gray-900 text-white">
                   <Image src="/logoutt.png" alt="Logout" width={20} height={20} className="rounded-full" />
                   <span className="ml-2 hidden lg:inline-block">Logout</span>
                 </a>
