@@ -107,11 +107,12 @@ export default function FoodOrders() {
   return (
     <div className="p-4">
       <div className="flex">
-        {/* Left Section - Menu */}
+
+{/* Left Section - Menu */}
         <div className="w-2/3 p-4 bg-white rounded-lg mr-4">
           <h2 className="text-lg font-bold mb-4">Menu</h2>
 
-          {/* Search bar */}
+{/* Search bar */}
           <div className="flex justify-center mb-4">
             <div className="relative w-full max-w-md">
               <input
@@ -134,9 +135,9 @@ export default function FoodOrders() {
           className="grid grid-cols-2 gap-4 mb-4"
           onSubmit={(e) => {
             e.preventDefault(); // Prevent form submission
-            addFoodItem(); // Add food item
           }}
         >
+
 {/* Room No */}
           <div className="flex flex-col">
             <label className="block text-sm font-semibold">Room No</label>
@@ -327,6 +328,6 @@ export default function FoodOrders() {
     </table>
   </div>
 )}
-    </div>
-  );
+</div>
+);
 }

@@ -9,9 +9,9 @@ import ConfirmedList from "./confirmedList";
 
 {/* Tab data and corresponding components */}
 const tabs = [
-  { id: "addCustomer", label: "Add Customer" },
-  { id: "bookRoom", label: "Book Room" },
-  { id: "confirmedList", label: "Confirmed List" },
+  { id: "addCustomer", label: "Customer" },
+  { id: "bookRoom", label: "Reservation" },
+  { id: "confirmedList", label: "Reserved" },
 ];
 
 export default function Reservation() {
@@ -95,7 +95,6 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
   }
 };
 
-
 {/* Handle form reset*/}
     const handleReset = () => {
       setFormData({
@@ -132,8 +131,6 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
         console.error("Error adding customer", error);
     }
     };
- 
-   
 
     return (
       <div className="max-w-5xl mx-auto p-4">

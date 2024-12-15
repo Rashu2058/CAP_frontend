@@ -5,14 +5,16 @@ import Image from "next/image";
 {/* Tab data and corresponding components*/}
 const tabs = [
   { id: "profile", label: "Profile" },
-  { id: "changePassword", label: "Change Password" },
-  { id: "changeLogo", label: "Change Logo" },
+  { id: "changePassword", label: "Password" },
+  { id: "changePicture", label: "System Picture" },
+  { id: "changeLogo", label: "Logo" },
 ];
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState("profile");
 
 {/* Component definitions*/}
+
 {/*Profile*/}
   const Profile = () => (
     <div className="flex justify-center items-center bg-gray-200">
@@ -145,6 +147,49 @@ export default function Settings() {
       </div>
     </div>
   );
+{/*Change Picture*/}
+const ChangePicture = () => (
+  <div className="flex justify-center items-center bg-gray-200">
+    <div className="bg-white w-full max-w-md p-8 rounded-lg shadow-lg">
+      <h1 className="text-center font-bold text-2xl mb-4">Change Picture</h1>
+      <p className="text-center mb-6">Upload a new picture for the hotel.</p>
+
+      <div className="flex justify-center mb-6">
+        <div className="relative">
+          <Image
+            src={picture}
+            alt="Picture"
+            width={100}
+            height={100}
+            className="w-200 h-200 "
+          />
+          <button
+            className="absolute bottom-0 right-0 bg-gray-200 p-2 rounded-full text-lg font-bold"
+            onClick={handlePictureUploadClick}
+          >
+            +
+          </button>
+          <input
+            type="file"
+            ref={logoInputRef}
+            style={{ display: "none" }}
+            accept="image/*"
+            onChange={handlePictureChange}
+          />
+        </div>
+      </div>
+
+      <div className="text-center mt-6">
+        <button
+          type="submit"
+          className="w-full bg-gray-900 text-white py-2 rounded-md hover:bg-gray-700"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+);
 
 {/*Change Logo*/}
   const ChangeLogo = () => (
@@ -183,7 +228,7 @@ export default function Settings() {
             type="submit"
             className="w-full bg-gray-900 text-white py-2 rounded-md hover:bg-gray-700"
           >
-            Save Logo
+            Save
           </button>
         </div>
       </div>
@@ -193,10 +238,12 @@ export default function Settings() {
 {/* State for the uploaded profile and logo image */}
   const [profileImage, setProfileImage] = useState("/admin.png");
   const [logoImage, setLogoImage] = useState("/logo.png"); 
+  const [picture, setPicture] = useState("/logImage.jpg"); 
 
 {/* Reference to the hidden profile and logo input */}
   const profileInputRef = useRef<HTMLInputElement | null>(null);
   const logoInputRef = useRef<HTMLInputElement | null>(null);
+  const pictureInputRef = useRef<HTMLInputElement | null>(null);
 
 {/* Function to handle profile image upload */}
   const handleProfileImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -216,6 +263,15 @@ export default function Settings() {
     }
   };
 
+{/* Function to handle picture image upload */}
+const handlePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const file = event.target.files?.[0];
+  if (file) {
+    const imageUrl = URL.createObjectURL(file);
+    setPicture(imageUrl);
+  }
+};
+
 {/* Function to handle button click to trigger profile input */}
   const handleProfileUploadClick = () => {
     profileInputRef.current?.click();
@@ -223,6 +279,11 @@ export default function Settings() {
 
 {/* Function to handle button click to trigger logo input */}
   const handleLogoUploadClick = () => {
+    logoInputRef.current?.click();
+  };
+
+{/* Function to handle button click to trigger picture input */}
+  const handlePictureUploadClick = () => {
     logoInputRef.current?.click();
   };
 
@@ -247,6 +308,7 @@ return (
       <div className="mt-6">
         {activeTab === "profile" && <Profile />}
         {activeTab === "changePassword" && <ChangePassword />}
+        {activeTab === "changePicture" && <ChangePicture />}
         {activeTab === "changeLogo" && <ChangeLogo />}
       </div>
     </div>
