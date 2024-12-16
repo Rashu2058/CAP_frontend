@@ -9,6 +9,7 @@ import Customer from '@/app/Rcomponents/Rcustomer/page';
 import FoodOrders from '@/app/Rcomponents/FoodOrders/page';
 import RProfile from '@/app/Rcomponents/Rprofile/page';
 import Rrevenue from '@/app/Rcomponents/Rrevenue/page';
+import Reports from '@/app/Rcomponents/Rreport/page';
 import { useRouter } from 'next/navigation';
 
 
@@ -111,13 +112,13 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      {/* Main Content Area */}
+{/* Main Content Area */}
       <div className="flex-grow h-screen overflow-y-auto">
 
-        {/* Navigation bar */}
+{/* Navigation bar */}
         <nav className="bg-white p-2 flex justify-end items-center">
           
-          {/* Profile Picture and Dropdown */}
+{/* Profile Picture and Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <div
               className="flex items-center space-x-3 cursor-pointer"
@@ -130,7 +131,7 @@ export default function Dashboard() {
               />
             </div>
 
-            {/* Dropdown Menu for Profile and Logout */}
+{/* Dropdown Menu for Profile and Logout */}
             {isOpen && (
               <div className="absolute right-0 mt-2 w-64 bg-gray-950 rounded-lg shadow-lg py-2 z-10">
                 <a href="#" onClick={() => setActiveSetting("rProfile")}
@@ -148,7 +149,7 @@ export default function Dashboard() {
           </div>
         </nav>
 
-        {/* Dynamic Content Area */}
+{/* Dynamic Content Area */}
         <div className="p-8">
           {activeSetting === "checkout" && <Checkout />}
           {activeSetting === "revenue" && <Rrevenue />}
@@ -157,7 +158,7 @@ export default function Dashboard() {
           {activeSetting === "customer" && <Customer />}
           {activeSetting === "foodOrders" && <FoodOrders />}
           {activeSetting === "settings" && <RSettings />}
-          {activeSetting === "report" && <Report />}
+          {activeSetting === "report" && <Reports />}
           {activeSetting === "rProfile" && <RProfile />}
         </div>
       </div>
