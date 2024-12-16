@@ -65,7 +65,7 @@ export default function Rrevenue() {
         type: 'bar',
         label: 'Revenue',
         data: [3000, 4000, 5000, 6000],
-        backgroundColor: '#6b5b95',
+        backgroundColor: 'gray',
       },
       {
         type: 'line',

@@ -95,9 +95,7 @@ export default function Customer() {
       });
     }
   };
-  
-
-      
+   
   // Modal Component
   const Modal = () => (
     isModalOpen && (

@@ -1,18 +1,19 @@
 "use client"; // For client-side rendering
-import { useState, useEffect } from "react";
+import { useState,useEffect } from "react";
 import Image from "next/image";
-import axios from "axios";
+
 
 interface Receptionist{
-  id: number;
-  name: string;
-  phoneno: string;
-  gender: string;
-  email: string; 
-  username: string;
-  password?: string;
+  id:number;
+  name:string;
+  phoneno:string;
+  gender:string;
+  email:string;
+  username:string;
+  password?:string;
   address:string;
 };
+const token=localStorage.getItem("token") ||"";
 
 export default function ReceptionistManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);

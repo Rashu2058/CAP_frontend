@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata = {
   title: 'Hotel Grace Inn',
-  description: 'Easu your work',
+  description: 'Ease your work',
 };
 
 export default function RootLayout({

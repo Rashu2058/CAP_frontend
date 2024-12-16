@@ -123,7 +123,7 @@ useEffect(() => {
             </div>
           </div>
 
-{/* Profile Picture and Dropdown */}
+{/* Profile and Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <div
               className="flex items-center space-x-3 cursor-pointer"

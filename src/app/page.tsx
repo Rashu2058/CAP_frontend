@@ -73,9 +73,6 @@ export default function Login() {
 
   return (
     <div className="login-container">
-      
-
-{/* Navbar */}
       <nav className="navbar">
         <div className="navbar-content">
           <img src="/Logo GraceInn.png" alt="Logo" className="logo" width={80} height={80} />
@@ -106,8 +103,6 @@ export default function Login() {
           <h6>Please Login to Continue</h6>
         </header>
 
-{/* Login Panel */}
-      {isLoginPanelvisible &&(
         <div className="login-panel-container" ref={loginPanelRef}>
           <div className={"login-panel"}>
             <h1>Login Panel</h1>
@@ -116,12 +111,7 @@ export default function Login() {
             <form className="login-form" onSubmit={handleLogin}>
               <div className="input-field">
                 <label>Username</label>
-                <input type="text" 
-                placeholder="Enter your username" 
-                value={username} 
-                onChange={(e) => setUsername(e.target.value)} 
-                maxLength={15}
-                />
+                <input type="text" placeholder="Enter your username" value={username} onChange={(e) => setUsername(e.target.value)} />
               </div>
               <div className="input-field">
                 <label>Password</label>
