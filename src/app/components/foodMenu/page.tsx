@@ -42,7 +42,6 @@ export default function FoodManagement() {
       const response = await axios.get("http://localhost:8080/api/foods", {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
       });
       console.log("Fetched food items:",response.data);
@@ -52,83 +51,62 @@ export default function FoodManagement() {
     }
   };
 
-  // Add a new food item
-  const addFood = async () => {
-    if (foodName && foodPrice && foodCategory) {
+  const handleFoodAction = async () => {
+    if (!foodName || !foodPrice || !foodCategory) {
+
+      alert("Please fill all fields");
+      return;
+    }
+
       const formData = new FormData();
       formData.append("food_name", foodName);
       formData.append("food_price", foodPrice);
-      formData.append("foodCategory", foodCategory);
+      formData.append("food_category", foodCategory);
 
       const imageInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      if (imageInput && imageInput.files && imageInput.files[0]) {
-        const imageFile = imageInput.files[0];
-        formData.append("image", imageFile);
+      if (imageInput?.files?.[0]) {
+        console.log("File added:", imageInput.files[0].name);
+        formData.append("image", imageInput.files[0]);
+      } else {
+        console.error("No image file selected");
       }
 
+      const token = localStorage.getItem("token") || "";
+      const url = editingIndex === null ? "http://localhost:8080/api/foods" : `http://localhost:8080/api/foods/${foodItems[editingIndex].f_id}`;
+      const method = editingIndex === null ? "POST" : "PUT";
+
       try {
-        const token = localStorage.getItem("token") || "";
-        const response = await axios.post("http://localhost:8080/api/foods", formData, {
+        const response = await axios({
+          method,
+          url,
+          data: formData,
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         });
-        setFoodItems([...foodItems, response.data]);
+        if (editingIndex === null) {
+          setFoodItems([...foodItems, response.data]);
+        } else {
+          const updatedFoodItems = [...foodItems];
+          updatedFoodItems[editingIndex] = response.data;
+          setFoodItems(updatedFoodItems);
+        }
         clearInputs();
       } catch (error) {
-        console.error("Error adding food item:", error);
+        console.error("Error saving food item:", error);
       }
-    }
+    
   };
 
-  // Update an existing food item
-  const updateFood = async () => {
-    if (editingIndex !== null && foodName && foodPrice && foodCategory) {
-      const formData = new FormData();
-      formData.append("food_name", foodName);
-      formData.append("food_price", foodPrice);
-      formData.append("foodCategory", foodCategory);
-  
-      const imageInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      if (imageInput && imageInput.files && imageInput.files[0]) {
-        const imageFile = imageInput.files[0];
-        formData.append("image", imageFile);
-      }
-
-      try {
-        const token = localStorage.getItem("token") || "";
-        const foodId = foodItems[editingIndex].f_id;
-        const response = await axios.put(`http://localhost:8080/api/foods/${foodId}`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        
-        const updatedFoodItems = [...foodItems];
-        updatedFoodItems[editingIndex] = response.data;
-        setFoodItems(updatedFoodItems);
-        clearInputs();
-        setEditingIndex(null);
-      } catch (error) {
-        console.error("Error updating food item:", error);
-      }
-    }
-  };
-
-  // Clear input fields
   const clearInputs = () => {
     setFoodName("");
     setFoodPrice("");
     setfoodCategory("");
     setPreviewImage(null);
     setEditingIndex(null);
-    
-    
   };
 
-  // Delete a food item
   const deleteFoodItem = async (index: number) => {
     const foodId = foodItems[index].f_id;
     try {
@@ -142,7 +120,6 @@ export default function FoodManagement() {
     }
   };
 
-  // Add new food category
   const addItem = () => {
     if (newItem.trim() && !items.includes(newItem)) {
       setItems([...items, newItem]);
@@ -150,7 +127,6 @@ export default function FoodManagement() {
     }
   };
 
-  // Image handling
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -158,7 +134,6 @@ export default function FoodManagement() {
     }
   };
 
-  // Edit existing food item
   const editFoodItem = (index: number) => {
     const food = foodItems[index];
     setFoodName(food.food_name);
@@ -166,6 +141,13 @@ export default function FoodManagement() {
     setfoodCategory(food.foodCategory);
     setPreviewImage(food.imagePath);
     setEditingIndex(index);
+  };
+
+  const deleteCategory = (category: string) => {
+    setItems(items.filter(item => item !== category));
+    if (foodCategory === category) {
+      setfoodCategory(""); // Clear selected category if deleted
+    }
   };
 
   return (
@@ -182,36 +164,52 @@ export default function FoodManagement() {
           onChange={(e) => setFoodName(e.target.value)}
            placeholder="Name" 
            className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300" />
-          <input type="text" 
+          <input type="text"
+
           value={foodPrice}
            onChange={(e) => setFoodPrice(e.target.value)}
             placeholder="Price" 
             className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300" />
           
-{/*Food Category*/}           
-          <div className="relative">
-            <button type="button" 
-            onClick={() => setDropdownOpen(!dropdownOpen)} 
-            className="w-full text-left p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300">
-              {foodCategory ? foodCategory : "Select Food Category"}
-            </button>
-            {dropdownOpen && (
-              <div className="absolute z-10 mt-2 w-full bg-white shadow-lg rounded-md max-h-60 overflow-y-auto">
-                {items.map((item, index) => (
-                  <div key={index} className="flex justify-between items-center p-2 hover:bg-gray-100">
-                    <span 
-                    onClick={() => {
-                       setfoodCategory(item); 
-                       setDropdownOpen(false); 
-                       }}
-                      className="cursor-pointer">
-                        {item}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </form>
+          
+{/* Food Category */}
+<div className="relative">
+              <button
+                type="button"
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="w-full text-left p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
+              >
+                {foodCategory ? foodCategory : "Select Food Category"}
+              </button>
+              {dropdownOpen && (
+                <div className="absolute z-10 mt-2 w-full bg-white shadow-lg rounded-md max-h-60 overflow-y-auto">
+                  {items.length > 0 ? (
+                    items.map((item, index) => (
+                      <div key={index} className="flex justify-between items-center p-2 hover:bg-gray-100">
+                        <span
+                          onClick={() => {
+                            setfoodCategory(item);
+                            setDropdownOpen(false); // Close dropdown on select
+                          }}
+                          className="cursor-pointer"
+                        >
+                          {item}
+                        </span>
+                        <button
+                          onClick={() => deleteCategory(item)}
+                          className="text-red-500 font-bold hover:text-red-700"
+                        >
+                          <Image src="/delete.png" alt="delete" width={20} height={20} className="rounded-full" />
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="p-2 text-gray-700">No categories available</p>
+                  )}
+                </div>
+              )}
+            </div>
+          </form>
 
 {/*Add  new category input*/} 
         <div className="flex flex-row items-center space-y-0 gap-x-4">
@@ -225,21 +223,9 @@ export default function FoodManagement() {
         </div>
 
         <div className="flex justify-end px-6 py-4">
-          {editingIndex !== null ? (
-            <button
-              onClick={updateFood}
-              className="bg-gray-900 text-white px-8 py-4 rounded-lg hover:bg-gray-700 text-xl flex items-center space-x-2 font-serif"
-            >
-              Update
-            </button>
-          ) : (
-            <button
-              onClick={addFood}
-              className="bg-gray-900 text-white px-8 py-4 rounded-lg hover:bg-gray-700 text-xl flex items-center space-x-2 font-serif"
-            >
-              Add
-            </button>
-          )}
+          <button onClick={handleFoodAction} className="bg-gray-900 text-white px-8 py-4 rounded-lg">
+            {editingIndex !== null ? "Update" : "Add"}
+          </button>
         </div>
       </div>
 
@@ -248,11 +234,11 @@ export default function FoodManagement() {
         {foodItems.map((food, index) => (
         <div key={index} className="bg-white p-4 rounded-lg shadow-lg">
         {food.imagePath ? (
-          <img
-            src={`http://localhost:8080${food.imagePath}`}
-            alt={food.food_name}
-            className="w-full h-40 object-cover rounded-lg"
-          />
+         <img
+         src={`http://localhost:8080/api/files/${food.imagePath}`}
+         alt={food.food_name || "Food Image"}
+         className="w-full h-40 object-cover rounded-lg"
+       />
         ) : (
           <img
             src="/placeholder-image.jpg"

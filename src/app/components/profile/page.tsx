@@ -1,11 +1,46 @@
+import { useState,useEffect } from "react";
+import axios from "axios";
+
 export default function UserProfile() {
-  const profileData = {
-    fullName: "Admin",
-    username: "admin123",
-    email: "admin123@gmail.com",
-    phoneNumber: "9800000000",
-    gender: "Male",
-  };
+  const [profileData, setProfileData] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem("token"); // Retrieve token
+        if (!token) {
+          throw new Error("No token found. Please log in.");
+        }
+
+        const response = await axios.get("http://localhost:8080/api/v1/admin", {
+          headers: {
+            Authorization: `Bearer ${token}`, // Attach token
+          },
+        });
+
+        console.log("API Response Data:", response.data.data); // Log the data
+        setProfileData(response.data.data); // Extract and set the data
+        setLoading(false);
+      } catch (err: any) {
+        console.error("Error:", err);
+        setError(err.response?.data?.message || err.message || "An error occurred");
+        setLoading(false);
+      }
+    };
+  
+    fetchProfile();
+  }, []);
+  if (loading) {
+    return <div className="text-center text-white">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center text-red-500">{error}</div>;
+  }
+
+
 
   return (
     <div className="min-h-screen bg-gray-300 rounded-lg shadow-md flex justify-center items-center">
@@ -29,7 +64,7 @@ export default function UserProfile() {
           <div>
             <label className="block font-medium text-white">Full Name</label>
             <p className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-white">
-              {profileData.fullName}
+            {profileData?.name|| "N/A"}
             </p>
           </div>
 
@@ -37,7 +72,7 @@ export default function UserProfile() {
            <div>
             <label className="block font-medium text-white">Username</label>
             <p className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-white">
-              {profileData.username}
+            {profileData?.username|| "N/A"}
             </p>
           </div>
 
@@ -45,7 +80,7 @@ export default function UserProfile() {
           <div>
             <label className="block font-medium text-white">Email</label>
             <p className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-white">
-              {profileData.email}
+            {profileData?.email|| "N/A"}
             </p>
           </div>
 
@@ -53,7 +88,7 @@ export default function UserProfile() {
           <div>
             <label className="block font-medium text-white">Phone Number</label>
             <p className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-white">
-              {profileData.phoneNumber}
+            {profileData?.phoneno|| "N/A"}
             </p>
           </div>
 
@@ -61,7 +96,7 @@ export default function UserProfile() {
           <div>
             <label className="block font-medium text-white">Gender</label>
             <p className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-white">
-              {profileData.gender}
+            {profileData?.gender|| "N/A"}
             </p>
           </div>
         </div>

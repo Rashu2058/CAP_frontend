@@ -61,6 +61,8 @@ export default function ReceptionistManagement() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if(!validateForm()) return;
+    
     const token = localStorage.getItem("token") || "";
     const url = selectedReceptionist
       ? `http://localhost:8080/api/v1/admin/updateReceptionist/${selectedReceptionist.id}`
@@ -95,6 +97,40 @@ export default function ReceptionistManagement() {
       address:'',
     });
   };
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+ {/*check valid email*/}
+    const isValidEmail = (email: string): boolean => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    };
+
+{/*validate form*/}
+const validateForm = () => {
+  const newErrors: { [key: string]: string } = {};
+  
+  if (!formData.name) newErrors.name = "Name is required.";
+  if (!formData.phoneno) newErrors.phoneno = "Phone number is required.";
+  if (formData.phoneno && formData.phoneno.toString().length !== 10) {
+    newErrors.phoneno = "Phone number must be 10 digits.";
+  }
+  if (!formData.address) newErrors.address = "Address is required.";
+  if (!formData.username) newErrors.username = "Address is required.";
+  if(!formData.password){
+    newErrors.password="Password is required";
+  }else if(formData.password.length<5|| formData.password.length>8){
+    newErrors.password="Password must be between 5 and 8 characters.";
+  }
+  if (!formData.gender) newErrors.gender = "Gender is required.";
+  if (!formData.email) newErrors.email = "Email is required.";
+  if (formData.email && !isValidEmail(formData.email)) {
+    newErrors.email = "Invalid email format.";
+  }
+
+  setErrors(newErrors);
+
+  return Object.keys(newErrors).length === 0;
+};
 
 
   const fetchReceptionists = async () => {
@@ -143,6 +179,7 @@ export default function ReceptionistManagement() {
               onChange={handleChange}
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
             />
+              {errors.name && <span className="text-red-500">{errors.name}</span>}
             <input
               type="text"
               name="phoneno"
@@ -151,6 +188,8 @@ export default function ReceptionistManagement() {
               onChange={handleChange}
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
             />
+            {errors.phoneno && <span className="text-red-500">{errors.phoneno}</span>}
+              
             <select
               name="gender"
               value={formData.gender}
@@ -164,6 +203,8 @@ export default function ReceptionistManagement() {
               <option value="FEMALE">Female</option>
               <option value="OTHERS">Others</option>
             </select>
+            {errors.gender && <span className="text-red-500">{errors.gender}</span>}
+               
             <input
               type="text"
               name="email"
@@ -172,6 +213,7 @@ export default function ReceptionistManagement() {
               onChange={handleChange}
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
             />
+            {errors.email && <span className="text-red-500">{errors.email}</span>}
             <input
               type="text"
               name="username"
@@ -188,7 +230,7 @@ export default function ReceptionistManagement() {
               onChange={handleChange}
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
             />
-            
+            {errors.password && <span className="text-red-500">{errors.password}</span>}
             <input
               type="text"
               name="address"
@@ -196,7 +238,8 @@ export default function ReceptionistManagement() {
               value={formData.address}
               onChange={handleChange}
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-            />
+            />         
+            {errors.address && <span className="text-red-500">{errors.address}</span>}
             <button
               type="submit"
               className="bg-gray-900 text-white px-8 py-4 rounded-lg hover:bg-gray-700 text-xl flex items-center space-x-2 font-sans"
@@ -252,6 +295,7 @@ export default function ReceptionistManagement() {
                   onChange={handleChange}
                   className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300 w-full"
                 />
+                {errors.name && <span className="text-red-500">{errors.name}</span>}
                 <input
                   type="text"
                   name="phoneno"
@@ -260,6 +304,7 @@ export default function ReceptionistManagement() {
                   onChange={handleChange}
                   className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300 w-full"
                 />
+                {errors.phoneno && <span className="text-red-500">{errors.phoneno}</span>}
                 <select
                   name="gender"
                   value={formData.gender}
@@ -271,6 +316,7 @@ export default function ReceptionistManagement() {
                   <option value="FEMALE">Female</option>
                   <option value="OTHERS">Others</option>
                 </select>
+                {errors.gender && <span className="text-red-500">{errors.gender}</span>}
                 <input
                   type="text"
                   name="email"
@@ -279,6 +325,7 @@ export default function ReceptionistManagement() {
                   onChange={handleChange}
                   className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300 w-full"
                 />
+                {errors.email && <span className="text-red-500">{errors.email}</span>}
                 <input
                   type="text"
                   name="username"
@@ -287,6 +334,7 @@ export default function ReceptionistManagement() {
                   onChange={handleChange}
                   className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300 w-full"
                 />
+                {errors.username && <span className="text-red-500">{errors.username}</span>}
                 <input
                   type="password"
                   name="password"
@@ -295,6 +343,7 @@ export default function ReceptionistManagement() {
                   onChange={handleChange}
                   className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300 w-full"
                 />
+                {errors.password && <span className="text-red-500">{errors.password}</span>}
                 <button
                   type="submit"
                   className="bg-gray-900 text-white px-8 py-2 rounded-lg hover:bg-gray-700 w-full"

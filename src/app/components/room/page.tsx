@@ -24,6 +24,7 @@ export default function RoomManagement() {
   });
   const[errorMessage,setErrorMessage]=useState<string>("");
   const [rooms, setRooms] = useState<Room[]>([]); // Store room details
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const openModal = (room:Room) => {
     setRoomDetails(room);
@@ -48,10 +49,23 @@ export default function RoomManagement() {
     }
   };
 
+  {/*validate form*/}
+  const validateForm = () => {
+  const newErrors: { [key: string]: string } = {};
+
+    if (!roomDetails.room_type) newErrors.room_type = "Room Type is required.";
+    if (!roomDetails.room_no) newErrors.room_no = "Room no is required.";
+    if (!roomDetails.room_price) newErrors.room_price = "Room price is required";
+   
+  setErrors(newErrors);
+
+  return Object.keys(newErrors).length === 0;
+};
+
   const handleAddRoom = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMessage("");
-    
+    if(!validateForm()) return;
     if(await checkRoomExists(roomDetails.room_no)){
 
       setErrorMessage("Room already exist. Please enter a different one.");
@@ -205,6 +219,8 @@ export default function RoomManagement() {
             onChange={handleInputChange}
             className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
           />
+          {errors.room_no && <p className="text-red-500 text-sm">{errors.room_no}</p>}
+          
           <input
             type="text"
             name="room_type"
@@ -213,6 +229,8 @@ export default function RoomManagement() {
             onChange={handleInputChange}
             className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
           />
+          {errors.room_type && <p className="text-red-500 text-sm">{errors.room_type}</p>}
+          
           <input
             type="text"
             name="room_price"
@@ -221,6 +239,8 @@ export default function RoomManagement() {
             onChange={handleInputChange}
             className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
           />
+          {errors.room_price && <p className="text-red-500 text-sm">{errors.room_price}</p>}
+          
           
           <button
             type="submit"
