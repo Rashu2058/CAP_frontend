@@ -19,7 +19,8 @@ export default function FoodManagement() {
     "Drinks",
     "Desserts",
   ]);
-
+  
+  const token = localStorage.getItem("token") || "";
   {/*state and store added food items*/}
   const [newItem, setNewItem] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -43,7 +44,7 @@ export default function FoodManagement() {
       const token = localStorage.getItem("token") || "";
       const response = await axios.get("http://localhost:8080/api/foods", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`,
         },
       });
       console.log("Fetched food items:",response.data);

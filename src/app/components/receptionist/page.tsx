@@ -1,5 +1,5 @@
 "use client"; // For client-side rendering
-import { useState,useEffect } from "react";
+import React, { useState,useEffect } from "react";
 import Image from "next/image";
 
 
@@ -13,7 +13,8 @@ interface Receptionist{
   password?:string;
   address:string;
 };
-const token=localStorage.getItem("token") ||"";
+
+
 
 export default function ReceptionistManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,6 +30,7 @@ export default function ReceptionistManagement() {
     password: '',
     address:''
   });
+  const token=localStorage.getItem("token") ||"";
 
   const openModal = (receptionist: Receptionist | null = null) => {
     setSelectedReceptionist(receptionist);
@@ -64,7 +66,6 @@ export default function ReceptionistManagement() {
     e.preventDefault();
     if(!validateForm()) return;
     
-    const token = localStorage.getItem("token") || "";
     const url = selectedReceptionist
       ? `http://localhost:8080/api/v1/admin/updateReceptionist/${selectedReceptionist.id}`
       : `http://localhost:8080/api/v1/admin/registerReceptionist`;
@@ -358,5 +359,5 @@ const validateForm = () => {
         )}
       </div>
     </div>
-  );
+  )
 } 

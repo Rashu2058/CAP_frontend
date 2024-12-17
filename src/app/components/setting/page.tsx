@@ -257,13 +257,7 @@ const ChangePicture = () => (
 
       <div className="flex justify-center mb-6">
         <div className="relative">
-          <Image
-            src={picture}
-            alt="Picture"
-            width={100}
-            height={100}
-            className="w-200 h-200 "
-          />
+          
           <button
             className="absolute bottom-0 right-0 bg-gray-200 p-2 rounded-full text-lg font-bold"
             onClick={handlePictureUploadClick}
@@ -336,16 +330,6 @@ const ChangePicture = () => (
     </div>
   );
 
-{/* State for the uploaded profile and logo image */}
-  const [profileImage, setProfileImage] = useState("/admin.png");
-  const [logoImage, setLogoImage] = useState("/logo.png"); 
-  const [picture, setPicture] = useState("/logImage.jpg"); 
-
-{/* Reference to the hidden profile and logo input */}
-  const profileInputRef = useRef<HTMLInputElement | null>(null);
-  const logoInputRef = useRef<HTMLInputElement | null>(null);
-  const pictureInputRef = useRef<HTMLInputElement | null>(null);
-
 {/* Function to handle profile image upload */}
   const handleProfileImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -369,7 +353,7 @@ const handlePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
   const file = event.target.files?.[0];
   if (file) {
     const imageUrl = URL.createObjectURL(file);
-    setPicture(imageUrl);
+   
   }
 };
 
