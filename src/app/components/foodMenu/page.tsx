@@ -211,10 +211,10 @@ export default function FoodManagement() {
             )}
           </div>
         </form>
-
-    {/* Error Popup */}
-        <ErrorPopup message={errorMessage} onClose={() => setErrorMessage("")} />
-
+        
+        {/*Error pop up message */}
+        <ErrorPopup message={errorMessage}onClose={()=>setErrorMessage("")}/>
+          
         <div className="flex flex-row items-center space-y-0 gap-x-4">
           <input type="text" value={newItem} onChange={(e) => setNewItem(e.target.value)} placeholder="Add new category" className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300" />
           <button onClick={addItem} className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700">Add Category</button>
@@ -271,4 +271,4 @@ export default function FoodManagement() {
       </div>
     </div>
   );
-}
+} 
