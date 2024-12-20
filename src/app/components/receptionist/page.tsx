@@ -13,7 +13,7 @@ interface Receptionist{
   password?:string;
   address:string;
 };
-const token=localStorage.getItem("token") ||"";
+
 
 export default function ReceptionistManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,6 +29,7 @@ export default function ReceptionistManagement() {
     password: '',
     address:''
   });
+  const token=localStorage.getItem("token") ||"";
 
   const openModal = (receptionist: Receptionist | null = null) => {
     setSelectedReceptionist(receptionist);

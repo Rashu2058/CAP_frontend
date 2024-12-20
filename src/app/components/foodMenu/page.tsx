@@ -7,7 +7,7 @@ interface Food {
   f_id: number;
   food_price: number;
   food_name: string;
-  foodCategory: string;
+  food_category: string;
   imagePath: string ;
 }
 
@@ -60,7 +60,7 @@ export default function FoodManagement() {
       const formData = new FormData();
       formData.append("food_name", foodName);
       formData.append("food_price", foodPrice);
-      formData.append("foodCategory", foodCategory);
+      formData.append("food_category", foodCategory);
 
       const imageInput = document.querySelector('input[type="file"]') as HTMLInputElement;
       if (imageInput && imageInput.files && imageInput.files[0]) {
@@ -149,7 +149,7 @@ export default function FoodManagement() {
   const deleteCategory = (category: string) => {
     setItems(items.filter(item => item !== category));
     if (foodCategory === category) {
-      setFoodCategory(""); // Clear the selected category if it's deleted
+      setfoodCategory(""); // Clear the selected category if it's deleted
     }
   };
 
@@ -174,7 +174,7 @@ export default function FoodManagement() {
     const food = foodItems[index];
     setFoodName(food.food_name);
     setFoodPrice(food.food_price.toString());
-    setfoodCategory(food.foodCategory);
+    setfoodCategory(food.food_category);
     setPreviewImage(food.imagePath);
     setEditingIndex(index);
   };
@@ -195,7 +195,7 @@ export default function FoodManagement() {
               <div className="absolute z-10 mt-2 w-full bg-white shadow-lg rounded-md max-h-60 overflow-y-auto">
                 {items.map((item, index) => (
                   <div key={index} className="flex justify-between items-center p-2 hover:bg-gray-100">
-                    <span onClick={() => { setFoodCategory(item); setDropdownOpen(false); }} className="cursor-pointer">{item}</span>
+                    <span onClick={() => { setfoodCategory(item); setDropdownOpen(false); }} className="cursor-pointer">{item}</span>
                   </div>
                 ))}
               </div>
@@ -235,9 +235,9 @@ export default function FoodManagement() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {foodItems.map((food, index) => (
           <div key={index} className="bg-white p-4 rounded-lg shadow-lg">
-            {food.image && (
+            {food.imagePath && (
               <img
-                src={food.image}
+                src={food.imagePath}
                 alt={food.food_name}
                 className="w-full h-40 object-cover rounded-lg"
               />
