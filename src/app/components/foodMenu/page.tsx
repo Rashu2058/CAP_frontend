@@ -8,7 +8,7 @@ interface Food {
   f_id: number;
   food_price: number;
   food_name: string;
-  foodCategory: string;
+  food_category: string;
   imagePath: string ;
 }
 
@@ -57,25 +57,39 @@ export default function FoodManagement() {
     }
   };
 
-  const handleFoodAction = async () => {
-    if (!foodName || !foodPrice || !foodCategory) {
-      setErrorMessage("Please fill all fields");
-      return;
-    }
-    if (isNaN(Number(foodPrice)) || Number(foodPrice) <= 0) {
-      setErrorMessage("Please enter valid data ");
-      return;
-    }
+  // Add a new food item
+  const addFood = async () => {
+    if (foodName && foodPrice && foodCategory) {
+      const formData = new FormData();
+      formData.append("food_name", foodName);
+      formData.append("food_price", foodPrice);
+      formData.append("foodCategory", foodCategory);
 
-    const duplicate = foodItems.some(
-      (food) =>
-        food.food_name.toLowerCase() === foodName.toLowerCase() &&
-        food.foodCategory.toLowerCase() === foodCategory.toLowerCase()
-    );
-    if (duplicate) {
-      setErrorMessage("Food item already exists in this category");
-      return;
+      const imageInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      if (imageInput && imageInput.files && imageInput.files[0]) {
+        const imageFile = imageInput.files[0];
+        formData.append("image", imageFile);
+      }
+
+      try {
+        const token = localStorage.getItem("token") || "";
+        const response = await axios.post("http://localhost:8080/api/foods", formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        setFoodItems([...foodItems, response.data]);
+        clearInputs();
+      } catch (error) {
+        console.error("Error adding food item:", error);
+      }
     }
+  };
+
+  // Update an existing food item
+  const updateFood = async () => {
+    if (editingIndex !== null && foodName && foodPrice && foodCategory) {
       const formData = new FormData();
       formData.append("food_name", foodName);
       formData.append("food_price", foodPrice);
@@ -139,7 +153,16 @@ export default function FoodManagement() {
     }
   };
 
-  // Add new food category
+
+  {/* Function to delete a food category*/}
+  const deleteCategory = (category: string) => {
+    setItems(items.filter(item => item !== category));
+    if (foodCategory === category) {
+      setFoodCategory(""); // Clear the selected category if it's deleted
+    }
+  };
+
+{/* Function to handle adding a new food category*/}
   const addItem = () => {
     if (newItem.trim() && !items.includes(newItem)) {
       setItems([...items, newItem]);
@@ -159,7 +182,7 @@ export default function FoodManagement() {
     const food = foodItems[index];
     setFoodName(food.food_name);
     setFoodPrice(food.food_price.toString());
-    setfoodCategory(food.foodCategory);
+    setfoodCategory(food.food_category);
     setPreviewImage(food.imagePath);
     setEditingIndex(index);
   };
@@ -198,13 +221,7 @@ export default function FoodManagement() {
               <div className="absolute z-10 mt-2 w-full bg-white shadow-lg rounded-md max-h-60 overflow-y-auto">
                 {items.map((item, index) => (
                   <div key={index} className="flex justify-between items-center p-2 hover:bg-gray-100">
-                    <span 
-                    onClick={() => {
-                       setfoodCategory(item); 
-                       setDropdownOpen(false); 
-                       }}
-                      className="cursor-pointer">
-                        {item}</span>
+                    <span onClick={() => { setFoodCategory(item); setDropdownOpen(false); }} className="cursor-pointer">{item}</span>
                   </div>
                 ))}
               </div>
@@ -234,34 +251,23 @@ export default function FoodManagement() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {foodItems.map((food, index) => (
-        <div key={index} className="bg-white p-4 rounded-lg shadow-lg">
-        {food.imagePath ? (
-          <img
-            src={`http://localhost:8080/api/files/${food.imagePath}`}
-            alt={food.food_name}
-            className="w-full h-40 object-cover rounded-lg"
-          />
-        ) : (
-          <img
-            src="/placeholder-image.jpg"
-            alt="No Image Available"
-            className="w-full h-40 object-cover rounded-lg"
-          />
-        )}
-        <div className="mt-4">
-          <h4 className="text-lg font-bold">{food.food_name}</h4>
-          <p className="text-gray-700">
-            Category: {food.foodCategory ? food.foodCategory : "No category specified"}
-          </p>
-          <p className="text-gray-900 font-semibold mt-1">Price: NPR.{food.food_price}</p>
-          <div className="flex items-center justify-end mt-4 space-x-2">
-            <button
-              onClick={() => editFoodItem(index)}
-              className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
-            >
-              Edit
-            </button>      
-              <button onClick={() => deleteFoodItem(index)} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+          <div key={index} className="bg-white p-4 rounded-lg shadow-lg">
+            {food.image && (
+              <img
+                src={food.image}
+                alt={food.food_name}
+                className="w-full h-40 object-cover rounded-lg"
+              />
+            )}
+            <div className="mt-4">
+              <h4 className="text-lg font-bold">{food.food_name}</h4>
+              <p className="text-gray-700">Category: {food.food_category}</p>
+              <p className="text-gray-900 font-semibold mt-1">Price: Rs.{food.food_price}</p>
+              <div className="flex items-center justify-end mt-4 space-x-2">
+                <button onClick={() => editFoodItem(index)} className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+                  Edit
+                </button>
+                <button onClick={() => deleteFoodItem(index)} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-700">
                   Delete
                 </button>
               </div>
