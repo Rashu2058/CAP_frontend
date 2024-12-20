@@ -1,5 +1,6 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState,useRef } from "react";
+import axios from "axios";
 
 const tabs = [
   { id: "profile", label: "Profile" },
@@ -17,6 +18,7 @@ export default function RSettings() {
 
 {/* Refs for file input*/}
   const profileInputRef = useRef<HTMLInputElement | null>(null);
+ 
 
 {/* Function to handle profile image upload*/}
   const handleProfileImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,6 +29,7 @@ export default function RSettings() {
     }
   };
 
+  
 {/* Function to trigger profile input click*/}
   const handleProfileUploadClick = () => {
     profileInputRef.current?.click();

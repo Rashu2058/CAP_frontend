@@ -75,6 +75,11 @@ export default function Reservation() {
       gender_type: string;
       email: string;
       nationality: string;
+      check_in_date:string,
+      check_out_date:string,
+      room_no:string,
+      room_type:string,
+      receptionist_name:string,
     }>({
       c_id: 0,
       id_type: "",
@@ -85,6 +90,11 @@ export default function Reservation() {
       gender_type: "",
       email: "",
       nationality: "",
+      check_in_date:"",
+      check_out_date:"",
+      room_no:"",
+      room_type:"",
+      receptionist_name:"",
     });
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -119,7 +129,12 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
         address: "",
         gender_type: "",
         email: "",
-        nationality: ""
+        nationality: "",
+        check_in_date:"",
+        check_out_date:"",
+        room_no:"",
+        room_type:"",
+        receptionist_name:"",
       });
     };
 {/*check valid email*/}

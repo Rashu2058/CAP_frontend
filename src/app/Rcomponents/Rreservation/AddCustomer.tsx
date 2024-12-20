@@ -14,6 +14,11 @@ export interface Customer {
   gender_type: string;
   email: string;
   nationality: string;
+  check_in_date:string,
+  check_out_date:string,
+  room_no:string,
+  room_type:string,
+  receptionist_name:string,
 }
 
 // Add Customer Function

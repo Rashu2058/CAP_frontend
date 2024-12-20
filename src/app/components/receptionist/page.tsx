@@ -15,7 +15,6 @@ interface Receptionist{
 };
 
 
-
 export default function ReceptionistManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [receptionists, setReceptionists] = useState<Receptionist[]>([]);

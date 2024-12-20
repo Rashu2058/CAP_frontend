@@ -1,13 +1,20 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import Select from 'react-select';
 
+interface FoodItems{
+  f_id:number,
+  food_name:string,
+  food_price:number,
+  imagePath:string,
+}
 
 type orderItem = {
-  id: number;
-  name: string;
-  price: number;
+  o_id: number;
+  food_name: string;
+  food_price: number;
   quantity: number;
-  image: string;
+  image_path: string;
 };
 
 type ConfirmedOrder = {
@@ -15,34 +22,64 @@ type ConfirmedOrder = {
   customerName: string;
   items: orderItem[];
 };
-type Room={
+interface Room{
   roomNo:string;
   customerName:string;
 }
 
 
 export default function FoodOrders() {
-  const foodItems: orderItem[] = [
-    { id: 1, name: 'Pizza', price: 500, image: '/pizza.jpeg', quantity: 0 },
-    { id: 2, name: 'Burger', price: 300, image: '/burger.jpg', quantity: 0 },
-    { id: 3, name: 'Pasta', price: 400, image: '/pasta.jpeg', quantity: 0 },
-  ];
 
   const [order, setorder] = useState<orderItem[]>([]);
   const [confirmedOrders, setConfirmedOrders] = useState<ConfirmedOrder[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [selectedRoomData, setSelectedRoom] = useState('');
   const [roomNo, setRoomNo] = useState('');
-  const [customerName, setcustomerName] = useState('');
+  const [customerName, setCustomerName] = useState('');
   const [searchMenu, setSearchMenu] = useState("");
   const [searchOrders, setSearchOrders] = useState("");
   const [orderConfirmed, setOrderConfirmed] = useState(false);
+  const [foodItems, setFoodItems] = useState<FoodItems[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [roomSearch, setRoomSearch] = useState('');
+
+  const roomOptions = rooms.map((room) => ({
+    value: room.roomNo,
+    label: `Room ${room.roomNo}`,
+  }));
+
+  useEffect(() => {
+    const fetchFoodItems = async () => {
+      try {
+        const token = localStorage.getItem('token'); // Get the token
+        const response = await fetch('http://localhost:8080/api/foods', {
+          headers: {
+            'Authorization': `Bearer ${token}`, // Send the token
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch food items');
+        }
+        const data = await response.json();
+        setFoodItems(data);
+      } catch (err) {
+        setError('Error fetching food items');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };    
+
+    fetchFoodItems();
+  }, []);
 
 {/*fetch available rooms and customer names*/}
 useEffect(() => {
   const token = localStorage.getItem('token'); // Assuming the token is stored in localStorage
   if (token) {
     axios
-      .get('http://localhost:8080/api/v1/food-orders/reserved-rooms', {
+      .get('http://localhost:8080/api/reservations/reserved-rooms', {
         headers: {
           Authorization: `Bearer ${token}`, // Send the token in the Authorization header
         },
@@ -55,13 +92,12 @@ useEffect(() => {
   }
 }, []);
 
-
   const addToorder = (item: orderItem) => {
-    const existingItem = order.find((orderItem) => orderItem.id === item.id);
+    const existingItem = order.find((orderItem) => orderItem.o_id === item.o_id);
     if (existingItem) {
       setorder(
         order.map((orderItem) =>
-          orderItem.id === item.id
+          orderItem.o_id === item.o_id
             ? { ...orderItem, quantity: orderItem.quantity + 1 }
             : orderItem
         )
@@ -74,7 +110,7 @@ useEffect(() => {
   const increaseQuantity = (id: number) => {
     setorder(
       order.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
+        item.o_id === id ? { ...item, quantity: item.quantity + 1 } : item
       )
     );
   };
@@ -82,7 +118,7 @@ useEffect(() => {
   const decreaseQuantity = (id: number) => {
     setorder(
       order.map((item) =>
-        item.id === id
+        item.o_id === id
           ? { ...item, quantity: item.quantity > 1 ? item.quantity - 1 : 1 }
           : item
       )
@@ -90,11 +126,11 @@ useEffect(() => {
   };
 
   const removeFromorder = (id: number) => {
-    setorder(order.filter((item) => item.id !== id));
+    setorder(order.filter((item) => item.o_id !== id));
   };
 
   const totalAmount = order.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) => total + item.food_price * item.quantity,
     0
   );
 
@@ -121,35 +157,36 @@ useEffect(() => {
       // Clear the order and reset form fields
       setorder([]);
       setRoomNo('');
-      setcustomerName('');
+      setCustomerName('');
       setOrderConfirmed(true);
       setTimeout(() => setOrderConfirmed(false), 3000); // Hide message after 3 seconds
     }
   };
-   
-  const handleRoomChange = (selectedRoomNo: string) => {
-    setRoomNo(selectedRoomNo);
-  
-    // Find the selected room in the rooms array
-    const selectedRoom = rooms.find((room) => room.roomNo === selectedRoomNo);
-    
-    // Debugging log
-    console.log('Selected Room:', selectedRoom);
-    
-    if (selectedRoom) {
-      setcustomerName(selectedRoom.customerName);
-    } else {
-      setcustomerName('');
-    }
-  };
-  
-  
+   // State to store the search query
 
+  const handleRoomSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRoomSearch(e.target.value);  // Update search query as user types
+  };
+
+  const filteredRooms = rooms.filter((room) =>
+    room.roomNo.toString().toLowerCase().includes(roomSearch.toLowerCase())
+);
+   
+  const handleRoomChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const roomNo = event.target.value;
+    setSelectedRoom(roomNo);
+
+    // Find the customer name for the selected room number
+    const selectedRoomData = rooms.find((room) => room.roomNo.toString() === roomNo);
+    setCustomerName(selectedRoomData?.customerName || ''); // Set the customer name if found
+  };
+
+  
   const editOrder = (order: ConfirmedOrder) => {
-    // Populate order with items from the selected order
-    setorder(order.items);
-    setRoomNo(order.roomNo);
-    setcustomerName(order.customerName);
+     //Populate order with items from the selected order
+  
+     setRoomNo(order.roomNo);
+     setCustomerName(order.customerName);
   };
   return (
     <div className="p-4">
@@ -185,22 +222,28 @@ useEffect(() => {
           }}
         >
 
+
 {/* Room No */}
           <div className="flex flex-col">
             <label className="block text-sm font-semibold">Room No</label>
-            <select
-              name="roomNo"
-              className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
-            >
-               <option value="" disabled>
-                  Select Room No
-                </option>
-                {rooms.map((room) => (
-                  <option key={room.roomNo} value={room.roomNo}>
-                    {room.roomNo}
-                  </option>
-                ))}
-              </select>
+            <Select
+                value={roomOptions.find((option) => option.value === selectedRoomData)} // Selected room
+                onChange={(selectedOption) => {
+                  setSelectedRoom(selectedOption?.value || ""); // Update selected room
+                    const selectedRoomData = rooms.find(
+                    (room) => room.roomNo === selectedOption?.value
+                  );
+                    setCustomerName(selectedRoomData?.customerName || ""); // Set customer name
+                  }}
+                      options={roomOptions.filter((option) =>
+                      option.label.toLowerCase().includes(roomSearch.toLowerCase())
+                )}
+                 // Filter options
+                      onInputChange={(value) => setRoomSearch(value)} // Update room search query
+                      placeholder="Select Room No"
+                      className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
+                      isSearchable
+              />
             </div>
 
 {/* Customer Name */}
@@ -208,6 +251,7 @@ useEffect(() => {
             <label className="block text-sm font-semibold">Customer Name</label>
             <input
               type="text"
+              value={customerName}
               placeholder="Robert Wilson"
               className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
             />
@@ -218,19 +262,25 @@ useEffect(() => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {foodItems.map((item) => (
               <div
-                key={item.id}
+                key={item.f_id}
                 className="p-4 border rounded-lg shadow-sm hover:shadow-md transition"
               >
                 <img
-                  src={item.image}
-                  alt={item.name}
+                  src={`http://localhost:8080/api/files/${item.imagePath}`}
+                  alt={item.food_name}
                   className="w-full h-32 object-cover rounded-md mb-2"
                 />
-                <h3 className="font-semibold">{item.name}</h3>
-                <p className="text-gray-600">Price: NPR {item.price}</p>
+                <h3 className="font-semibold">{item.food_name}</h3>
+                <p className="text-gray-600">Price: NPR {item.food_price}</p>
                 <button
                   className="mt-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
-                  onClick={() => addToorder(item)}
+                   onClick={() => addToorder({ 
+                      o_id: item.f_id, 
+                      food_name: item.food_name, 
+                      food_price: item.food_price, 
+                      quantity: 1, 
+                      image_path: item.imagePath 
+                  })}
                 >
                   Add to order
                 </button>
@@ -248,32 +298,32 @@ useEffect(() => {
             <>
               {order.map((item) => (
                 <div
-                  key={item.id}
+                  key={item.o_id}
                   className="flex justify-between items-center border-b py-2"
                 >
                   <div>
-                    <h3 className="font-medium">{item.name}</h3>
+                    <h3 className="font-medium">{item.food_name}</h3>
                     <p className="text-sm text-gray-500">
-                      Price: NPR {item.price} x {item.quantity}
+                      Price: NPR {item.food_price} x {item.quantity}
                     </p>
                   </div>
                   <div className="flex items-center">
                     <button
                       className="text-gray-900 px-2"
-                      onClick={() => decreaseQuantity(item.id)}
+                      onClick={() => decreaseQuantity(item.o_id)}
                     >
                       -
                     </button>
                     <span className="px-2">{item.quantity}</span>
                     <button
                       className="text-gray-900 px-2"
-                      onClick={() => increaseQuantity(item.id)}
+                      onClick={() => increaseQuantity(item.o_id)}
                     >
                       +
                     </button>
                     <button
                       className="text-red-500 hover:text-red-700 ml-4"
-                      onClick={() => removeFromorder(item.id)}
+                      onClick={() => removeFromorder(item.o_id)}
                     >
                       Delete
                     </button>
@@ -345,13 +395,13 @@ useEffect(() => {
         {confirmedOrders.map((order, index) => {
           // Calculate the total price for the entire order
           const totalOrderPrice = order.items.reduce(
-            (total, item) => total + item.price * item.quantity,
+            (total, item) => total + item.food_price * item.quantity,
             0
           );
 
           // Generate a string for items and their quantities
           const itemsList = order.items
-            .map((item) => `${item.name} (x${item.quantity})`)
+            .map((item) => `${item.food_name} (x${item.quantity})`)
             .join(', ');
 
           return (

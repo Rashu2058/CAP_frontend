@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import axios from "axios";
+import ErrorPopup from "../ErrorPopup";
 
 interface Food {
   f_id: number;
@@ -19,11 +20,13 @@ export default function FoodManagement() {
     "Drinks",
     "Desserts",
   ]);
-  
   const token = localStorage.getItem("token") || "";
+  const[errorMessage,setErrorMessage]=useState("")
+  
   {/*state and store added food items*/}
   const [newItem, setNewItem] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+ 
 
 {/* State to store added food items*/}
   const [foodItems, setFoodItems] = useState<Food[]>([]);
@@ -41,7 +44,7 @@ export default function FoodManagement() {
 
   const fetchFoodItems = async () => {
     try {
-      const token = localStorage.getItem("token") || "";
+      const token = localStorage.getItem("token");
       const response = await axios.get("http://localhost:8080/api/foods", {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -56,11 +59,23 @@ export default function FoodManagement() {
 
   const handleFoodAction = async () => {
     if (!foodName || !foodPrice || !foodCategory) {
-
-      alert("Please fill all fields");
+      setErrorMessage("Please fill all fields");
+      return;
+    }
+    if (isNaN(Number(foodPrice)) || Number(foodPrice) <= 0) {
+      setErrorMessage("Please enter valid data ");
       return;
     }
 
+    const duplicate = foodItems.some(
+      (food) =>
+        food.food_name.toLowerCase() === foodName.toLowerCase() &&
+        food.foodCategory.toLowerCase() === foodCategory.toLowerCase()
+    );
+    if (duplicate) {
+      setErrorMessage("Food item already exists in this category");
+      return;
+    }
       const formData = new FormData();
       formData.append("food_name", foodName);
       formData.append("food_price", foodPrice);
@@ -74,7 +89,7 @@ export default function FoodManagement() {
         console.error("No image file selected");
       }
 
-      const token = localStorage.getItem("token") || "";
+      
       const url = editingIndex === null ? "http://localhost:8080/api/foods" : `http://localhost:8080/api/foods/${foodItems[editingIndex].f_id}`;
       const method = editingIndex === null ? "POST" : "PUT";
 
@@ -96,6 +111,7 @@ export default function FoodManagement() {
           setFoodItems(updatedFoodItems);
         }
         clearInputs();
+        setErrorMessage("");
       } catch (error) {
         console.error("Error saving food item:", error);
       }
@@ -165,7 +181,7 @@ export default function FoodManagement() {
           onChange={(e) => setFoodName(e.target.value)}
            placeholder="Name" 
            className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300" />
-          <input type="text" 
+          <input type="number" 
           value={foodPrice}
            onChange={(e) => setFoodPrice(e.target.value)}
             placeholder="Price" 
@@ -196,6 +212,9 @@ export default function FoodManagement() {
           </div>
         </form>
 
+    {/* Error Popup */}
+        <ErrorPopup message={errorMessage} onClose={() => setErrorMessage("")} />
+
         <div className="flex flex-row items-center space-y-0 gap-x-4">
           <input type="text" value={newItem} onChange={(e) => setNewItem(e.target.value)} placeholder="Add new category" className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300" />
           <button onClick={addItem} className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700">Add Category</button>
@@ -218,7 +237,7 @@ export default function FoodManagement() {
         <div key={index} className="bg-white p-4 rounded-lg shadow-lg">
         {food.imagePath ? (
           <img
-            src={`http://localhost:8080${food.imagePath}`}
+            src={`http://localhost:8080/api/files/${food.imagePath}`}
             alt={food.food_name}
             className="w-full h-40 object-cover rounded-lg"
           />

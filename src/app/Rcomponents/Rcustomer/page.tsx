@@ -17,6 +17,11 @@ export default function Customer() {
     gender_type: "",
     email: "",
     nationality: "",
+    check_in_date:"",
+    check_out_date:"",
+    room_no:"",
+    room_type:"",
+    receptionist_name:"",
   });
 
 
@@ -265,6 +270,9 @@ export default function Customer() {
             <th className="py-3 px-6 text-center border border-gray-300">Gender</th>
             <th className="py-3 px-6 text-center border border-gray-300">Email</th>
             <th className="py-3 px-6 text-center border border-gray-300">Nationality</th>
+            <th className="py-3 px-6 text-center border border-gray-300">Check In Date</th>
+            <th className="py-3 px-6 text-center border border-gray-300">Check Out Date</th>
+            <th className="py-3 px-6 text-center border border-gray-300">Entered By</th>
             <th className="py-3 px-6 text-center border border-gray-300">Action</th>
           </tr>
         </thead>
@@ -279,6 +287,9 @@ export default function Customer() {
               <td className="py-3 px-6 border border-gray-300 text-center">{customer.gender_type}</td>
               <td className="py-3 px-6 border border-gray-300 text-center">{customer.email}</td>
               <td className="py-3 px-6 border border-gray-300 text-center">{customer.nationality}</td>
+              <td className="py-3 px-6 border border-gray-300 text-center">{customer.check_in_date}</td>
+              <td className="py-3 px-6 border border-gray-300 text-center">{customer.check_out_date}</td>
+              <td className="py-3 px-6 border border-gray-300 text-center">{customer.receptionist_name}</td>              
               <td className="py-3 px-6 border border-gray-300 text-center">
                 <a
                   href="#"

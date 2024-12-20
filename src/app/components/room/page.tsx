@@ -39,6 +39,20 @@ export default function RoomManagement() {
       ...prevDetails,
       [name]: value
     }));
+    if (name === "room_no"|| name=="room_price") {
+      const isValidRoomNo = /^\d+$/.test(value); // Only allows positive integers
+      if (!isValidRoomNo && value !== "") {
+        setErrorMessage("Please enter valid data");
+        return;
+      }
+    }
+  
+  
+    setErrorMessage(""); // Clear error message
+    setRoomDetails((prevDetails) => ({
+      ...prevDetails,
+      [name]: value,
+    }));
   };
   const checkRoomExists=async(room_no:string)=>{
     try{
@@ -212,11 +226,12 @@ export default function RoomManagement() {
         {/* Form for Adding Room */}
         <form className="grid grid-cols-1 gap-4 mb-4" onSubmit={handleAddRoom}>
           <input
-            type="text"
+            type="number"
             name="room_no"
             placeholder="Room No"
             value={roomDetails.room_no}
             onChange={handleInputChange}
+            min="1"
             className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
           />
           {errors.room_no && <p className="text-red-500 text-sm">{errors.room_no}</p>}
@@ -232,11 +247,12 @@ export default function RoomManagement() {
           {errors.room_type && <p className="text-red-500 text-sm">{errors.room_type}</p>}
           
           <input
-            type="text"
+            type="number"
             name="room_price"
             placeholder="Room Price"
             value={roomDetails.room_price}
             onChange={handleInputChange}
+            min="1"
             className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
           />
           {errors.room_price && <p className="text-red-500 text-sm">{errors.room_price}</p>}

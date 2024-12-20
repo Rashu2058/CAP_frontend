@@ -3,7 +3,7 @@ import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import Image from "next/image";
 import axios from "axios";
 import ConfirmedList from "./confirmedList";
-
+import jwt_decode from 'jwt-decode';
 
 interface AvailableRoom {
   room_no: number;
@@ -17,6 +17,7 @@ export interface ReservationData {
   room_price: string;
   check_in_date: string;
   check_out_date: string;
+  receptionist_name:string;
 }
 
 export default function BookRoom() {
@@ -29,6 +30,7 @@ export default function BookRoom() {
     room_price: "",
     check_in_date: "",
     check_out_date: "",
+    receptionist_name:"",
   });
   const [availableRooms, setAvailableRooms] = useState<AvailableRoom[]>([]);
   const [activeTab, setActiveTab] = useState("ConfirmedList");
@@ -101,6 +103,18 @@ export default function BookRoom() {
     
     }
   }, []);
+   // Extract receptionist name from the JWT token
+   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decoded: any = jwt_decode(token);
+      const receptionistName = decoded.name; // Assuming the receptionist's name is stored in the token as 'name'
+      setFormData((prevState) => ({
+        ...prevState,
+        receptionist_name: receptionistName, // Set receptionist name
+      }));
+    }
+  }, []);
 
 {/*validate form*/}
 const validateForm = () => {
@@ -132,6 +146,7 @@ const validateForm = () => {
       room_price: "",
       check_in_date: "",
       check_out_date: "",
+      receptionist_name:"",
     });
   };
 
@@ -144,8 +159,9 @@ const validateForm = () => {
               roomType: formData.room_type,  // room_type from form data
               roomPrice: formData.room_price,  // room_price from form data
               check_in_date: formData.check_in_date,  // checkIn from form data
-              check_out_date: formData.check_out_date  // checkOut from form data
-          };
+              check_out_date: formData.check_out_date,  // checkOut from form data
+              receptionist_name:formData.receptionist_name
+            };
   
           const response = await axios.post(
               `http://localhost:8080/api/reservations/add?customer_idno=${formData.customer_idno}&roomNo=${formData.room_no}`, 

@@ -253,6 +253,7 @@ const handleUpdateSubmit = async (e: React.FormEvent) => {
             <th className="py-3 px-6 text-center border border-gray-300">Room Price</th>
             <th className="py-3 px-6 text-center border border-gray-300">Check In</th>
             <th className="py-3 px-6 text-center border border-gray-300">Check Out</th>
+            <th className="py-3 px-6 text-center border border-gray-300">Entered By</th>
             <th className="py-3 px-6 text-center border border-gray-300">Action</th>
           </tr>
         </thead>
@@ -267,6 +268,7 @@ const handleUpdateSubmit = async (e: React.FormEvent) => {
                 <td className="py-3 px-6 border border-gray-300 text-center">{reservation.room_price}</td>
                 <td className="py-3 px-6 border border-gray-300 text-center">{reservation.check_in_date}</td>
                 <td className="py-3 px-6 border border-gray-300 text-center">{reservation.check_out_date}</td>
+                <td className="py-3 px-6 border border-gray-300 text-center">{reservation.receptionist_name}</td>
                 <td className="py-3 px-6 border border-gray-300 text-center">
                   <a href="#" className="text-gray-600 hover:text-gray-700 mr-2" onClick={() => setEditReservation(reservation)}>
                     Edit
