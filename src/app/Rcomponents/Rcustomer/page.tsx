@@ -236,9 +236,10 @@ export default function Customer() {
 
 {/* Customer Details Component*/}
   const CustomerDetails = () => (
-    <div className="bg-white p-6 rounded-lg">
+    <div className="bg-white p-6 rounded-lg min-w-min">
       <h1 className="text-xl font-bold">Customer Details</h1>
-      {/* Search bar with custom icon inside */}
+      
+{/* Search bar with custom icon inside */}
       <div className="flex justify-center mb-4">
         <div className="relative w-full max-w-md">
           <input
@@ -247,7 +248,7 @@ export default function Customer() {
             className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent"
           />
           
-          {/* Search Icon */}
+{/* Search Icon */}
           <div className="absolute inset-y-0 left-0 flex items-center pl-3">
             <img
               src="/search.png"
@@ -258,7 +259,7 @@ export default function Customer() {
         </div>
       </div>
 
-      {/*Table*/}
+{/*Table*/}
       <table className="min-w-full bg-white border border-gray-300">
         <thead className="bg-gray-800 text-white">
           <tr>
@@ -298,7 +299,8 @@ export default function Customer() {
                 >
                   Edit
                 </a>
-                <a href="#" className="text-red-600 hover:text-red-700" onClick={() => handleDelete(customer.id_no??0)}>
+                <a href="#" className="text-red-600 hover:text-red-700" 
+                onClick={() => handleDelete(customer.id_no??0)}>
                   Delete
                 </a>
             </td>

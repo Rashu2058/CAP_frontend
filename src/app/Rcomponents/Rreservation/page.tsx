@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import axios from "axios";
 import { addCustomer } from "./AddCustomer";
 import BookRoom from "./BookRoom";
@@ -16,8 +15,6 @@ const tabs = [
 
 export default function Reservation() {
   const [activeTab, setActiveTab] = useState("addCustomer");
-  
-
   const [isModalOpen, setIsModalOpen] = useState(false);
 
 {/* Open and close modal */}
@@ -116,7 +113,6 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
     }));
   }
 };
-
 
 {/* Handle form reset*/}
     const handleReset = () => {

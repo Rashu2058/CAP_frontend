@@ -181,8 +181,6 @@ export default function RoomManagement() {
     }
 };
 
-  
-
   // Function to set room details for editing
   const handleEditRoom = (room: Room) => {
     openModal(room); // Open the modal
@@ -216,14 +214,12 @@ export default function RoomManagement() {
     }
   };
   
-
-
   return (
     <div className="max-w-5xl mx-auto p-4">
       <div className="bg-white p-6 rounded-lg mb-6">
         <h3 className="text-2xl text-gray-900 font-bold mb-4 font-sans">Room</h3>
         
-        {/* Form for Adding Room */}
+{/* Form for Adding Room */}
         <form className="grid grid-cols-1 gap-4 mb-4" onSubmit={handleAddRoom}>
           <input
             type="number"
@@ -257,22 +253,43 @@ export default function RoomManagement() {
           />
           {errors.room_price && <p className="text-red-500 text-sm">{errors.room_price}</p>}
           
-          
           <button
             type="submit"
-            className="bg-gray-900 text-white px-8 py-4 rounded-lg hover:bg-gray-700 text-xl flex items-center space-x-2 font-sans"
+            className="bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-gray-700 text-xl "
           >
             Add
           </button>
         </form>
+        </div>
 
-       {/* Error Popup */}
+{/* Error Popup */}
        <ErrorPopup message={errorMessage} onClose={() => setErrorMessage("")} />
 
-
-        {/* Room Details Section */}
+{/* Room Details Section */}
         <div className="bg-white p-6 rounded-lg">
-          <h3 className="text-lg text-black font-bold mb-8 font-sans bg-gray-200 p-3 px-8">Room Details</h3>
+          <h3 className="text-lg text-black font-bold mb-8 bg-gray-200 p-3 px-8">Room Details</h3>
+
+{/* Search bar with custom icon inside */}
+<div className="flex justify-center mb-4">
+        <div className="relative w-full max-w-md">
+          <input
+            type="text"
+            placeholder="Search..."
+            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent"
+          />
+          
+{/* Search Icon */}
+          <div className="absolute inset-y-0 left-0 flex items-center pl-3">
+            <img
+              src="/search.png"
+              alt="Search"
+              className="h-5 w-5 text-gray-400"
+            />
+          </div>
+        </div>
+      </div>          
+
+{/*Table */}
           <table className="min-w-full bg-white border border-gray-300">
             <thead className="bg-gray-800 text-white">
               <tr>
@@ -287,7 +304,7 @@ export default function RoomManagement() {
               <tr className="hover:bg-purple-100">
                 <td className="py-3 px-6 border border-gray-300 text-center">{room.room_no}</td>
                 <td className="py-3 px-6 border border-gray-300 text-center">{room.room_type}</td>
-                <td className="py-3 px-6 border border-gray-300 text-center">{room.room_price}</td>
+                <td className="py-3 px-6 border border-gray-300 text-center">NPR. {room.room_price}</td>
                 <td className="py-3 px-6 border border-gray-300 text-center">
                   <a href="#" className="text-gray-600 hover:text-gray-700 mr-2" onClick={()=> handleEditRoom(room)}>Edit</a>
                   <a href="#" className="text-red-600 hover:text-red-700 mr-2" onClick={()=>handleDeleteRoom(room.room_no)}>Delete</a>
@@ -296,7 +313,6 @@ export default function RoomManagement() {
               ))}
             </tbody>
           </table>
-        </div>
       </div>
 
       {isModalOpen && (
@@ -313,7 +329,7 @@ export default function RoomManagement() {
           <strong>Current Room Type:</strong> {roomDetails.room_type}
         </div>
         <div className="p-2 border rounded-md bg-gray-200">
-          <strong>Current Room Price:</strong> {roomDetails.room_price}
+          <strong>Current Room Price:</strong> NPR. {roomDetails.room_price}
         </div>
 
 {/* New Details for Updating */}
@@ -342,9 +358,10 @@ export default function RoomManagement() {
           className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
         />
 
+        <div className="flex justify-end gap-x-4">
         <button
           type="submit"
-          className="bg-gray-900 text-white px-8 py-4 rounded-lg hover:bg-gray-700 text-xl font-sans"
+          className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700 "
         >
           Update
         </button>
@@ -355,6 +372,7 @@ export default function RoomManagement() {
         >
           Cancel
         </button>
+        </div>
       </form>
     </div>
   </div>

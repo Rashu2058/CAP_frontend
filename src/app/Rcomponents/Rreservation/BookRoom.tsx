@@ -230,7 +230,6 @@ const validateForm = () => {
               </option>
             ))}       
           {errors.room_no && <p className="text-red-500 text-sm">{errors.room_no}</p>}
-          
 
           </select>
           <input
@@ -241,23 +240,40 @@ const validateForm = () => {
             value={formData.room_price}
             readOnly
           />
-          <input
-            type="datetime-local"
-            name="check_in_date"
-            className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-            value={formData.check_in_date}
-            onChange={handleInputChange}
-          />    
-          {errors.check_in_date && <p className="text-red-500 text-sm">{errors.check_in_date}</p>}
-          <input
-            type="datetime-local"
-            name="check_out_date"
-            className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-            value={formData.check_out_date}
-            onChange={handleInputChange}
-          />        
-          {errors.check_out_date && <p className="text-red-500 text-sm">{errors.check_out_date}</p>}
-          {/* Action Buttons */}
+
+          <div className="grid grid-cols-2 gap-4 items-center mb-4">
+  {/* Check-In Section */}
+  <div className="flex flex-col">
+    <label className="mb-1 text-black">Check In</label>
+    <input
+      type="datetime-local"
+      name="check_in_date"
+      className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
+      value={formData.check_in_date}
+      onChange={handleInputChange}
+    />
+    {errors.check_in_date && (
+      <p className="text-red-500 text-sm mt-1">{errors.check_in_date}</p>
+    )}
+  </div>
+
+  {/* Check-Out Section */}
+  <div className="flex flex-col">
+    <label className="mb-1 text-black ">Check Out</label>
+    <input
+      type="date"
+      name="check_out_date"
+      className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
+      value={formData.check_out_date}
+      onChange={handleInputChange}
+    />
+    {errors.check_out_date && (
+      <p className="text-red-500 text-sm mt-1">{errors.check_out_date}</p>
+    )}
+  </div>
+</div>
+
+{/* Action Buttons */}
           <div className="flex justify-end space-x-2">
             <button
               type="button"

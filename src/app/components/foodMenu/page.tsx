@@ -22,7 +22,7 @@ export default function FoodManagement() {
   ]);
   const token = localStorage.getItem("token") || "";
   const[errorMessage,setErrorMessage]=useState("")
-  
+
   {/*state and store added food items*/}
   const [newItem, setNewItem] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -89,7 +89,6 @@ export default function FoodManagement() {
         console.error("No image file selected");
       }
 
-      
       const url = editingIndex === null ? "http://localhost:8080/api/foods" : `http://localhost:8080/api/foods/${foodItems[editingIndex].f_id}`;
       const method = editingIndex === null ? "POST" : "PUT";
 
@@ -181,6 +180,7 @@ export default function FoodManagement() {
           onChange={(e) => setFoodName(e.target.value)}
            placeholder="Name" 
            className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300" />
+           
           <input type="number" 
           value={foodPrice}
            onChange={(e) => setFoodPrice(e.target.value)}
@@ -220,11 +220,13 @@ export default function FoodManagement() {
           <button onClick={addItem} className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700">Add Category</button>
         </div>
 
+{/*Food Photo adding*/}
         <div className="flex flex-col mt-6">
           <input type="file" accept="image/*" onChange={handleImageChange} className="mb-4 text-sm text-gray-700 border rounded-lg p-2" />
           {previewImage && <img src={previewImage} alt="Preview" className="w-40 h-40 object-cover rounded-lg border" />}
         </div>
 
+{/*Add Button changing into Update while updating items*/}
         <div className="flex justify-end px-6 py-4">
           <button onClick={handleFoodAction} className="bg-gray-900 text-white px-8 py-4 rounded-lg">
             {editingIndex !== null ? "Update" : "Add"}
@@ -232,6 +234,7 @@ export default function FoodManagement() {
         </div>
       </div>
 
+{/*Food Image*/}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {foodItems.map((food, index) => (
         <div key={index} className="bg-white p-4 rounded-lg shadow-lg">

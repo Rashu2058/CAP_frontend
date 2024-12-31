@@ -7,7 +7,6 @@ const Reports = () => {
   
   const currentMonth = currentDate.toLocaleString("default", { month: "long" });
   const previousMonth = new Date(currentDate.setMonth(currentDate.getMonth() - 1)).toLocaleString("default", { month: "long" });
-  
   const currentYear = currentDate.getFullYear();
   
   const [selectedYear, setSelectedYear] = useState(String(currentYear));
@@ -15,6 +14,7 @@ const Reports = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [checkInDate, setCheckInDate] = useState("");
   const [checkOutDate, setCheckOutDate] = useState("");
+  const [showFilters, setShowFilters] = useState(false); 
 
   const dailyReports = [
     {
@@ -53,22 +53,22 @@ const Reports = () => {
 
 {/* Calculate Monthly Revenue Dynamically */}
   const calculateMonthlyRevenue = (reports: typeof dailyReports) => {
-  return reports.reduce((acc, report) => {
-    const monthKey = report.checkInDate.slice(0, 7); // Extract 'YYYY-MM' format
-    acc[monthKey] = (acc[monthKey] || 0) + report.totalBill;
-    return acc;
-  }, {} as Record<string, number>);
-};
-  const monthlyRevenue = calculateMonthlyRevenue(dailyReports);
-
+    return reports.reduce((acc, report) => {
+      const monthKey = report.checkInDate.slice(0, 7); // Extract 'YYYY-MM' format
+      acc[monthKey] = (acc[monthKey] || 0) + report.totalBill;
+      return acc;
+    }, {} as Record<string, number>);
+  };
+    const monthlyRevenue = calculateMonthlyRevenue(dailyReports);
+  
 {/* Determine current and previous month keys*/}
-  const currentMonthKey = `${selectedYear}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
-  const previousMonthKey = `${selectedYear}-${String(new Date().getMonth()).padStart(2, "0")}`;
-
+    const currentMonthKey = `${selectedYear}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
+    const previousMonthKey = `${selectedYear}-${String(new Date().getMonth()).padStart(2, "0")}`;
+  
 {/* Calculate Monthly Revenue Comparisons*/}
-  const currentMonthRevenue = monthlyRevenue[currentMonthKey] || 0;
-  const previousMonthRevenue = monthlyRevenue[previousMonthKey] || 0;
-  const revenueDifference = currentMonthRevenue - previousMonthRevenue;
+    const currentMonthRevenue = monthlyRevenue[currentMonthKey] || 0;
+    const previousMonthRevenue = monthlyRevenue[previousMonthKey] || 0;
+    const revenueDifference = currentMonthRevenue - previousMonthRevenue; 
 
 {/* Filter daily reports based on user input*/}
   const filteredReports = dailyReports.filter((report) => {
@@ -116,7 +116,7 @@ const Reports = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-gray-50 rounded-md p-4">
 
 {/* Header */}
       <header className="flex justify-between items-center mb-6">
@@ -129,7 +129,22 @@ const Reports = () => {
         </button>
       </header>
 
+{/* Filter Toggle Button */}
+      <div className="mb-6">
+        <button
+          onClick={() => setShowFilters((prev) => !prev)}
+          className="bg-gray-200 text-black rounded-md px-4 py-2 hover:bg-gray-100"
+        >
+        <span className="flex items-center gap-2">
+          <img src="/filter.png" alt="Filter Icon" className="w-5 h-5" />
+          {showFilters ? "Hide" : "Filter"}
+        </span>
+        </button>
+      </div>
+
 {/* Year Dropdown */}
+{showFilters && (
+  <div className="mb=6">
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
       <div>
         <label htmlFor="year" className="block text-sm font-medium text-gray-700">
@@ -215,12 +230,14 @@ const Reports = () => {
           />
         </div>
       </div>
+      </div>
+)}
   
 {/* Report Section */}
       <div id="print-section" className="overflow-x-auto shadow-md rounded-lg mb-6">
 
 {/* Monthly Revenue Comparison */}
-        <h2 className="text-lg font-semibold text-gray-700 mb-4">
+<h2 className="text-lg font-semibold text-gray-700 mb-4">
           Monthly Revenue Comparison
         </h2>
         <p className="text-sm text-gray-700">

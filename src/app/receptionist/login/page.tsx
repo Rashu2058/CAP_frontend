@@ -1,104 +1,223 @@
 "use client";
 
-import Image from "next/image";
+import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
+import axios from 'axios';
+
 
 export default function Login() {
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [message, setMessage] = useState<string>('');
+  const loginPanelRef = useRef<HTMLDivElement>(null);
+  const [isInView, setIsInView] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => setIsInView(entry.isIntersecting));
+      },
+      { threshold: 0.3 }
+    );
+
+    if (loginPanelRef.current) {
+      observer.observe(loginPanelRef.current);
+    }
+
+    return () => {
+      if (loginPanelRef.current) {
+        observer.unobserve(loginPanelRef.current);
+      }
+    };
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post('http://localhost:8080/api/v1/auth/signin', {
+        username,
+        password,
+      });
+
+      if (response.status === 200 && response.data.token && response.data.role) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('role', response.data.role);
+        setMessage('Signin successful!');
+        
+        if (response.data.role === 'ADMIN') {
+          window.location.href = '/admin/dashboard#';
+        } else if (response.data.role === 'RECEPTIONIST') {
+          window.location.href = '/receptionist/dashboard#';
+        } else {
+          setMessage('Unauthorized login');
+        }
+      } else {
+        setMessage('Signin failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error signing in:', error);
+      setMessage('Signin failed. Please check your credentials.');
+    }
+  };
+
   return (
-    <div className="login-container bg-purple-500 font-serif min-h-screen">
-
-{/* Navbar */}
-      <nav className="navbar bg-gray-300 p-2">
-        <div className="navbar-content flex justify-between items-center">
-          <img
-            src="/Logo GraceInn.png"
-            alt="Logo"
-            width={80}
-            height={80}
-          />
-          <div className="nav-items flex space-x-18 place-items-center">
-            <a href="#" className="text-black hover:text-gray-100">Dashboard</a>
-            <a href="#" className="text-black hover:text-gray-100">Customer</a>
-            <a href="#" className="text-black hover:text-gray-100">Reservation</a>
-            <a href="#" className="text-black hover:text-gray-100">Setting</a>
-            <a href="#" className="text-black hover:text-gray-100">Reports</a>
-            <button className="login-btn bg-purple-700 text-white py-2 px-10 rounded-full hover:bg-purple-500">Login</button>
-          </div>
-        </div>
-      </nav>
-
-{/* Hotel Image Section */}
-      <div className="hotel-image-container relative">
-        <Image
-          src="/logImage.jpg"
-          alt="Hotel Grace Inn"
-          width={1500}
-          height={500}
-          className="hotel-image"
-        />
-        <div className="image-text-overlay absolute inset-0 flex flex-col justify-normal items-center text-center text-black text-shadow-lg">
-          <h1 className="text-6xl font-serif">Hotel Grace Inn</h1>
-          <p className="text-2xl italic font-serif">Where grace meets comfort</p>
-        </div>
-      </div>
-
+    <div className="min-h-screen bg-gray-600 p-14">
+      <div className="min-h-screen rounded-xl bg-gray-200 px-8 relative">
+        
 {/* Main Content */}
-      <main className="content flex flex-col items-center py-10">
-        <header className="header text-center">
-          <h6 className="text-6xl text-white font-serif">Welcome Back!!</h6>
-          <p className="text-2xl text-white">Please Login to Continue</p>
-        </header>
+        <main className="content flex flex-col items-center relative">
+
+{/* Logo */}
+          <div className="absolute top-5 left-5">
+            <img
+              src="/logo.jpg"
+              alt="Logo"
+              width={80}
+              height={80}
+              className="rounded-full shadow-md"
+            />
+          </div>
+
+{/* Main Login Image */}
+          <img
+            src="/image.png"
+            alt="LogInImage"
+            width={600}
+            height={600}
+            className="z-10"
+          />
 
 {/* Login Panel */}
-        <div className="login-panel-container flex justify-center items-center py-20 w-4/5">
-          <div className="login-panel bg-white rounded-2xl shadow-lg p-10 w-[350px] h-[550px]">
-            <h1 className="text-purple-700 text-2xl text-center font-mono">Receptionist Panel</h1>
-            <h2 className="text-purple-700 text-center italic">Control Panel Login</h2>
-            <form className="login-form mt-6">
-              <div className="input-field mb-4">
-                <label className="block text-gray-600 mb-2">Username</label>
-                <input
-                  type="username"
-                  placeholder="Enter your username"
-                  className="w-full p-2 border border-gray-300 rounded-lg"
-                />
-              </div>
-              <div className="input-field mb-4">
-                <label className="block text-gray-600 mb-2">Password</label>
-                <input
-                  type="password"
-                  placeholder="Enter your password"
-                  className="w-full p-2 border border-gray-300 rounded-lg"
-                />
-              </div>
-              <button
-                type="submit"
-                className="sign-in-btn w-full bg-black text-white py-3 rounded-md"
-              >
-                Sign In
-              </button>
+          <div className="login-panel-container flex justify-center items-center py-20 w-4/5">
+            <div className="rounded-3xl bg-white shadow-lg p-10 w-[350px] h-[550px] relative overflow-hidden">
+              <h1 className="text-black text-3xl text-center font-mono">
+                Login Panel
+              </h1>
+              <h2 className="text-black text-center italic">
+                Control Panel Login
+              </h2>
 
-{/* Wave Container */}
-              <div className="wave-container relative w-full mt-12 overflow-hidden">
-                <svg
-                  viewBox="0 0 500 243"
-                  preserveAspectRatio="none"
-                  className="wave-svg w-full h-24"
+
+              <form className="login-form mt-6 relative z-10" onSubmit={handleLogin}>
+                <div className="input-field mb-4">
+                  <label className="block text-black mb-2">Username</label>
+                  <input
+                    type="text"
+                    placeholder="Enter your username"
+                    className="w-full p-2 border border-gray-300 rounded-lg"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    maxLength={15}
+                  />
+                </div>
+                <div className="input-field mb-4">
+                  <label className="block text-black mb-2">Password</label>
+                  <input
+                    type="password"
+                    placeholder="Enter your password"
+                    className="w-full p-2 border border-gray-300 rounded-lg mb-3"
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)}
+                    maxLength={8}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="sign-in-btn w-full bg-gray-600 text-white py-3 rounded-md font-semibold shadow-lg"
                 >
-                  <path d="M20,150 C-450,150 450,-100 600,50 L500,150 L0,150 Z" fill="#896caa"></path>
-                  <path d="M0,150 C-500,50 350,150 500,10 L500,150 L0,150 Z" fill="#675180"></path>
-                  <path d="M-45,135 C220,100 350,170 500,40 L500,150 L0,150 Z" fill="#463757"></path>
-                </svg>
-              </div>
-            </form>
-          </div>
-        </div>
-      </main>
+                  Sign In
+                </button>
+                {message && <p>{message}</p>}
+              </form>
 
-{/* Footer */}
-      <footer className="footer bg-purple-500 text-center text-white py-10">
-        <div className="footnav bg-gray-300 py-8"></div>
-        <p className="text-white italic text-4xl">Hotel Grace Inn 2024</p>
-      </footer>
+{/* Inline Style Animation */}
+              <style jsx global>{`
+                @keyframes wave-animation-1 {
+                  0% {
+                    transform: translateY(0);
+                  }
+                  50% {
+                    transform: translateY(20px);
+                  }
+                  100% {
+                    transform: translateY(0);
+                  }
+                }
+
+                @keyframes wave-animation-2 {
+                  0% {
+                    transform: translateY(0);
+                  }
+                  50% {
+                    transform: translateY(-15px);
+                  }
+                  100% {
+                    transform: translateY(0);
+                  }
+                }
+
+                @keyframes wave-animation-3 {
+                  0% {
+                    transform: translateY(0);
+                  }
+                  50% {
+                    transform: translateY(10px);
+                  }
+                  100% {
+                    transform: translateY(0);
+                  }
+                }
+
+                .animate-wave-1 {
+                  animation: wave-animation-1 4s ease-in-out infinite;
+                }
+
+                .animate-wave-2 {
+                  animation: wave-animation-2 4s ease-in-out infinite;
+                }
+
+                .animate-wave-3 {
+                  animation: wave-animation-3 4s ease-in-out infinite;
+                }
+                  .animate-wave-4 {
+                  animation: wave-animation-4 4s ease-in-out infinite;
+                }
+              `}</style>
+
+{/* Wavy Background Layers */}
+              <div
+                className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-r from-blue-400 via-gray-500 to-zinc-600 rounded-b-3xl animate-wave-1"
+                style={{
+                  clipPath:
+                    "path('M0,100 C150,120 350,40 500,100 L500,200 L0,200 Z')",
+                }}
+              ></div>
+              <div
+                className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-r from-blue-300 via-gray-400 to-zinc-500 opacity-80 animate-wave-2"
+                style={{
+                  clipPath:
+                    "path('M0,90 C120,110 300,50 500,90 L500,200 L0,200 Z')",
+                }}
+              ></div>
+              <div
+                className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-r from-blue-200 via-gray-300 to-zinc-400 opacity-60 animate-wave-3"
+                style={{
+                  clipPath:
+                    "path('M0,80 C100,100 250,70 500,80 L500,200 L0,200 Z')",
+                }}
+              ></div>
+              <div
+                className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-r from-blue-400 via-gray-500 to-zinc-600 opacity-40 animate-wave-4"
+                style={{
+                  clipPath:
+                    "path('M0,70 C100,90 200,90 500,70 L500,200 L0,200 Z')",
+                }}
+              ></div>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

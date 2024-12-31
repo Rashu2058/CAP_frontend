@@ -13,11 +13,11 @@ const Reports = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [checkInDate, setCheckInDate] = useState("");
   const [checkOutDate, setCheckOutDate] = useState("");
+  const [showFilters, setShowFilters] = useState(false); 
 
   const dailyReports = [
     {
       id: "56789",
-      receptionistName: "Rashu Shrestha",
       customerName: "Basanti Silwal",
       checkInDate: "2024-10-15",
       checkOutDate: "2024-10-20",
@@ -25,7 +25,6 @@ const Reports = () => {
     },
     {
       id: "1234",
-      receptionistName: "Pushpa Thapa",
       customerName: "Hari Shrestha",
       checkInDate: "2024-11-22",
       checkOutDate: "2024-11-24",
@@ -33,15 +32,13 @@ const Reports = () => {
     },
     {
       id: "0157422",
-      receptionistName: "Pushpa Thapa",
       customerName: "Maya Thapa",
       checkInDate: "2024-11-21",
       checkOutDate: "2024-11-23",
       totalBill: 5500,
     },
     {
-      id: "0157422",
-      receptionistName: "Namita Sharma",
+      id: "5870032",
       customerName: "Sachina Thapa",
       checkInDate: "2024-12-01",
       checkOutDate: "2024-12-08",
@@ -53,7 +50,6 @@ const Reports = () => {
   const filteredReports = dailyReports.filter((report) => {
     const matchesQuery =
       report.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      report.receptionistName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       report.id.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesCheckIn = !checkInDate || report.checkInDate === checkInDate;
@@ -95,7 +91,7 @@ const Reports = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen rounded-md bg-gray-50 p-4">
 
 {/* Header */}
       <header className="flex justify-between items-center mb-6">
@@ -108,7 +104,22 @@ const Reports = () => {
         </button>
       </header>
 
+{/* Filter Toggle Button */}
+      <div className="mb-6">
+        <button
+          onClick={() => setShowFilters((prev) => !prev)}
+          className="bg-gray-200 text-black rounded-md px-4 py-2 hover:bg-gray-100"
+        >
+        <span className="flex items-center gap-2">
+          <img src="/filter.png" alt="Filter Icon" className="w-5 h-5" />
+          {showFilters ? "Hide" : "Filter"}
+        </span>
+        </button>
+      </div>
+
 {/* Year Dropdown */}
+{showFilters && (
+  <div className="mb=6">
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
       <div>
         <label htmlFor="year" className="block text-sm font-medium text-gray-700">
@@ -194,6 +205,8 @@ const Reports = () => {
           />
         </div>
       </div>
+      </div>
+)}
   
 {/* Report Section */}
       <div id="print-section" className="overflow-x-auto shadow-md rounded-lg mb-6">
@@ -203,7 +216,6 @@ const Reports = () => {
           <thead className="bg-gray-200 text-gray-600 text-sm uppercase">
             <tr>
               <th className="p-3 border">Customer ID</th>
-              <th className="p-3 border">Receptionist Name</th>
               <th className="p-3 border">Customer Name</th>
               <th className="p-3 border">Check-In Date</th>
               <th className="p-3 border">Check-Out Date</th>
@@ -220,7 +232,6 @@ const Reports = () => {
                   className="text-gray-700 text-sm border-b hover:bg-gray-50"
                 >
                   <td className="p-3 text-center">{report.id}</td>
-                  <td className="p-3 text-center">{report.receptionistName}</td>
                   <td className="p-3 text-center">{report.customerName}</td>
                   <td className="p-3 text-center">{report.checkInDate}</td>
                   <td className="p-3 text-center">{report.checkOutDate}</td>
@@ -229,7 +240,7 @@ const Reports = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="p-3 text-center text-gray-500 italic">
+                <td colSpan={5} className="p-3 text-center text-gray-500 italic">
                   No reports available for the selected criteria.
                 </td>
               </tr>

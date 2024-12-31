@@ -14,14 +14,15 @@ import { useRouter } from 'next/navigation';
 export default function Dashboard() {
   const [activeSetting, setActiveSetting] = useState("revenue");
   const [isOpen, setIsOpen] = useState(false);
-  const router=useRouter();
-
   const dropdownRef = useRef<HTMLDivElement | null>(null); // Reference for dropdown menu
-  {/*handle logout*/}
+  const router=useRouter();
+ 
+{/*handle logout*/}
   const handlelogout=()=>{
     localStorage.removeItem("authtoken");
     router.push("/");
   };
+
 {/* Close the dropdown when clicking outside of it*/}
 useEffect(() => {
   function handleClickOutside(event: MouseEvent) {
@@ -41,7 +42,7 @@ useEffect(() => {
     <div className="min-h-screen flex bg-gray-200">
 
 {/* Sidebar section */}
-      <aside className="bg-gray-950 p-4 lg:p-8 max-h-full w-1/6 h-screen sticky top-0">
+      <aside className="bg-gray-950 p-4 lg:p-8 sticky min-w-[220px]">
         <div className="flex flex-col space-y-16">
           <div className="flex items-center">
             <Image src="/logo.png" alt="Logo" width={150} height={150} />
@@ -55,20 +56,20 @@ useEffect(() => {
               <span className="ml-2 hidden lg:inline-block">Dashboard</span>
             </a>
 
-            <a href="#" onClick={() => setActiveSetting("room")}
-              className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
-                activeSetting === "room" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
-              }`}>
-              <Image src="/rooom.png" alt="room" width={20} height={20} className="rounded-full" />
-              <span className="ml-2 hidden lg:inline-block">Room</span>
-            </a>
-
             <a href="#" onClick={() => setActiveSetting("receptionist")}
                className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
                 activeSetting === "receptionist" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
               }`}>
               <Image src="/receptionist.png" alt="receptionist" width={20} height={20} className="rounded-full" />
               <span className="ml-2 hidden lg:inline-block">Receptionist</span>
+            </a>
+
+            <a href="#" onClick={() => setActiveSetting("room")}
+              className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
+                activeSetting === "room" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
+              }`}>
+              <Image src="/rooom.png" alt="room" width={20} height={20} className="rounded-full" />
+              <span className="ml-2 hidden lg:inline-block">Room</span>
             </a>
 
             <a href="#" onClick={() => setActiveSetting("food")}
@@ -94,7 +95,6 @@ useEffect(() => {
               <Image src="/report.png" alt="report" width={20} height={20} className="rounded-full" />
               <span className="ml-2 hidden lg:inline-block">Report</span>
             </a>
-
           </nav>
         </div>
       </aside>
@@ -103,25 +103,7 @@ useEffect(() => {
       <div className="flex-grow h-screen overflow-y-auto">
 
 {/* Navigation bar */}
-        <nav className="bg-white p-2 flex justify-between items-center">
-
-{/* Search bar with custom icon inside */}
-          <div className="relative w-1/3">
-            <input
-              type="text"
-              placeholder="Search..."
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent"
-            />
-
-{/* Search Icon */}
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-              <img
-                src="/search.png" 
-                alt="Search"
-                className="h-5 w-5 text-gray-400"
-              />
-            </div>
-          </div>
+        <nav className="bg-white p-2 flex justify-end items-center shadow">
 
 {/* Profile and Dropdown */}
           <div className="relative" ref={dropdownRef}>
@@ -136,7 +118,7 @@ useEffect(() => {
               />
             </div>
 
-{/* Dropdown Menu */}
+{/* Dropdown Menu for Profile and Logout */}
             {isOpen && (
               <div className="absolute right-0 mt-2 w-64 bg-gray-950 rounded-lg shadow-lg py-2 z-10">
                 <a href="#" onClick={() => setActiveSetting("profile")}
@@ -155,7 +137,7 @@ useEffect(() => {
         </nav>
 
 {/* Dynamic Content Area */}
-        <div className="p-8">
+        <div className="p-8 overflow-auto">
           {activeSetting === "profile" && <Profile />}
           {activeSetting === "revenue" && <Revenue />}
           {activeSetting === "dashboard" && <Dashboard />}

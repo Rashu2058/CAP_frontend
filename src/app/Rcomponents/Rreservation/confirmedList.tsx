@@ -212,9 +212,9 @@ const handleUpdateSubmit = async (e: React.FormEvent) => {
   
 
   return (
-    <div className="bg-white p-6 rounded-lg">
+    <div className="bg-white p-6 rounded-lg min-w-max">
 
-      {/* Search bar */}
+{/* Search bar */}
       <div className="flex justify-center mb-4">
         <div className="relative w-full max-w-md">
           <input
@@ -230,7 +230,7 @@ const handleUpdateSubmit = async (e: React.FormEvent) => {
         </div>
       </div>
 
-      {/* Loading and Error Handling */}
+{/* Loading and Error Handling */}
       {loading && (
         <div className="text-center py-4">
           <span className="text-gray-500">Loading reservations...</span>
@@ -242,7 +242,7 @@ const handleUpdateSubmit = async (e: React.FormEvent) => {
         </div>
       )}
 
-      {/* Table */}
+{/* Table */}
       <table className="min-w-full bg-white border border-gray-300">
         <thead className="bg-gray-800 text-white">
           <tr>

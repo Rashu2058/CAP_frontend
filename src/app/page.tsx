@@ -111,7 +111,11 @@ export default function Login() {
             <form className="login-form" onSubmit={handleLogin}>
               <div className="input-field">
                 <label>Username</label>
-                <input type="text" placeholder="Enter your username" value={username} onChange={(e) => setUsername(e.target.value)} />
+                <input type="text" placeholder="Enter your username" 
+                value={username} 
+                onChange={(e) => setUsername(e.target.value)}
+                maxLength={15}
+                />
               </div>
               <div className="input-field">
                 <label>Password</label>
