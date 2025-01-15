@@ -1,8 +1,190 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect,useState,useMemo } from "react";
 import Image from "next/image";
+import axios from "axios";
+
 
 export default function Checkout() {
+
+  const [idNo, setIdNo] = useState("");
+  const [stayDuration, setStayDuration] = useState(0);
+  const [totalBill, setTotalBill] = useState<number | null>(null);
+  const [subtotal, setSubtotal] = useState(1000); // Example subtotal, can be dynamic
+  const [discountAmount, setDiscountAmount] = useState(0); // User input for fixed discount amount
+  const [vatRate] = useState(13); // VAT rate of 13%
+  const [total, setTotal] = useState(subtotal);
+
+  
+  const [reservation, setReservation] = useState({
+        res_id:"",
+        roomNo: "",
+        roomType: "",
+        roomPrice: "",
+        checkInDate: "",
+        checkOutDate: "",
+        customerName: "",
+    });
+    const [foodCharge, setFoodCharge] = useState<number | null>(null); 
+    
+    const token = localStorage.getItem('token');
+
+    const [todayDate, setTodayDate] = useState("");
+
+    useEffect(() => {
+      const currentDate = new Date().toISOString().split("T")[0];
+      setTodayDate(currentDate);
+    }, []);
+
+   // Fetch reservation details by ID
+   const handleIdNoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const enteredIdNo = e.target.value;
+    setIdNo(enteredIdNo);
+
+    if (!enteredIdNo) {
+        setReservation({
+            res_id:"",
+            roomNo: "",
+            roomType: "",
+            roomPrice: "",
+            checkInDate: "",
+            checkOutDate: "",
+            customerName: "",
+        });
+        return;
+    }
+
+    try {
+        const response = await axios.get(`http://localhost:8080/api/reservations/details`, {
+            params: { idNo: enteredIdNo },
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setReservation({
+            res_id:response.data.res_id,
+            roomNo: response.data.room_no,
+            roomType: response.data.room_type,
+            roomPrice: response.data.room_price,
+            checkInDate: response.data.check_in_date,
+            checkOutDate: response.data.check_out_date,
+            customerName: response.data.customer_name,
+        });
+    } catch (error) {
+        console.error("Reservation not found", error);
+        setReservation({
+          res_id: "",
+          roomNo: "",
+          roomType: "",
+          roomPrice: "",
+          checkInDate: "",
+          checkOutDate: "",
+          customerName: "",
+      });
+
+    }
+};
+
+
+
+const handlereset = () => {
+  setReservation({
+      res_id: "".toString(), // Ensure it's a string
+      customerName: "",
+      roomNo: "",
+      roomType: "",
+      roomPrice: "0", // Ensure it's a string
+      checkInDate: "",
+      checkOutDate: "",
+  });
+  setFoodCharge(null);
+  setDiscountAmount(0);
+  setSubtotal(0);
+  setTotalBill(0);
+  setStayDuration(0);
+};
+
+// Call Billing API
+const handleBillingAPI = async () => {
+  console.log("checkout button clicked")
+  try {
+    const billingData = {
+      resId: reservation.res_id,
+      roomBill: roomBill,
+      foodCharge: foodCharge,
+      discountAmount: discountAmount,
+      vatRate: vatRate,
+      finalTotal: finalTotal,
+      checkInDate: reservation.checkInDate, 
+      checkOutDate: reservation.checkOutDate, 
+    };
+
+    const response = await axios.post(
+      "http://localhost:8080/api/v1/billing/generate",
+      billingData,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    if (response.status === 200) {
+      alert('Billing data saved successfully');
+      handlereset;
+    }
+  } catch (error) {
+    console.error("Error calling billing API:", error);
+    alert("Failed to process billing.");
+  }
+};
+
+useEffect(() => {
+  if (reservation.res_id) {
+    fetch(`http://localhost:8080/api/v1/food-orders/total-food-charge/${reservation.res_id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("API Response:", data);
+      setFoodCharge(data); // Assuming the response has 'totalFoodCharge'
+    })
+    .catch((error) => {
+      console.error('Error fetching food charge:', error);
+    });
+  }
+}, [reservation.res_id]);  // Re-run when reservation.res_id changes
+ // Re-run the effect when reservation.res_id changes
+
+
+
+//calculate duration
+useEffect(() => {
+    if (reservation.checkInDate && reservation.checkOutDate) {
+        const checkInDate = new Date(reservation.checkInDate);
+        const checkOutDate = new Date(reservation.checkOutDate);
+        const duration = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 3600 * 24));
+        setStayDuration(duration);
+    }
+}, [reservation.checkInDate, reservation.checkOutDate]);
+
+
+
+//calculate bill
+const roomBill = useMemo(() => {
+  const roomPrice = parseFloat(reservation.roomPrice) || 0;
+  return (stayDuration * roomPrice).toFixed(2);
+}, [stayDuration, reservation.roomPrice]);
+
+// Calculate the total bill
+const SubtotalBill = useMemo(() => {
+  const foodChargeAmount = foodCharge || 0;
+  const roomBillAmount = parseFloat(roomBill) || 0;
+  return (foodChargeAmount + roomBillAmount).toFixed(2);
+}, [foodCharge, roomBill]);
+
+ const finalTotal = useMemo(() => {
+    const subtotalValue = parseFloat(SubtotalBill) || 0;
+    const discountedAmount = subtotalValue - discountAmount; // Subtract discount
+    const vatAmount = (discountedAmount * vatRate) / 100 // Add VAT on discounted amount
+    return (discountedAmount + vatAmount).toFixed(2); // Final total
+  }, [SubtotalBill, discountAmount, vatRate]);
+
 
 {/* Printing Invoice*/}
   const handlePrint = () => {
@@ -34,77 +216,87 @@ export default function Checkout() {
         <label className="block text-sm font-semibold">ID No.</label>
         <input
           type="text"
+          value={idNo}
           placeholder="1234"
+          onChange={handleIdNoChange}
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
         />
 
         <label className="block text-sm font-semibold">Customer Name</label>
         <input
           type="text"
+          value={reservation.customerName}
           placeholder="Robert Wilson"
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
+          readOnly
         />
 
         <label className="block text-sm font-semibold">Room Type</label>
-        <select
+        <input
           name="room_type"
-          defaultValue=""
+          value={reservation.roomType}
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
-        >
-          <option value="" disabled>
-            Select Room Type
-          </option>
-          <option value="single">Single</option>
-          <option value="double">Double</option>
-          <option value="suite">Suite</option>
-        </select>
-
+          readOnly
+        />
+         
         <label className="block text-sm font-semibold">Room No</label>
-        <select
+        <input
           name="Room No"
+          value={reservation.roomNo}
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
-          defaultValue=""
-        >
-          <option value="" disabled>
-            Select Room No
-          </option>
-          <option value="101">101</option>
-          <option value="102">102</option>
-          <option value="103">103</option>
-        </select>
+          readOnly
+        />
 
         <label className="block text-sm font-semibold">Check In</label>
         <input
           type="text"
+          value={reservation.checkInDate}
           placeholder="10/08/2024 06:36 PM"
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
+          readOnly
         />
 
         <label className="block text-sm font-semibold">Check Out</label>
         <input
           type="text"
           placeholder="10/12/2024"
+          value={reservation.checkOutDate}
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
+          readOnly
         />
 
         <label className="block text-sm font-semibold">No. of Days</label>
         <input
           type="text"
           placeholder="4"
+          value={stayDuration}
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
+          readOnly
         />
 
         <label className="block text-sm font-semibold">Room Price</label>
         <input
           type="text"
           placeholder="2000"
+          value={reservation.roomPrice}
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
+          readOnly
+        />
+        <label className="block text-sm font-semibold">Room Bill</label>
+        <input
+          type="text"
+          placeholder="11000"
+          value={roomBill}
+          className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
+          readOnly
         />
 
-        <label className="block text-sm font-semibold">Food Orders</label>
+        <label className="block text-sm font-semibold">Food Bill</label>
         <input
           type="text"
           placeholder="3000"
+          value={foodCharge !== null ? foodCharge : ''}
+          readOnly
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
         />
 
@@ -112,6 +304,7 @@ export default function Checkout() {
         <input
           type="text"
           placeholder="11000"
+          value={SubtotalBill}
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
         />
         <div className="flex justify-end sm:justify-end px-2 py-2">
@@ -119,6 +312,7 @@ export default function Checkout() {
               <button
                 type="button"
                 className="bg-gray-800 text-white px-6 py-3 rounded-lg hover:bg-gray-600 text-lg"
+                onClick={handleBillingAPI}
               >
                 Check Out
               </button>
@@ -146,6 +340,7 @@ export default function Checkout() {
         <label className="block text-sm font-semibold">Date:</label>
         <input
           type="date"
+          value={todayDate}
           className="border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
         />
       </div>
@@ -178,14 +373,10 @@ export default function Checkout() {
       <input
         type="text"
         placeholder="Customer Name"
+        value={reservation.customerName}
         className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300 mb-2"
       />
-      <input
-        type="text"
-        placeholder="Customer Address"
-        className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-      />
-    </div>
+     </div>
 
 {/* Right Section: Check In/Out */}
     <div className="w-1/2 flex flex-col justify-end">
@@ -193,8 +384,10 @@ export default function Checkout() {
         <label>Check In:</label>
         <input
           type="text"
+          value={reservation.checkInDate}
           placeholder="10/08/2024 06:36 PM"
           className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
+          readOnly
         />
       </div>
 
@@ -202,8 +395,10 @@ export default function Checkout() {
         <label>Check Out:</label>
         <input
           type="text"
+          value={reservation.checkOutDate}
           placeholder="10/12/2024"
           className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
+          readOnly
         />
       </div>
     </div>
@@ -225,13 +420,23 @@ export default function Checkout() {
           </thead>
           <tbody>
             <tr className="hover:bg-purple-100">
+            <td className="py-3 px-6 border border-gray-300 text-center">Room</td>
             <td className="py-3 px-6 border border-gray-300 text-center"></td>
             <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
+            <td className="py-3 px-6 border border-gray-300 text-center">{reservation.roomPrice}</td>
+            <td className="py-3 px-6 border border-gray-300 text-center">{roomBill}</td>
             </tr>
           </tbody>
+          <tbody>
+            <tr className="hover:bg-purple-100">
+            <td className="py-3 px-6 border border-gray-300 text-center">Food</td>
+            <td className="py-3 px-6 border border-gray-300 text-center"></td>
+            <td className="py-3 px-6 border border-gray-300 text-center"></td>
+            <td className="py-3 px-6 border border-gray-300 text-center"></td>
+            <td className="py-3 px-6 border border-gray-300 text-center">{foodCharge}</td>
+            </tr>
+          </tbody>
+          
         </table>
 
 {/* Summary */}
@@ -241,6 +446,7 @@ export default function Checkout() {
             <input
               type="text"
               name="subTotal"
+              value={SubtotalBill}
               placeholder="Sub Total"
               className="mb-2 p-1 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
             />
@@ -251,6 +457,8 @@ export default function Checkout() {
               type="text"
               name="discount"
               placeholder="Discount"
+              value={discountAmount}
+              onChange={(e) => setDiscountAmount(parseFloat(e.target.value) || 0)}
               className="mb-2 p-1 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
             />
           </div>
@@ -260,8 +468,10 @@ export default function Checkout() {
               type="text"
               name="vat"
               placeholder="VAT 13%"
+              value={(parseFloat(SubtotalBill) - discountAmount) * 0.13 || 0} // VAT calculation
               className="mb-2 p-1 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-            />
+              readOnly
+          />
           </div>
           <div className="space-x-2">
             <label>Total:</label>
@@ -269,8 +479,10 @@ export default function Checkout() {
               type="text"
               name="total"
               placeholder="Total"
+              value={finalTotal} // Total calculation
               className="mb-2 p-1 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-            />
+              readOnly
+           />
           </div>
         </div>
 

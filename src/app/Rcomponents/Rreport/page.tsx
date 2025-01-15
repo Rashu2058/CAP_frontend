@@ -1,73 +1,97 @@
 "use client";
+import React, { useEffect,useState } from "react";
+import axios from "axios";
 
-import React, { useState } from "react";
+interface Report {
+  customer_idno: string;
+  receptionist_name: string;
+  customer_name: string;
+  check_in_date: string;
+  check_out_date: string;
+  total_amount: number;
+}
 
 const Reports = () => {
   const currentDate = new Date();
   
   const currentMonth = currentDate.toLocaleString("default", { month: "long" });
   const currentYear = currentDate.getFullYear();
-  
+  const [dailyReports, setDailyReports] = useState<Report[]>([]);  
   const [selectedYear, setSelectedYear] = useState(String(currentYear));
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [searchQuery, setSearchQuery] = useState("");
   const [checkInDate, setCheckInDate] = useState("");
   const [checkOutDate, setCheckOutDate] = useState("");
+  const [showFilters, setShowFilters] = useState(false); 
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+ 
 
-  const dailyReports = [
-    {
-      id: "56789",
-      receptionistName: "Rashu Shrestha",
-      customerName: "Basanti Silwal",
-      checkInDate: "2024-10-15",
-      checkOutDate: "2024-10-20",
-      totalBill: 9040,
-    },
-    {
-      id: "1234",
-      receptionistName: "Pushpa Thapa",
-      customerName: "Hari Shrestha",
-      checkInDate: "2024-11-22",
-      checkOutDate: "2024-11-24",
-      totalBill: 5000,
-    },
-    {
-      id: "0157422",
-      receptionistName: "Pushpa Thapa",
-      customerName: "Maya Thapa",
-      checkInDate: "2024-11-21",
-      checkOutDate: "2024-11-23",
-      totalBill: 5500,
-    },
-    {
-      id: "0157422",
-      receptionistName: "Namita Sharma",
-      customerName: "Sachina Thapa",
-      checkInDate: "2024-12-01",
-      checkOutDate: "2024-12-08",
-      totalBill: 8000,
-    },
-  ];
+ 
+useEffect(() => {
+  const fetchReports = async () => {
+    setLoading(true); // Set loading to true before starting the fetch
+    setError(null);   // Clear any previous errors
+
+    const token = localStorage.getItem('token'); // Retrieve the token from localStorage or another secure location
+
+    try {
+      const response = await axios.get('http://localhost:8080/api/reports', {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+        },
+      });
+      const formattedReports = response.data.map((report: any) => ({
+        id: report.id,
+        receptionistName: report.receptionist_name,
+        customerName: report.customer_name,
+        checkInDate: report.check_in_date,
+        checkOutDate: report.check_out_date,
+        totalBill: report.total_bill,
+      }));
+      setDailyReports(formattedReports); // Update the state with fetched data
+    } catch (error) {
+      // Handle errors and set the error state
+        } finally {
+      setLoading(false); // Ensure loading is set to false in all cases
+    }
+  };
+
+  fetchReports();
+}, []);
+
+  
+
 
 {/* Filter daily reports based on user input*/}
   const filteredReports = dailyReports.filter((report) => {
     const matchesQuery =
-      report.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      report.receptionistName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      report.id.toLowerCase().includes(searchQuery.toLowerCase());
+  (report.customer_name ?? "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+  (report.receptionist_name ?? "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+  (report.customer_idno ?? "").toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesCheckIn = !checkInDate || report.checkInDate === checkInDate;
-    const matchesCheckOut = !checkOutDate || report.checkOutDate === checkOutDate;
+    const matchesCheckIn = !checkInDate || report.check_in_date === checkInDate;
+    const matchesCheckOut = !checkOutDate || report.check_out_date === checkOutDate;
+
 
 {/* Extract year and month from report's check-in date*/}
-  const reportYear = report.checkInDate.split("-")[0]; 
-  const reportMonth = new Date(report.checkInDate).toLocaleString("default", { month: "long" });
+function isValidDate(dateString: string) {
+  return !isNaN(Date.parse(dateString));
+}
+
+const reportYear = isValidDate(report.check_in_date) ? report.check_in_date.split("-")[0] : "Unknown";
+const reportMonth = isValidDate(report.check_in_date)
+  ? new Date(report.check_in_date).toLocaleString("default", { month: "long" })
+  : "Unknown";
 
   const matchesYear = selectedYear === reportYear;
   const matchesMonth = selectedMonth === "" || selectedMonth === reportMonth;
 
+
   return matchesQuery && matchesCheckIn && matchesCheckOut && matchesYear && matchesMonth;
   });
+
 
 {/* Print functionality*/}
   const handlePrint = () => {
@@ -108,7 +132,20 @@ const Reports = () => {
         </button>
       </header>
 
+{/* Filter Toggle Button */}
+      <div className="mb-6">
+        <button
+          onClick={() => setShowFilters((prev) => !prev)}
+          className=" text-black rounded-md px-4 py-2 hover:bg-gray-200"
+        >
+        {showFilters ? "Hide" : "Filter"}
+        </button>
+      </div>
+
+
 {/* Year Dropdown */}
+{showFilters && (
+  <div className="mb=6">
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
       <div>
         <label htmlFor="year" className="block text-sm font-medium text-gray-700">
@@ -127,6 +164,7 @@ const Reports = () => {
           ))}
         </select>
       </div>
+
 
 {/* Month Dropdown */}
       <div>
@@ -152,6 +190,7 @@ const Reports = () => {
       </div>
       </div>
 
+
 {/* Search Bar */}
       <div className="mb-6">
         <label htmlFor="search" className="block text-sm font-medium text-gray-700">
@@ -166,6 +205,7 @@ const Reports = () => {
           placeholder="Search..."
         />
       </div>
+
 
 {/* Date Filters */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -194,9 +234,12 @@ const Reports = () => {
           />
         </div>
       </div>
+      </div>
+)}
   
 {/* Report Section */}
       <div id="print-section" className="overflow-x-auto shadow-md rounded-lg mb-6">
+
 
 {/* Daily Report Table */}
         <table className="w-full border-collapse bg-white">
@@ -212,19 +255,20 @@ const Reports = () => {
           </thead>
           <tbody>
 
+
 {/* Filtered Daily Reports */}
             {filteredReports.length > 0 ? (
               filteredReports.map((report, index) => (
                 <tr
-                  key={index}
+                  key={report.customer_idno}
                   className="text-gray-700 text-sm border-b hover:bg-gray-50"
                 >
-                  <td className="p-3 text-center">{report.id}</td>
-                  <td className="p-3 text-center">{report.receptionistName}</td>
-                  <td className="p-3 text-center">{report.customerName}</td>
-                  <td className="p-3 text-center">{report.checkInDate}</td>
-                  <td className="p-3 text-center">{report.checkOutDate}</td>
-                  <td className="p-3 text-center">NPR. {report.totalBill}</td>
+                  <td className="p-3 text-center">{report.customer_idno}</td>
+                  <td className="p-3 text-center">{report.receptionist_name}</td>
+                  <td className="p-3 text-center">{report.customer_name}</td>
+                  <td className="p-3 text-center">{report.check_in_date}</td>
+                  <td className="p-3 text-center">{report.check_out_date}</td>
+                  <td className="p-3 text-center">NPR. {report.total_amount}</td>
                 </tr>
               ))
             ) : (
@@ -240,5 +284,6 @@ const Reports = () => {
     </div>
   );
 };
+
 
 export default Reports;

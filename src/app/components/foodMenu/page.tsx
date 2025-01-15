@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import axios from "axios";
-import ErrorPopup from "../ErrorPopup";
+import ErrorPopup from "@/app/popup.tsx/ErrorPopup";
+import SuccessBox from "@/app/popup.tsx/SuccessBox";
 
 interface Food {
   f_id: number;
@@ -22,6 +23,7 @@ export default function FoodManagement() {
   ]);
   const token = localStorage.getItem("token") || "";
   const[errorMessage,setErrorMessage]=useState("")
+  const [successMessage, setSuccessMessage] = useState<string>("");
   
   {/*state and store added food items*/}
   const [newItem, setNewItem] = useState("");
@@ -66,16 +68,21 @@ export default function FoodManagement() {
       setErrorMessage("Please enter valid data ");
       return;
     }
-
-    const duplicate = foodItems.some(
-      (food) =>
-        food.food_name.toLowerCase() === foodName.toLowerCase() &&
-        food.foodCategory.toLowerCase() === foodCategory.toLowerCase()
-    );
-    if (duplicate) {
-      setErrorMessage("Food item already exists in this category");
+    if (!previewImage && editingIndex === null) {
+      setErrorMessage("Please upload an image");
       return;
     }
+    if(editingIndex==null){
+    const duplicate = foodItems.some(
+      (food) =>
+        food.food_name.toLowerCase() === foodName.toLowerCase() 
+    );
+    if (duplicate) {
+      setErrorMessage("Food item already exists");
+      clearInputs();
+      return;
+    }
+  }
       const formData = new FormData();
       formData.append("food_name", foodName);
       formData.append("food_price", foodPrice);
@@ -105,15 +112,18 @@ export default function FoodManagement() {
         });
         if (editingIndex === null) {
           setFoodItems([...foodItems, response.data]);
+          setSuccessMessage("Food added successfully")
         } else {
           const updatedFoodItems = [...foodItems];
           updatedFoodItems[editingIndex] = response.data;
           setFoodItems(updatedFoodItems);
+          setSuccessMessage("Food item updated successfully")
         }
         clearInputs();
         setErrorMessage("");
       } catch (error) {
         console.error("Error saving food item:", error);
+        setErrorMessage("Error Saving Food items")
       }
     
   };
@@ -124,6 +134,13 @@ export default function FoodManagement() {
     setfoodCategory("");
     setPreviewImage(null);
     setEditingIndex(null);
+    const imageInput = document.querySelector(
+      'input[type="file"]'
+    ) as HTMLInputElement;
+    if (imageInput) {
+      imageInput.value = "";
+    }
+  
   };
 
   const deleteFoodItem = async (index: number) => {
@@ -134,8 +151,10 @@ export default function FoodManagement() {
         headers: { Authorization: `Bearer ${token}` },
       });
       setFoodItems(foodItems.filter((_, i) => i !== index));
+      setSuccessMessage("Food item deleted Successfully")
     } catch (error) {
       console.error("Error deleting food item:", error);
+      
     }
   };
 
@@ -160,7 +179,7 @@ export default function FoodManagement() {
     setFoodName(food.food_name);
     setFoodPrice(food.food_price.toString());
     setfoodCategory(food.foodCategory);
-    setPreviewImage(food.imagePath);
+    setPreviewImage(`http://localhost:8080/api/files/${food.imagePath}`);
     setEditingIndex(index);
   };
 
@@ -214,7 +233,8 @@ export default function FoodManagement() {
         
         {/*Error pop up message */}
         <ErrorPopup message={errorMessage}onClose={()=>setErrorMessage("")}/>
-          
+        {successMessage && <SuccessBox message={successMessage} onClose={() => setSuccessMessage("")} />} 
+ 
         <div className="flex flex-row items-center space-y-0 gap-x-4">
           <input type="text" value={newItem} onChange={(e) => setNewItem(e.target.value)} placeholder="Add new category" className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300" />
           <button onClick={addItem} className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700">Add Category</button>
@@ -222,7 +242,13 @@ export default function FoodManagement() {
 
         <div className="flex flex-col mt-6">
           <input type="file" accept="image/*" onChange={handleImageChange} className="mb-4 text-sm text-gray-700 border rounded-lg p-2" />
-          {previewImage && <img src={previewImage} alt="Preview" className="w-40 h-40 object-cover rounded-lg border" />}
+          {previewImage && (
+         <div>
+          <img src={previewImage} alt="Preview" className="w-40 h-40 object-cover rounded-lg border" />
+      {/* Show the image filename */}
+           <p className="mt-2 text-sm text-gray-700">Image: {previewImage.split('/').pop()}</p>
+          </div>
+          )} 
         </div>
 
         <div className="flex justify-end px-6 py-4">
@@ -232,6 +258,7 @@ export default function FoodManagement() {
         </div>
       </div>
 
+{/*Food Displaying cards*/}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {foodItems.map((food, index) => (
         <div key={index} className="bg-white p-4 rounded-lg shadow-lg">

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Select from 'react-select';
 
+
 interface FoodItems{
   f_id:number,
   food_name:string,
@@ -18,37 +19,74 @@ type orderItem = {
 };
 
 type ConfirmedOrder = {
+  o_id:number;
   roomNo: string;
   customerName: string;
+  res_id:number;
   items: orderItem[];
 };
+
+interface food_orders {
+  o_id: number;
+  room_no: number;
+  food_name: string;
+  quantity: number;
+  food_price: number;
+  total_price: number;
+  customer_name: string;
+}
 interface Room{
   roomNo:string;
   customerName:string;
-}
+  resId:number;
+};
+
+
 
 
 export default function FoodOrders() {
-
+//States for handling order items,rooms,food items and API responses
   const [order, setorder] = useState<orderItem[]>([]);
   const [confirmedOrders, setConfirmedOrders] = useState<ConfirmedOrder[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [selectedRoomData, setSelectedRoom] = useState('');
+  const [selectedRoomData, setSelectedRoom] = useState<string>('');
   const [roomNo, setRoomNo] = useState('');
   const [customerName, setCustomerName] = useState('');
-  const [searchMenu, setSearchMenu] = useState("");
-  const [searchOrders, setSearchOrders] = useState("");
   const [orderConfirmed, setOrderConfirmed] = useState(false);
   const [foodItems, setFoodItems] = useState<FoodItems[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [roomSearch, setRoomSearch] = useState('');
+  const [foodOrders, setFoodOrders] = useState<food_orders[]>([]);  
+  
+  const token = localStorage.getItem('token');
 
-  const roomOptions = rooms.map((room) => ({
-    value: room.roomNo,
-    label: `Room ${room.roomNo}`,
-  }));
+ //Fetch food orders
+  
+ useEffect(() => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    axios.get('http://localhost:8080/api/v1/food-orders/get-orders', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    .then((response) => {
+      console.log('Food Orders Response:', response.data);
+      setFoodOrders(response.data);
+    })
+    .catch((error) => {
+      console.error("Error fetching food orders:", error);
+      setError("Error fetching data");
+    });
+  } else {
+    setError("Authorization token not found");
+  }
+}, [token]);
+  
 
+  
+//Fetch Food items 
   useEffect(() => {
     const fetchFoodItems = async () => {
       try {
@@ -72,7 +110,7 @@ export default function FoodOrders() {
     };    
 
     fetchFoodItems();
-  }, []);
+  }, [token]);
 
 {/*fetch available rooms and customer names*/}
 useEffect(() => {
@@ -90,8 +128,14 @@ useEffect(() => {
       })
       .catch((error) => console.error('Error fetching rooms:', error));
   }
-}, []);
+}, [token]);
 
+//Prepare room options for dropdown
+const roomOptions = rooms.map((room) => ({
+  value: room.roomNo,
+  label: `Room ${room.roomNo}`,
+}));
+//Add food item to the order
   const addToorder = (item: orderItem) => {
     const existingItem = order.find((orderItem) => orderItem.o_id === item.o_id);
     if (existingItem) {
@@ -106,7 +150,7 @@ useEffect(() => {
       setorder([...order, { ...item, quantity: 1 }]);
     }
   };
-
+//Incease quantity of a food item
   const increaseQuantity = (id: number) => {
     setorder(
       order.map((item) =>
@@ -114,7 +158,7 @@ useEffect(() => {
       )
     );
   };
-
+//decreaseQuantity of food item
   const decreaseQuantity = (id: number) => {
     setorder(
       order.map((item) =>
@@ -124,7 +168,7 @@ useEffect(() => {
       )
     );
   };
-
+//Remove food item from the order
   const removeFromorder = (id: number) => {
     setorder(order.filter((item) => item.o_id !== id));
   };
@@ -134,39 +178,75 @@ useEffect(() => {
     0
   );
 
-  const onConfirmOrder = () => {
-    if (order.length > 0 && roomNo && customerName) {
-      // Check if an order with the same room number and customer name already exists
-      const existingOrderIndex = confirmedOrders.findIndex(
-        (order) => order.roomNo === roomNo && order.customerName === customerName
+
+  
+  
+  const onConfirmOrder = async () => {
+  
+    if (!roomNo || !customerName) {
+      console.error('Validation Failed: Room number and customer name are required');
+      setError('Room number and customer name are required');
+      return;
+    }
+  
+    const selectedRoomData = rooms.find((room) => room.roomNo.toString() === roomNo.toString());
+    if (!selectedRoomData) {
+      console.error('Validation Failed: No room found for this number');
+      setError('No room found for this number');
+      return;
+    }
+    console.log('Selected room data:', selectedRoomData);
+
+    const foodOrders = order.map((item) => ({
+      resId: selectedRoomData.resId, // Ensure res_id is fetched correctly
+      foodId: item.o_id, // Ensure o_id is correct
+      quantity: item.quantity,
+    }));
+  
+    console.log('Payload to Submit:', foodOrders);
+  
+    if (foodOrders.length === 0) {
+      console.error('Validation Failed: No items in the order');
+      setError('No items in the order');
+      return;
+    }
+  
+    try {
+      const response = await axios.post(
+        'http://localhost:8080/api/v1/food-orders/create',
+        foodOrders,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        }
       );
   
-      if (existingOrderIndex !== -1) {
-        // Update the existing order's items
-        const updatedOrders = [...confirmedOrders];
-        updatedOrders[existingOrderIndex].items = order;
-        setConfirmedOrders(updatedOrders);
-      } else {
-        // Add a new order if no matching order is found
-        setConfirmedOrders([
-          ...confirmedOrders,
-          { roomNo, customerName, items: order },
-        ]);
+      if (response.status === 200) {
+        console.log('Order confirmed:', response.data);
+        setorder([]); // Clear the order
+        setRoomNo(''); // Reset room number
+        setCustomerName(''); // Reset customer name
+        setOrderConfirmed(true);
+        setTimeout(() => setOrderConfirmed(false), 3000);
       }
-  
-      // Clear the order and reset form fields
-      setorder([]);
-      setRoomNo('');
-      setCustomerName('');
-      setOrderConfirmed(true);
-      setTimeout(() => setOrderConfirmed(false), 3000); // Hide message after 3 seconds
+    } catch (error) {
+      console.error('Error placing food order:', error);
+      setError('Error placing order');
     }
   };
-   // State to store the search query
-
-  const handleRoomSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRoomSearch(e.target.value);  // Update search query as user types
-  };
+  
+    
+const handleroomChange = (selectedOption: { value: string; label: string } | null) => {
+  if (selectedOption) {
+    const selectedRoomData = rooms.find(room => room.roomNo === selectedOption.value);
+    if (selectedRoomData) {
+      setCustomerName(selectedRoomData.customerName || ''); // Update customer name
+      setRoomNo(selectedRoomData.roomNo); // Update room number
+      setSelectedRoom(selectedRoomData.resId.toString()); // Store `res_id` for submission
+    } else {
+      setError('Selected room does not exist. Please refresh and try again.');
+    }
+  }
+};
 
   const filteredRooms = rooms.filter((room) =>
     room.roomNo.toString().toLowerCase().includes(roomSearch.toLowerCase())
@@ -175,10 +255,17 @@ useEffect(() => {
   const handleRoomChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const roomNo = event.target.value;
     setSelectedRoom(roomNo);
-
-    // Find the customer name for the selected room number
+  
+    // Find the customer name for the selected room number and its reservation ID
     const selectedRoomData = rooms.find((room) => room.roomNo.toString() === roomNo);
-    setCustomerName(selectedRoomData?.customerName || ''); // Set the customer name if found
+    
+    if (selectedRoomData) {
+      setCustomerName(selectedRoomData.customerName || ''); // Set customer name
+      setRoomNo(selectedRoomData.roomNo); // Set the selected room number
+      setSelectedRoom(roomNo); // Store full room data including reservation ID
+    }else {
+      setError('No room data found for the selected room number');
+    }
   };
 
   
@@ -227,23 +314,29 @@ useEffect(() => {
           <div className="flex flex-col">
             <label className="block text-sm font-semibold">Room No</label>
             <Select
-                value={roomOptions.find((option) => option.value === selectedRoomData)} // Selected room
-                onChange={(selectedOption) => {
-                  setSelectedRoom(selectedOption?.value || ""); // Update selected room
-                    const selectedRoomData = rooms.find(
-                    (room) => room.roomNo === selectedOption?.value
-                  );
-                    setCustomerName(selectedRoomData?.customerName || ""); // Set customer name
-                  }}
-                      options={roomOptions.filter((option) =>
-                      option.label.toLowerCase().includes(roomSearch.toLowerCase())
-                )}
-                 // Filter options
-                      onInputChange={(value) => setRoomSearch(value)} // Update room search query
-                      placeholder="Select Room No"
-                      className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
-                      isSearchable
-              />
+  value={roomOptions.find((option) => option.value === roomNo)}
+  onChange={(selectedOption) => {
+    const selectedRoomData = rooms.find(
+      (room) => room.roomNo === selectedOption?.value
+    );
+    if (selectedRoomData) {
+      setCustomerName(selectedRoomData.customerName || "");
+      setRoomNo(selectedRoomData.roomNo || "");
+      setSelectedRoom(selectedOption?.value || "");
+    } else {
+      setError("Selected room does not exist. Please refresh and try again.");
+    }
+  }}
+  options={roomOptions.filter((option) =>
+    option.label.toLowerCase().includes(roomSearch.toLowerCase())
+  )}
+  onInputChange={(value) => setRoomSearch(value)}
+  placeholder="Select Room No"
+  className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
+  isSearchable
+/>
+
+
             </div>
 
 {/* Customer Name */}
@@ -358,11 +451,15 @@ useEffect(() => {
         </div>
       </div>
 
+
+
 {/* Confirmed Orders Table */}
   {confirmedOrders.length > 0 && (
   <div className="mt-8 bg-white rounded-lg p-4">
     <h2 className="text-lg font-bold mb-4">Confirmed Orders</h2>
     
+
+
 {/* Search bar */}
           <div className="flex justify-center mb-4">
             <div className="relative w-full max-w-md">
@@ -380,47 +477,39 @@ useEffect(() => {
               </div>
             </div>
           </div>
-    <table className="min-w-full bg-white border rounded-lg">
-      <thead>
-        <tr>
-          <th className="border px-4 py-2">Order No</th>
-          <th className="border px-4 py-2">Room No</th>
-          <th className="border px-4 py-2">Customer Name</th>
-          <th className="border px-4 py-2">Items with Quantity</th>
-          <th className="border px-4 py-2">Total Price</th>
-          <th className="border px-4 py-2">Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {confirmedOrders.map((order, index) => {
-          // Calculate the total price for the entire order
-          const totalOrderPrice = order.items.reduce(
-            (total, item) => total + item.food_price * item.quantity,
-            0
-          );
-
-          // Generate a string for items and their quantities
-          const itemsList = order.items
-            .map((item) => `${item.food_name} (x${item.quantity})`)
-            .join(', ');
-
-          return (
-            <tr key={index}>
-              <td className="border px-4 py-2">{index + 1}</td>
-              <td className="border px-4 py-2">{order.roomNo}</td>
-              <td className="border px-4 py-2">{order.customerName}</td>
-              <td className="border px-4 py-2">{itemsList}</td>
-              <td className="border px-4 py-2">NPR {totalOrderPrice}</td>
-              <td className="border px-4 py-2">
-              <a href="#" className="text-gray-900 hover:text-gray-700 mr-2" 
-              onClick={() => editOrder(order)}>Edit</a>
-              <a href="#" className="text-red-600 hover:text-red-700 mr-2">Delete</a>
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+          <table className="min-w-full bg-white border rounded-lg">
+  <thead>
+  <tr>
+            <th className="py-2 px-4 border-b">Order ID</th>
+            <th className="py-2 px-4 border-b">Room Number</th>
+            <th className="py-2 px-4 border-b">Food Name</th>
+            <th className="py-2 px-4 border-b">Quantity</th>
+            <th className="py-2 px-4 border-b">Food Price</th>
+            <th className="py-2 px-4 border-b">Total Price</th>
+            <th className="py-2 px-4 border-b">Customer Name</th>
+          </tr>
+        </thead>
+        <tbody>
+  {foodOrders.length > 0 ? (
+    foodOrders.map((order) => (
+      <tr key={order.o_id}>
+        <td className="py-2 px-4 border-b">{order.o_id}</td>
+        <td className="py-2 px-4 border-b">{order.room_no}</td>
+        <td className="py-2 px-4 border-b">{order.food_name}</td>
+        <td className="py-2 px-4 border-b">{order.quantity}</td>
+        <td className="py-2 px-4 border-b">{order.food_price}</td>
+        <td className="py-2 px-4 border-b">{order.total_price}</td>
+        <td className="py-2 px-4 border-b">{order.customer_name}</td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      console.error("No food order");
+      
+    </tr>
+  )}
+</tbody>
+      </table>
   </div>
 )}
 </div>

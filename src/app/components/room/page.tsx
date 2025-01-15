@@ -1,7 +1,9 @@
 "use client"; // For client-side rendering
 import { useEffect, useState } from "react";
 import axios from "axios";
-import ErrorPopup from "../ErrorPopup";
+import ErrorPopup from "@/app/popup.tsx/ErrorPopup";
+import SuccessBox from "@/app/popup.tsx/SuccessBox";
+
 interface Room{
   room_no:string;
   room_type:string;
@@ -25,6 +27,7 @@ export default function RoomManagement() {
   const[errorMessage,setErrorMessage]=useState<string>("");
   const [rooms, setRooms] = useState<Room[]>([]); // Store room details
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [successMessage, setSuccessMessage] = useState<string>("");
 
   const openModal = (room:Room) => {
     setRoomDetails(room);
@@ -47,7 +50,7 @@ export default function RoomManagement() {
       }
     }
   
-  
+    
     setErrorMessage(""); // Clear error message
     setRoomDetails((prevDetails) => ({
       ...prevDetails,
@@ -104,9 +107,11 @@ export default function RoomManagement() {
       fetchRooms();
       setRoomDetails({room_no:"",room_type:"",room_price:""})
       console.log("Room added successfully:", response.data);
+      setSuccessMessage("Room Added Successfully")
       setRoomDetails({ room_no: "", room_type: "", room_price: "" });
     } catch (error) {
       console.error("Error adding room:", error);
+      setErrorMessage("Error adding Room")
     }
   };
 
@@ -162,7 +167,7 @@ export default function RoomManagement() {
         });
 
         console.log("Room updated successfully:", response.data);
-
+        setSuccessMessage("Room Updated Successfully")
         // Refresh room list and close modal
         await fetchRooms();
         closeModal();
@@ -210,12 +215,13 @@ export default function RoomManagement() {
       // Refresh the room list after deletion
       fetchRooms();
       console.log("Room deleted successfully");
+      setSuccessMessage("Room Deleted Successfully");
     } catch (error) {
       console.error("Error deleting room:", error);
       setErrorMessage("Error deleting room.");
     }
   };
-  
+
 
 
   return (
@@ -229,6 +235,7 @@ export default function RoomManagement() {
             type="number"
             name="room_no"
             placeholder="Room No"
+            maxLength={3}
             value={roomDetails.room_no}
             onChange={handleInputChange}
             min="1"
@@ -267,7 +274,8 @@ export default function RoomManagement() {
         </form>
 
        {/* Error Popup */}
-       <ErrorPopup message={errorMessage} onClose={() => setErrorMessage("")} />
+       <ErrorPopup message={errorMessage} onClose={() => setErrorMessage("")} />  
+        {successMessage && <SuccessBox message={successMessage} onClose={() => setSuccessMessage("")} />} 
 
 
         {/* Room Details Section */}

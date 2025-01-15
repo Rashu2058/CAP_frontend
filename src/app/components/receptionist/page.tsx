@@ -1,7 +1,8 @@
 "use client"; // For client-side rendering
 import React, { useState,useEffect } from "react";
 import Image from "next/image";
-
+import ErrorPopup from "@/app/popup.tsx/ErrorPopup";
+import SuccessBox from "@/app/popup.tsx/SuccessBox";
 
 interface Receptionist{
   id:number;
@@ -19,6 +20,7 @@ export default function ReceptionistManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [receptionists, setReceptionists] = useState<Receptionist[]>([]);
   const [selectedReceptionist, setSelectedReceptionist] = useState<Receptionist | null>(null);
+  
   const [formData, setFormData] = useState<Receptionist>({
     id: 0,
     name: '',
@@ -63,6 +65,7 @@ export default function ReceptionistManagement() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
     if(!validateForm()) return;
     
     const url = selectedReceptionist
@@ -79,8 +82,9 @@ export default function ReceptionistManagement() {
         'Authorization': `Bearer ${token}`, // Add a space between 'Bearer' and token
       },
       body: JSON.stringify(formData),
+      
     });
-  
+    setSuccessMessage("Successfully added")
     // Fetch updated receptionist data
     fetchReceptionists();
 
@@ -99,7 +103,11 @@ export default function ReceptionistManagement() {
     });
   };
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
+  const[errorMessage,setErrorMessage]=useState("")
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  
+  {successMessage && <SuccessBox message={successMessage} onClose={() => setSuccessMessage("")} />}
+  {errorMessage && <ErrorPopup message={errorMessage} onClose={() => setErrorMessage("")} />}
  {/*check valid email*/}
     const isValidEmail = (email: string): boolean => {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -108,19 +116,20 @@ export default function ReceptionistManagement() {
 
 {/*validate form*/}
 const validateForm = () => {
+   {/*Error pop up message */}
+   <ErrorPopup message={errorMessage}onClose={()=>setErrorMessage("")}/>
   const newErrors: { [key: string]: string } = {};
   
   if (!formData.name) newErrors.name = "Name is required.";
   if (!formData.phoneno) newErrors.phoneno = "Phone number is required.";
   if (formData.phoneno && formData.phoneno.toString().length !== 10) {
     newErrors.phoneno = "Phone number must be 10 digits.";
+   
   }
   if (!formData.address) newErrors.address = "Address is required.";
   if (!formData.username) newErrors.username = "Address is required.";
   if(!formData.password){
     newErrors.password="Password is required";
-  }else if(formData.password.length<5|| formData.password.length>8){
-    newErrors.password="Password must be between 5 and 8 characters.";
   }
   if (!formData.gender) newErrors.gender = "Gender is required.";
   if (!formData.email) newErrors.email = "Email is required.";
@@ -153,13 +162,19 @@ const validateForm = () => {
 
   const deleteReceptionist = async (id: number) => {
     const token = localStorage.getItem("token") || "";
-    await fetch(`http://localhost:8080/api/v1/admin/deleteReceptionist/${id}`, {
+    const response=await fetch(`http://localhost:8080/api/v1/admin/deleteReceptionist/${id}`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${token}`, // Add the token here
+        'Authorization': `Bearer ${token}`, // Add the token here 
       },
     });
-    fetchReceptionists();
+    if(response.ok){
+        setSuccessMessage("Deleted Successfully");
+        fetchReceptionists();
+      }else{
+        setErrorMessage("Error occured");
+      }
+
   };
 
   useEffect(() => {
@@ -182,9 +197,10 @@ const validateForm = () => {
             />
               {errors.name && <span className="text-red-500">{errors.name}</span>}
             <input
-              type="text"
+              type="number"
               name="phoneno"
               placeholder="Phone No"
+              maxLength={10}
               value={formData.phoneno}
               onChange={handleChange}
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
@@ -246,6 +262,7 @@ const validateForm = () => {
               className="bg-gray-900 text-white px-8 py-4 rounded-lg hover:bg-gray-700 text-xl flex items-center space-x-2 font-sans"
             >
               {selectedReceptionist ? 'Update' : 'Add'}
+
             </button>
           </form>
         </div>
@@ -276,6 +293,7 @@ const validateForm = () => {
                   <td className="py-3 px-6 border border-gray-300 text-center">
                     <a href="#" className="text-gray-600 hover:text-gray-700 mr-2" onClick={() => openModal(receptionist)}>Edit</a>
                     <a href="#" className="text-red-600 hover:text-red-700 mr-2" onClick={() => deleteReceptionist(receptionist.id)}>Delete</a>
+                    {successMessage && <SuccessBox message={successMessage} onClose={() => setSuccessMessage("")} />}
                   </td>
                 </tr>
               ))}
@@ -340,6 +358,8 @@ const validateForm = () => {
                   type="password"
                   name="password"
                   placeholder="Password"
+                  minLength={5}
+                  maxLength={8}
                   value={formData.password}
                   onChange={handleChange}
                   className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300 w-full"

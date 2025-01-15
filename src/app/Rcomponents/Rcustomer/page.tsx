@@ -94,12 +94,12 @@ export default function Customer() {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (selectedCustomer) {
       const { name, value } = event.target;
-      setSelectedCustomer({
-        ...selectedCustomer,
-        [name]: value,
-      });
-    }
-  };
+    setSelectedCustomer((prevCustomer) => ({
+      ...prevCustomer!,
+      [name]: value,
+    }));
+  }
+};
    
   // Modal Component
   const Modal = () => (

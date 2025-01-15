@@ -1,13 +1,14 @@
+
 "use client";
 
+
 import React, { useState } from "react";
+
 
 const Reports = () => {
   const currentDate = new Date();
   
   const currentMonth = currentDate.toLocaleString("default", { month: "long" });
-  const previousMonth = new Date(currentDate.setMonth(currentDate.getMonth() - 1)).toLocaleString("default", { month: "long" });
-  
   const currentYear = currentDate.getFullYear();
   
   const [selectedYear, setSelectedYear] = useState(String(currentYear));
@@ -15,6 +16,8 @@ const Reports = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [checkInDate, setCheckInDate] = useState("");
   const [checkOutDate, setCheckOutDate] = useState("");
+  const [showFilters, setShowFilters] = useState(false); 
+
 
   const dailyReports = [
     {
@@ -51,24 +54,6 @@ const Reports = () => {
     },
   ];
 
-{/* Calculate Monthly Revenue Dynamically */}
-  const calculateMonthlyRevenue = (reports: typeof dailyReports) => {
-  return reports.reduce((acc, report) => {
-    const monthKey = report.checkInDate.slice(0, 7); // Extract 'YYYY-MM' format
-    acc[monthKey] = (acc[monthKey] || 0) + report.totalBill;
-    return acc;
-  }, {} as Record<string, number>);
-};
-  const monthlyRevenue = calculateMonthlyRevenue(dailyReports);
-
-{/* Determine current and previous month keys*/}
-  const currentMonthKey = `${selectedYear}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
-  const previousMonthKey = `${selectedYear}-${String(new Date().getMonth()).padStart(2, "0")}`;
-
-{/* Calculate Monthly Revenue Comparisons*/}
-  const currentMonthRevenue = monthlyRevenue[currentMonthKey] || 0;
-  const previousMonthRevenue = monthlyRevenue[previousMonthKey] || 0;
-  const revenueDifference = currentMonthRevenue - previousMonthRevenue;
 
 {/* Filter daily reports based on user input*/}
   const filteredReports = dailyReports.filter((report) => {
@@ -77,25 +62,32 @@ const Reports = () => {
       report.receptionistName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       report.id.toLowerCase().includes(searchQuery.toLowerCase());
 
+
     const matchesCheckIn = !checkInDate || report.checkInDate === checkInDate;
     const matchesCheckOut = !checkOutDate || report.checkOutDate === checkOutDate;
+
 
 {/* Extract year and month from report's check-in date*/}
   const reportYear = report.checkInDate.split("-")[0]; 
   const reportMonth = new Date(report.checkInDate).toLocaleString("default", { month: "long" });
 
+
   const matchesYear = selectedYear === reportYear;
   const matchesMonth = selectedMonth === "" || selectedMonth === reportMonth;
 
+
   return matchesQuery && matchesCheckIn && matchesCheckOut && matchesYear && matchesMonth;
   });
+
 
 {/* Print functionality*/}
   const handlePrint = () => {
     const printContent = document.getElementById("print-section");
     if (!printContent) return;
 
+
     const contentClone = printContent.cloneNode(true) as HTMLElement;
+
 
     const lastDivider = contentClone
       .querySelectorAll("hr")
@@ -109,14 +101,17 @@ const Reports = () => {
       }
     }
 
+
     const originalContent = document.body.innerHTML;
     document.body.innerHTML = contentClone.innerHTML;
     window.print();
     document.body.innerHTML = originalContent;
   };
 
+
   return (
     <div className="min-h-screen bg-gray-50 p-4">
+
 
 {/* Header */}
       <header className="flex justify-between items-center mb-6">
@@ -129,7 +124,21 @@ const Reports = () => {
         </button>
       </header>
 
+
+{/* Filter Toggle Button */}
+      <div className="mb-6">
+        <button
+          onClick={() => setShowFilters((prev) => !prev)}
+          className=" text-black rounded-md px-4 py-2 hover:bg-gray-200"
+        >
+          {showFilters ? "Hide" : "Filter"}
+        </button>
+      </div>
+
+
 {/* Year Dropdown */}
+{showFilters && (
+  <div className="mb=6">
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
       <div>
         <label htmlFor="year" className="block text-sm font-medium text-gray-700">
@@ -148,6 +157,7 @@ const Reports = () => {
           ))}
         </select>
       </div>
+
 
 {/* Month Dropdown */}
       <div>
@@ -173,6 +183,7 @@ const Reports = () => {
       </div>
       </div>
 
+
 {/* Search Bar */}
       <div className="mb-6">
         <label htmlFor="search" className="block text-sm font-medium text-gray-700">
@@ -187,6 +198,7 @@ const Reports = () => {
           placeholder="Search..."
         />
       </div>
+
 
 {/* Date Filters */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -215,23 +227,12 @@ const Reports = () => {
           />
         </div>
       </div>
+      </div>
+)}
   
 {/* Report Section */}
       <div id="print-section" className="overflow-x-auto shadow-md rounded-lg mb-6">
 
-{/* Monthly Revenue Comparison */}
-        <h2 className="text-lg font-semibold text-gray-700 mb-4">
-          Monthly Revenue Comparison
-        </h2>
-        <p className="text-sm text-gray-700">
-          <strong>{currentMonth} Revenue:</strong> NPR. {currentMonthRevenue}
-        </p>
-        <p className="text-sm text-gray-700">
-          <strong>{previousMonth} Revenue:</strong> NPR. {previousMonthRevenue}
-        </p>
-        <p className="text-sm font-medium text-gray-700 mt-2">
-          <strong>Difference:</strong> NPR. {revenueDifference}
-        </p>
 
 {/* Daily Report Table */}
         <table className="w-full border-collapse bg-white">
@@ -246,6 +247,7 @@ const Reports = () => {
             </tr>
           </thead>
           <tbody>
+
 
 {/* Filtered Daily Reports */}
             {filteredReports.length > 0 ? (
@@ -275,5 +277,6 @@ const Reports = () => {
     </div>
   );
 };
+
 
 export default Reports;
