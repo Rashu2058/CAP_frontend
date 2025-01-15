@@ -21,14 +21,13 @@ export default function Dashboard() {
 
   const Report = () => <h1>Report</h1>;
 
-  {/*handle logout*/}
+{/*handle logout*/}
   const handlelogout=()=>{
     localStorage.removeItem("authtoken");
     router.push("/");
   };
 
-
-  // Close the dropdown when clicking outside of it
+{/* Close the dropdown when clicking outside of it*/}
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -42,12 +41,11 @@ export default function Dashboard() {
     };
   }, [dropdownRef]);
   
-
   return (
     <div className="min-h-screen flex bg-gray-200">
 
-      {/* Sidebar section */}
-      <aside className="bg-gray-950 p-4 lg:p-8 max-h-full w-1/6 h-screen sticky top-0">
+{/* Sidebar section */}
+      <aside className="bg-gray-950 p-4 lg:p-8 sticky min-w-[220px]">
         <div className="flex flex-col space-y-16">
           <div className="flex items-center">
             <Image src="/logo.png" alt="Logo" width={150} height={150} />
@@ -116,7 +114,7 @@ export default function Dashboard() {
       <div className="flex-grow h-screen overflow-y-auto">
 
 {/* Navigation bar */}
-        <nav className="bg-white p-2 flex justify-end items-center">
+        <nav className="bg-white p-2 flex justify-end items-center shadow">
           
 {/* Profile Picture and Dropdown */}
           <div className="relative" ref={dropdownRef}>
@@ -150,7 +148,7 @@ export default function Dashboard() {
         </nav>
 
 {/* Dynamic Content Area */}
-        <div className="p-8">
+        <div className="p-8 overflow-auto ">
           {activeSetting === "checkout" && <Checkout />}
           {activeSetting === "revenue" && <Rrevenue />}
           {activeSetting === "dashboard" && <Dashboard />}

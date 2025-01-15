@@ -200,6 +200,7 @@ export default function FoodManagement() {
           onChange={(e) => setFoodName(e.target.value)}
            placeholder="Name" 
            className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300" />
+           
           <input type="number" 
           value={foodPrice}
            onChange={(e) => setFoodPrice(e.target.value)}
@@ -240,6 +241,7 @@ export default function FoodManagement() {
           <button onClick={addItem} className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700">Add Category</button>
         </div>
 
+{/*Food Photo adding*/}
         <div className="flex flex-col mt-6">
           <input type="file" accept="image/*" onChange={handleImageChange} className="mb-4 text-sm text-gray-700 border rounded-lg p-2" />
           {previewImage && (
@@ -251,6 +253,7 @@ export default function FoodManagement() {
           )} 
         </div>
 
+{/*Add Button changing into Update while updating items*/}
         <div className="flex justify-end px-6 py-4">
           <button onClick={handleFoodAction} className="bg-gray-900 text-white px-8 py-4 rounded-lg">
             {editingIndex !== null ? "Update" : "Add"}

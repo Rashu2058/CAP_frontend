@@ -119,7 +119,7 @@ const reportMonth = isValidDate(report.check_in_date)
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen rounded-md bg-gray-50 p-4">
 
 {/* Header */}
       <header className="flex justify-between items-center mb-6">
@@ -144,6 +144,8 @@ const reportMonth = isValidDate(report.check_in_date)
 
 
 {/* Year Dropdown */}
+{showFilters && (
+  <div className="mb=6">
 {showFilters && (
   <div className="mb=6">
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -236,6 +238,8 @@ const reportMonth = isValidDate(report.check_in_date)
       </div>
       </div>
 )}
+      </div>
+)}
   
 {/* Report Section */}
       <div id="print-section" className="overflow-x-auto shadow-md rounded-lg mb-6">
@@ -246,7 +250,6 @@ const reportMonth = isValidDate(report.check_in_date)
           <thead className="bg-gray-200 text-gray-600 text-sm uppercase">
             <tr>
               <th className="p-3 border">Customer ID</th>
-              <th className="p-3 border">Receptionist Name</th>
               <th className="p-3 border">Customer Name</th>
               <th className="p-3 border">Check-In Date</th>
               <th className="p-3 border">Check-Out Date</th>
@@ -273,7 +276,7 @@ const reportMonth = isValidDate(report.check_in_date)
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="p-3 text-center text-gray-500 italic">
+                <td colSpan={5} className="p-3 text-center text-gray-500 italic">
                   No reports available for the selected criteria.
                 </td>
               </tr>

@@ -139,6 +139,8 @@ const Reports = () => {
 {/* Year Dropdown */}
 {showFilters && (
   <div className="mb=6">
+{showFilters && (
+  <div className="mb=6">
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
       <div>
         <label htmlFor="year" className="block text-sm font-medium text-gray-700">
@@ -227,6 +229,8 @@ const Reports = () => {
           />
         </div>
       </div>
+      </div>
+)}
       </div>
 )}
   
