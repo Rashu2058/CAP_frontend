@@ -21,6 +21,8 @@ export default function Dashboard() {
 
   const Report = () => <h1>Report</h1>;
 
+ 
+
 {/*handle logout*/}
   const handlelogout=()=>{
     localStorage.removeItem("authtoken");

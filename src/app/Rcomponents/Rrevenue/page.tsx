@@ -1,7 +1,7 @@
 "use client"; // For client-side rendering
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend } from 'chart.js';
 import { Chart } from 'react-chartjs-2';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 ChartJS.register(
   CategoryScale,
@@ -40,7 +40,7 @@ type ChartDataType = {
   }>;
 };
 
-export default function Rrevenue() {
+export default function Revenue() {
 
   // State for Overview Section with placeholder data
   const [overviewData, setOverviewData] = useState<OverviewDataType>({
@@ -78,6 +78,100 @@ export default function Rrevenue() {
     ],
   });
 
+  const [totalReservations, setTotalReservations] = useState<number | null>(null);
+
+  const [totalRevenue, setTotalRevenue] = useState<number | null>(null); // Initialize as null
+  const [monthlyRevenue, setMonthlyRevenue] = useState<number[]>([]);  // Monthly revenue data
+
+  // Fetching data for total reservations, total revenue, and monthly revenue
+  useEffect(() => {
+    const fetchOverviewData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        // Fetching total reservations
+        const reservationsResponse = await fetch("http://localhost:8080/api/reservations/total-reservations", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`, // Add token to Authorization header
+          },
+        });
+
+        if (reservationsResponse.ok) {
+          const reservationsData = await reservationsResponse.json();
+          setTotalReservations(reservationsData);
+        } else {
+          console.error("Failed to fetch total reservations.");
+        }
+
+        // Fetching total revenue (assuming this API exists)
+        const totalRevenueResponse = await fetch("http://localhost:8080/api/reports/total-revenue", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`, // Add token to Authorization header
+          },
+        });
+
+        if (totalRevenueResponse.ok) {
+          const totalRevenue = await totalRevenueResponse.json();
+          console.log(totalRevenue); 
+          setTotalRevenue(totalRevenue);  // Assuming the response returns an object with a 'totalRevenue' field
+        } else {
+          console.error("Failed to fetch total revenue.");
+        }
+
+        // Fetching monthly revenue
+        const monthlyRevenueResponse = await fetch("http://localhost:8080/api/reports/monthly-revenue", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`, // Add token to Authorization header
+          },
+        });
+
+        if (monthlyRevenueResponse.ok) {
+          const monthlyRevenueData = await monthlyRevenueResponse.json();
+          // Format the monthly revenue data (assuming the response is an array of objects with month and totalRevenue)
+          const months = monthlyRevenueData.map((data: { month: string }) => data.month);
+          const revenues = monthlyRevenueData.map((data: { totalRevenue: number }) => data.totalRevenue);
+
+          setMonthlyRevenue(revenues);
+
+          // Update chartData state
+          setChartData({
+            labels: months,
+            datasets: [
+              {
+                type: 'bar',
+                label: 'Monthly Revenue',
+                data: revenues,
+                backgroundColor: 'gray',
+              },
+              {
+                type: 'line',
+                label: 'Revenue Trend',
+                data: revenues.map((value: number) => value * 0.9), // Example trend (you can adjust this logic)
+                borderColor: '#F5D042',
+                borderWidth: 2,
+                fill: false,
+              },
+            ],
+          });
+        } else {
+          console.error("Failed to fetch monthly revenue.");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+
+    fetchOverviewData();
+  }, []);
+
+  
+
   return (
     <div className="min-h-screen bg-gray-200 p-6">
       
@@ -88,13 +182,13 @@ export default function Rrevenue() {
         <div className="lg:col-span-3 bg-gray-800 text-white rounded-lg p-4 shadow-md">
           <h2 className="text-2xl font-semibold mb-4">Overview</h2>
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-            <div className="bg-gray-600 p-4 rounded-lg">
+              <div className="bg-gray-600 p-4 rounded-lg">
               <p>Total Revenue</p>
-              <p className="text-2xl font-bold">{overviewData.totalRevenue}</p> 
+              <p className="text-2xl font-bold"> {totalRevenue === null ? 'Loading...':totalRevenue }</p>
             </div>
             <div className="bg-gray-600 p-4 rounded-lg">
               <p>New Reservations</p>
-              <p className="text-2xl font-bold">{overviewData.newReservations}</p> 
+              <p className="text-2xl font-bold">{totalReservations}</p> 
             </div>
             <div className="bg-gray-600 p-4 rounded-lg">
               <p>Check In</p>

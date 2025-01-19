@@ -261,7 +261,7 @@ const validateForm = () => {
   <div className="flex flex-col">
     <label className="mb-1 text-black ">Check Out</label>
     <input
-      type="date"
+      type="datetime-local"
       name="check_out_date"
       className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
       value={formData.check_out_date}
