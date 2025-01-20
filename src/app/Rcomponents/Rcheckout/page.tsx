@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect,useState,useMemo } from "react";
+import { useLogo } from "@/app/LogoContext";
 import Image from "next/image";
 import axios from "axios";
 
@@ -13,6 +14,7 @@ export default function Checkout() {
   const [discountAmount, setDiscountAmount] = useState(0); // User input for fixed discount amount
   const [vatRate] = useState(13); // VAT rate of 13%
   const [total, setTotal] = useState(subtotal);
+  const{logoUrl}=useLogo()
 
   
   const [reservation, setReservation] = useState({
@@ -345,7 +347,7 @@ const SubtotalBill = useMemo(() => {
         />
       </div>
       <div className="flex-shrink-0 mt-2">
-        <Image src="/logo.jpg" alt="Hotel Logo" width={80} height={80} className="rounded-full"/>
+        <Image src={logoUrl} alt="Hotel Logo" width={80} height={80} className="rounded-full"/>
       </div>
     </div>
   </div>

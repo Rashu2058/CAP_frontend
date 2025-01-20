@@ -261,9 +261,11 @@ export default function Customer() {
       </div>
 
 {/*Table*/}
-      <table className="min-w-full bg-white border border-gray-300">
-        <thead className="bg-gray-800 text-white">
-          <tr>
+      <div id="" className="overflow-x-auto shadow-md rounded-lg mb-6">
+            <table className="w-full border-collapse bg-white">
+              <thead className="bg-gray-200 text-black-600 text-sm uppercase">
+            <tr>
+      
             <th className="py-3 px-6 text-center border border-gray-300">ID Type</th>
             <th className="py-3 px-6 text-center border border-gray-300">ID No.</th>
             <th className="py-3 px-6 text-center border border-gray-300">Name</th>
@@ -309,6 +311,7 @@ export default function Customer() {
           ))}
         </tbody>
       </table>
+    </div>
     </div>
   );
 

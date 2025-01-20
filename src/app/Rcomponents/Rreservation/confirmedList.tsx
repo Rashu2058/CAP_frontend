@@ -243,9 +243,10 @@ const handleUpdateSubmit = async (e: React.FormEvent) => {
       )}
 
 {/* Table */}
-      <table className="min-w-full bg-white border border-gray-300">
-        <thead className="bg-gray-800 text-white">
-          <tr>
+<div id="report-container" className="overflow-x-auto shadow-md rounded-lg mb-6">
+            <table className="w-full border-collapse bg-white">
+              <thead className="bg-gray-200 text-black-600 text-sm uppercase">
+            <tr>
             <th className="py-3 px-6 text-center border border-gray-300">ID No.</th>
             <th className="py-3 px-6 text-center border border-gray-300">Customer Name</th>
             <th className="py-3 px-6 text-center border border-gray-300">Room No</th>
@@ -281,11 +282,13 @@ const handleUpdateSubmit = async (e: React.FormEvent) => {
             ))
           ) : (
             <tr>
-              <td colSpan={8} className="py-3 px-6 text-center">No reservations found</td>
+              <td colSpan={7} className="p-3 text-center">No reports found</td>
             </tr>
           )}
         </tbody>
       </table>
+    </div>
+ 
 
 
       {/* Update Form */}

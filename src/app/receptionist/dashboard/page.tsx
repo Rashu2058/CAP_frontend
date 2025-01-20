@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from "next/image";
+import { useLogo } from '@/app/LogoContext';
 import Reservation from '@/app/Rcomponents/Rreservation/page';
-import RSettings from '@/app/Rcomponents/Rsetting/page';
 import Checkout from '@/app/Rcomponents/Rcheckout/page';
 import Customer from '@/app/Rcomponents/Rcustomer/page';
 import FoodOrders from '@/app/Rcomponents/FoodOrders/page';
@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation';
 export default function Dashboard() {
   const [activeSetting, setActiveSetting] = useState("revenue");
   const [isOpen, setIsOpen] = useState(false);
+  const { logoUrl } = useLogo();
   const dropdownRef = useRef<HTMLDivElement | null>(null); // Reference for dropdown menu
   const router = useRouter();
 
@@ -50,7 +51,7 @@ export default function Dashboard() {
       <aside className="bg-gray-950 p-4 lg:p-8 sticky min-w-[220px]">
         <div className="flex flex-col space-y-16">
           <div className="flex items-center">
-            <Image src="/logo.png" alt="Logo" width={150} height={150} />
+          <img src={logoUrl} alt="Hotel Logo" width={100} height={100} />
           </div>
           <nav className="space-y-4">
             <a href="#" onClick={() => setActiveSetting("revenue")}
@@ -91,14 +92,6 @@ export default function Dashboard() {
               }`}>
               <Image src="/receptionist.png" alt="checkout" width={20} height={20} className="rounded-full" />
               <span className="ml-2 hidden lg:inline-block">Checkout</span>
-            </a>
-
-            <a href="#" onClick={() => setActiveSetting("settings")}
-              className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
-                activeSetting === "settings" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
-              }`}>
-              <Image src="/settings.png" alt="settings" width={20} height={20} className="rounded-full" />
-              <span className="ml-2 hidden lg:inline-block">Settings</span>
             </a>
 
             <a href="#" onClick={() => setActiveSetting("report")}
@@ -157,7 +150,6 @@ export default function Dashboard() {
           {activeSetting === "reservation" && <Reservation />}
           {activeSetting === "customer" && <Customer />}
           {activeSetting === "foodOrders" && <FoodOrders />}
-          {activeSetting === "settings" && <RSettings />}
           {activeSetting === "report" && <Reports />}
           {activeSetting === "rProfile" && <RProfile />}
         </div>

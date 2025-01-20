@@ -79,8 +79,11 @@ const Reports = () => {
     const printContent = document.getElementById("print-section");
     if (!printContent) return;
 
-    const contentClone = printContent.cloneNode(true) as Element;
-    const lastDivider = contentClone.querySelectorAll("hr").item(contentClone.querySelectorAll("hr").length - 1);
+    const contentClone = printContent.cloneNode(true) as HTMLElement;
+
+    const lastDivider = contentClone
+    .querySelectorAll("hr")
+    .item(contentClone.querySelectorAll("hr").length - 1);
     if (lastDivider) {
       let nextElement = lastDivider.nextSibling;
       while (nextElement) {
@@ -211,7 +214,7 @@ const Reports = () => {
           {/* Report Section */}
           <div id="report-container" className="overflow-x-auto shadow-md rounded-lg mb-6">
             <table className="w-full border-collapse bg-white">
-              <thead className="bg-gray-200 text-gray-600 text-sm uppercase">
+              <thead className="bg-gray-200 text-black-600 text-sm uppercase">
                 <tr>
                 
                   <th className="p-3 border">Customer ID</th>

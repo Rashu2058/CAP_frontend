@@ -1,5 +1,6 @@
 // src/app/layout.tsx
 import './globals.css';
+import { LogoProvider } from './LogoContext';
 
 export const metadata = {
   title: 'Hotel Grace Inn',
@@ -13,7 +14,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+       <body>
+        {/* Wrap children with LogoProvider */}
+        <LogoProvider>
+          {children}
+        </LogoProvider>
+      </body>
     </html>
   );
 }

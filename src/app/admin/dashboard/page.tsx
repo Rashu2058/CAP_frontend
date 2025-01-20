@@ -1,6 +1,7 @@
 "use client"; 
 
 import { useState, useEffect, useRef } from 'react';
+import { useLogo } from '@/app/LogoContext';
 import Image from "next/image";
 import RoomManagement from '../../components/room/page';
 import ReceptionistManagement from '../../components/receptionist/page';
@@ -13,6 +14,7 @@ import { useRouter } from 'next/navigation';
 
 export default function Dashboard() {
   const [activeSetting, setActiveSetting] = useState("revenue");
+  const { logoUrl } = useLogo();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null); // Reference for dropdown menu
   const router=useRouter();
@@ -45,8 +47,8 @@ useEffect(() => {
       <aside className="bg-gray-950 p-4 lg:p-8 sticky min-w-[220px]">
         <div className="flex flex-col space-y-16">
           <div className="flex items-center">
-            <Image src="/logo.png" alt="Logo" width={150} height={150} />
-          </div>
+          <img src={logoUrl} alt="Hotel Logo" width={100} height={100} />
+           </div>
           <nav className="space-y-4">
             <a href="#" onClick={() => setActiveSetting("revenue")}
                className={`flex items-center px-4 py-2 text-xs font-sans text-white ${

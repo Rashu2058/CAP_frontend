@@ -292,28 +292,29 @@ const validateForm = () => {
       </div>
           
 {/*Table */}
-          <table className="min-w-full bg-white border border-gray-300">
-            <thead className="bg-gray-800 text-white">
-              <tr>
-                <th className="py-3 px-6 text-center border border-gray-300">Name</th>
-                <th className="py-3 px-6 text-center border border-gray-300">Phone No</th>
-                <th className="py-3 px-6 text-center border border-gray-300">Gender</th>
-                <th className="py-3 px-6 text-center border border-gray-300">Addres</th>
-                <th className="py-3 px-6 text-center border border-gray-300">Email</th>
-                <th className="py-3 px-6 text-center border border-gray-300">Username</th>
-               <th className="py-3 px-6 text-center border border-gray-300">Action</th>
+  <div id="" className="overflow-x-auto shadow-md rounded-lg mb-6">
+            <table className="w-full border-collapse bg-white">
+              <thead className="bg-gray-800 text-white">
+            <tr>
+                <th className="py-3 px-6 text-center border ">Name</th>
+                <th className="py-3 px-6 text-center border ">Phone No</th>
+                <th className="py-3 px-6 text-center border ">Gender</th>
+                <th className="py-3 px-6 text-center border ">Addres</th>
+                <th className="py-3 px-6 text-center border ">Email</th>
+                <th className="py-3 px-6 text-center border ">Username</th>
+               <th className="py-3 px-6 text-center border ">Action</th>
               </tr>
             </thead>
             <tbody>
               {receptionists.map((receptionist) => (
                 <tr key={receptionist.id} className="hover:bg-purple-100">
-                  <td className="py-3 px-6 border border-gray-300 text-center">{receptionist.name}</td>
-                  <td className="py-3 px-6 border border-gray-300 text-center">{receptionist.phoneno}</td>
-                  <td className="py-3 px-6 border border-gray-300 text-center">{receptionist.gender}</td>
-                  <td className="py-3 px-6 border border-gray-300 text-center">{receptionist.address}</td>
-                  <td className="py-3 px-6 border border-gray-300 text-center">{receptionist.email}</td>
-                  <td className="py-3 px-6 border border-gray-300 text-center">{receptionist.username}</td>
-                  <td className="py-3 px-6 border border-gray-300 text-center">
+                  <td className="py-3 px-6  text-center">{receptionist.name}</td>
+                  <td className="py-3 px-6  text-center">{receptionist.phoneno}</td>
+                  <td className="py-3 px-6  text-center">{receptionist.gender}</td>
+                  <td className="py-3 px-6  text-center">{receptionist.address}</td>
+                  <td className="py-3 px-6  text-center">{receptionist.email}</td>
+                  <td className="py-3 px-6  text-center">{receptionist.username}</td>
+                  <td className="py-3 px-6  text-center">
                     <a href="#" className="text-gray-600 hover:text-gray-700 mr-2" onClick={() => openModal(receptionist)}>Edit</a>
                     <a href="#" className="text-red-600 hover:text-red-700 mr-2" onClick={() => deleteReceptionist(receptionist.id)}>Delete</a>
                     {successMessage && <SuccessBox message={successMessage} onClose={() => setSuccessMessage("")} />}
@@ -323,7 +324,7 @@ const validateForm = () => {
             </tbody>
           </table>
         </div>
-
+      </div>
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-gray-100 p-8 rounded-lg shadow-lg w-96">

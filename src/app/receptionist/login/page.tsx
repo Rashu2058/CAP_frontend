@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import axios from 'axios';
+import { useLogo } from '@/app/LogoContext';
 
 
 export default function Login() {
@@ -11,6 +12,7 @@ export default function Login() {
   const [message, setMessage] = useState<string>('');
   const loginPanelRef = useRef<HTMLDivElement>(null);
   const [isInView, setIsInView] = useState(false);
+  const {logoUrl}=useLogo();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -71,7 +73,7 @@ export default function Login() {
 {/* Logo */}
           <div className="absolute top-5 left-5">
             <img
-              src="/logo.jpg"
+              src={logoUrl}
               alt="Logo"
               width={80}
               height={80}

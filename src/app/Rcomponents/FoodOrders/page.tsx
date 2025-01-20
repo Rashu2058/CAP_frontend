@@ -451,15 +451,11 @@ const handleroomChange = (selectedOption: { value: string; label: string } | nul
         </div>
       </div>
 
-
-
 {/* Confirmed Orders Table */}
   {confirmedOrders.length > 0 && (
   <div className="mt-8 bg-white rounded-lg p-4">
     <h2 className="text-lg font-bold mb-4">Confirmed Orders</h2>
     
-
-
 {/* Search bar */}
           <div className="flex justify-center mb-4">
             <div className="relative w-full max-w-md">

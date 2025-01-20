@@ -300,22 +300,23 @@ export default function RoomManagement() {
       </div>          
 
 {/*Table */}
-          <table className="min-w-full bg-white border border-gray-300">
-            <thead className="bg-gray-800 text-white">
-              <tr>
-                <th className="py-3 px-6 text-center border border-gray-300">Room No</th>
-                <th className="py-3 px-6 text-center border border-gray-300">Room Type</th>
-                <th className="py-3 px-6 text-center border border-gray-300">Room Price</th>
-                <th className="py-3 px-6 text-center border border-gray-300">Action</th>
+<div id="" className="overflow-x-auto shadow-md rounded-lg mb-6">
+            <table className="w-full border-collapse bg-white">
+              <thead className="bg-gray-200 text-white">
+            <tr>
+                <th className="p-3 text-center border ">Room No</th>
+                <th className="py-3 px-6 text-center border ">Room Type</th>
+                <th className="p-3 px-6 text-center border ">Room Price</th>
+                <th className="p-3 text-center border ">Action</th>
               </tr>
             </thead>
             <tbody>
               {rooms.map((room, index)=>(
               <tr className="hover:bg-purple-100">
-                <td className="py-3 px-6 border border-gray-300 text-center">{room.room_no}</td>
-                <td className="py-3 px-6 border border-gray-300 text-center">{room.room_type}</td>
-                <td className="py-3 px-6 border border-gray-300 text-center">NPR. {room.room_price}</td>
-                <td className="py-3 px-6 border border-gray-300 text-center">
+                <td className="py-3 px-6  text-center">{room.room_no}</td>
+                <td className="py-3 px-6  text-center">{room.room_type}</td>
+                <td className="py-3 px-6  text-center">NPR. {room.room_price}</td>
+                <td className="py-3 px-6  text-center">
                   <a href="#" className="text-gray-600 hover:text-gray-700 mr-2" onClick={()=> handleEditRoom(room)}>Edit</a>
                   <a href="#" className="text-red-600 hover:text-red-700 mr-2" onClick={()=>handleDeleteRoom(room.room_no)}>Delete</a>
                 </td>
@@ -323,6 +324,7 @@ export default function RoomManagement() {
               ))}
             </tbody>
           </table>
+      </div>
       </div>
 
       {isModalOpen && (

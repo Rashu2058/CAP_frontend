@@ -2,12 +2,12 @@
 import { useState,useEffect, useRef } from "react";
 import axios from "axios";
 import Image from "next/image";
+import { useLogo } from "@/app/LogoContext";
 
 {/* Tab data and corresponding components*/}
 const tabs = [
   { id: "profile", label: "Profile" },
   { id: "changePassword", label: "Password" },
-  { id: "changePicture", label: "System Picture" },
   { id: "changeLogo", label: "Logo" },
 ];
 
@@ -20,7 +20,7 @@ export default function Settings() {
   const[adminDetails, setAdminDetails]=useState<any>(null);  
 {/* State for the uploaded profile and logo image */}
   const [profileImage, setProfileImage] = useState("/admin.png");
-  const [logoImage, setLogoImage] = useState("/logo.png"); 
+  const { logoUrl, setLogoUrl } = useLogo(); // Use the contex
 
 {/* Reference to the hidden profile and logo input */}
   const profileInputRef = useRef<HTMLInputElement | null>(null);
@@ -97,7 +97,6 @@ export default function Settings() {
       );
     }
   };
-  
   
   
 {/* Component definitions*/}
@@ -248,43 +247,6 @@ export default function Settings() {
       </div>
     </div>
   );
-{/*Change Picture*/}
-const ChangePicture = () => (
-  <div className="flex justify-center items-center bg-gray-200">
-    <div className="bg-white w-full max-w-md p-8 rounded-lg shadow-lg">
-      <h1 className="text-center font-bold text-2xl mb-4">Change Picture</h1>
-      <p className="text-center mb-6">Upload a new picture for the hotel.</p>
-
-      <div className="flex justify-center mb-6">
-        <div className="relative">
-          
-          <button
-            className="absolute bottom-0 right-0 bg-gray-200 p-2 rounded-full text-lg font-bold"
-            onClick={handlePictureUploadClick}
-          >
-            +
-          </button>
-          <input
-            type="file"
-            ref={logoInputRef}
-            style={{ display: "none" }}
-            accept="image/*"
-            onChange={handlePictureChange}
-          />
-        </div>
-      </div>
-
-      <div className="text-center mt-6">
-        <button
-          type="submit"
-          className="w-full bg-gray-900 text-white py-2 rounded-md hover:bg-gray-700"
-        >
-          Save
-        </button>
-      </div>
-    </div>
-  </div>
-);
 
 {/*Change Logo*/}
   const ChangeLogo = () => (
@@ -296,7 +258,7 @@ const ChangePicture = () => (
         <div className="flex justify-center mb-6">
           <div className="relative">
             <Image
-              src={logoImage}
+              src={logoUrl}
               alt="Logo"
               width={100}
               height={100}
@@ -340,20 +302,28 @@ const ChangePicture = () => (
   };
   
 {/* Function to handle logo image upload */}
-  const handleLogoImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setLogoImage(imageUrl);
-    }
-  };
-
-{/* Function to handle picture image upload */}
-const handlePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+const handleLogoImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
   const file = event.target.files?.[0];
   if (file) {
-    const imageUrl = URL.createObjectURL(file);
-   
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const response = await axios.post('http://localhost:8080/api/files/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.status === 200) {
+        const newLogoUrl = `http://localhost:8080/api/files/${response.data.fileName}`;
+        setLogoUrl(newLogoUrl); // Update the global logo URL
+      } else {
+        console.error('Failed to upload logo');
+      }
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+    }
   }
 };
 
@@ -367,13 +337,9 @@ const handlePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     logoInputRef.current?.click();
   };
 
-{/* Function to handle button click to trigger picture input */}
-  const handlePictureUploadClick = () => {
-    logoInputRef.current?.click();
-  };
-
 return (
     <div className="p-8">
+
 {/* Tabs for navigation */}
       <div className="flex justify-center space-x-4 border-b">
         {tabs.map(tab => (
@@ -393,7 +359,6 @@ return (
       <div className="mt-6">
         {activeTab === "profile" && <Profile />}
         {activeTab === "changePassword" && <ChangePassword />}
-        {activeTab === "changePicture" && <ChangePicture />}
         {activeTab === "changeLogo" && <ChangeLogo />}
       </div>
     </div>
