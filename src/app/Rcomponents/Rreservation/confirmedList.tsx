@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { deleteCustomer } from "./AddCustomer";
+import { deleteGuest } from "./AddGuest";
 
 
 interface Reservation {
   res_id: number;
-  customer_idno: number;
-  customer_name: string;
+  guest_idno: number;
+  guest_name: string;
   room_no: number;
   room_type: string;
   room_price: number;
@@ -170,17 +170,17 @@ const handleUpdateSubmit = async (e: React.FormEvent) => {
 };
   // Filter reservations by search term
   const filteredReservations = reservations.filter((reservation) => {
-    const customerIdStr = reservation.customer_idno?.toString() || '';
+    const guestIdStr = reservation.guest_idno?.toString() || '';
     return (
-      customerIdStr.includes(searchTerm) ||
-      reservation.customer_name?.toLowerCase().includes(searchTerm.toLowerCase())
+      guestIdStr.includes(searchTerm) ||
+      reservation.guest_name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
   
 
   // Delete reservation
-  const deleteReservation = async (reservationId: number, customerIdNo: number) => {
-    const isConfirmed = window.confirm("Are you sure you want to delete this reservation and the associated customer?");
+  const deleteReservation = async (reservationId: number, guestIdNo: number) => {
+    const isConfirmed = window.confirm("Are you sure you want to delete this reservation and the associated guest?");
     if (!isConfirmed) return;
   
     try {
@@ -198,15 +198,15 @@ const handleUpdateSubmit = async (e: React.FormEvent) => {
       });
   
       if (response.status === 200 || response.status === 204) {
-        await deleteCustomer(customerIdNo); // Delete associated customer
+        await deleteGuest(guestIdNo); // Delete associated guest
         fetchReservations(); // Reload the reservations
-        alert("Reservation and associated customer deleted successfully");
+        alert("Reservation and associated guest deleted successfully");
       } else {
         alert("Failed to delete the reservation");
       }
     } catch (error) {
       console.error("Error deleting reservation", error);
-      alert("Error deleting the reservation and associated customer");
+      alert("Error deleting the reservation and associated guest");
     }
   };
   
@@ -245,36 +245,36 @@ const handleUpdateSubmit = async (e: React.FormEvent) => {
 {/* Table */}
 <div id="report-container" className="overflow-x-auto shadow-md rounded-lg mb-6">
             <table className="w-full border-collapse bg-white">
-              <thead className="bg-gray-200 text-black-600 text-sm uppercase">
+              <thead className="bg-gray-800 text-white text-sm uppercase">
             <tr>
-            <th className="py-3 px-6 text-center border border-gray-300">ID No.</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Customer Name</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Room No</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Room Type</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Room Price</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Check In</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Check Out</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Entered By</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Action</th>
+            <th className="p-3 border">ID No.</th>
+            <th className="p-3 border">guest Name</th>
+            <th className="p-3 border">Room No</th>
+            <th className="p-3 border">Room Type</th>
+            <th className="p-3 border">Room Price</th>
+            <th className="p-3 border">Check In</th>
+            <th className="p-3 border">Check Out</th>
+            <th className="p-3 border">Entered By</th>
+            <th className="p-3 border">Action</th>
           </tr>
         </thead>
         <tbody>
           {filteredReservations.length > 0 ? (
             filteredReservations.map((reservation) => (
               <tr key={reservation.id} className="hover:bg-purple-100">
-                <td className="py-3 px-6 border border-gray-300 text-center">{reservation.customer_idno || "N/A"}</td>
-                <td className="py-3 px-6 border border-gray-300 text-center">{reservation.customer_name}</td>
-                <td className="py-3 px-6 border border-gray-300 text-center">{reservation.room_no || "N/A"}</td>
-                <td className="py-3 px-6 border border-gray-300 text-center">{reservation.room_type}</td>
-                <td className="py-3 px-6 border border-gray-300 text-center">{reservation.room_price}</td>
-                <td className="py-3 px-6 border border-gray-300 text-center">{reservation.check_in_date}</td>
-                <td className="py-3 px-6 border border-gray-300 text-center">{reservation.check_out_date}</td>
-                <td className="py-3 px-6 border border-gray-300 text-center">{reservation.receptionist_name}</td>
-                <td className="py-3 px-6 border border-gray-300 text-center">
+                <td className="p-3 text-center">{reservation.guest_idno || "N/A"}</td>
+                <td className="p-3 text-center">{reservation.guest_name}</td>
+                <td className="p-3 text-center">{reservation.room_no || "N/A"}</td>
+                <td className="p-3 text-center">{reservation.room_type}</td>
+                <td className="p-3 text-center">{reservation.room_price}</td>
+                <td className="p-3 text-center">{reservation.check_in_date}</td>
+                <td className="p-3 text-center">{reservation.check_out_date}</td>
+                <td className="p-3 text-center">{reservation.receptionist_name}</td>
+                <td className="p-3 text-center">
                   <a href="#" className="text-gray-600 hover:text-gray-700 mr-2" onClick={() => setEditReservation(reservation)}>
                     Edit
                   </a>
-                  <a href="#" className="text-red-600 hover:text-red-700 mr-2" onClick={() => deleteReservation(reservation.res_id, reservation.customer_idno)}>
+                  <a href="#" className="text-red-600 hover:text-red-700 mr-2" onClick={() => deleteReservation(reservation.res_id, reservation.guest_idno)}>
                     Delete
                   </a>
                 </td>
@@ -298,18 +298,18 @@ const handleUpdateSubmit = async (e: React.FormEvent) => {
           <div className="grid grid-cols-2 gap-4">
             <input
               type="text"
-              name="customer_idno"
+              name="guest_idno"
               placeholder="Enter ID No."
-              value={editReservation.customer_idno || ""}
+              value={editReservation.guest_idno || ""}
               onChange={handleFormChange}
               className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
               readOnly
             />
             <input
               type="text"
-              name="customer_name"
-              placeholder="Enter Customer Name"
-              value={editReservation.customer_name || ""}
+              name="guest_name"
+              placeholder="Enter guest Name"
+              value={editReservation.guest_name || ""}
               onChange={handleFormChange}
               className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
               readOnly

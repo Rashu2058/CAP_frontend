@@ -184,7 +184,7 @@ export default function Revenue() {
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               <div className="bg-gray-600 p-4 rounded-lg">
               <p>Total Revenue</p>
-              <p className="text-2xl font-bold"> {totalRevenue === null ? 'Loading...':totalRevenue }</p>
+              <p className="text-2xl font-bold"> NPR. {totalRevenue === null ? 'Loading...':totalRevenue }</p>
             </div>
             <div className="bg-gray-600 p-4 rounded-lg">
               <p>New Reservations</p>

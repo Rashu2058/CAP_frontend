@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useLogo } from '@/app/LogoContext';
 import Reservation from '@/app/Rcomponents/Rreservation/page';
 import Checkout from '@/app/Rcomponents/Rcheckout/page';
-import Customer from '@/app/Rcomponents/Rcustomer/page';
+import Guest from '@/app/Rcomponents/Rguest/page';
 import FoodOrders from '@/app/Rcomponents/FoodOrders/page';
 import RProfile from '@/app/Rcomponents/Rprofile/page';
 import Rrevenue from '@/app/Rcomponents/Rrevenue/page';
@@ -70,12 +70,12 @@ export default function Dashboard() {
               <span className="ml-2 hidden lg:inline-block">Reservation</span>
             </a>
 
-            <a href="#" onClick={() => setActiveSetting("customer")}
+            <a href="#" onClick={() => setActiveSetting("guest")}
               className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
-                activeSetting === "customer" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
+                activeSetting === "guest" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
               }`}>
-              <Image src="/profilee.png" alt="customer" width={20} height={20} className="rounded-full" />
-              <span className="ml-2 hidden lg:inline-block">Customer</span>
+              <Image src="/profilee.png" alt="guest" width={20} height={20} className="rounded-full" />
+              <span className="ml-2 hidden lg:inline-block">Guest</span>
             </a>
 
             <a href="#" onClick={() => setActiveSetting("foodOrders")}
@@ -148,7 +148,7 @@ export default function Dashboard() {
           {activeSetting === "revenue" && <Rrevenue />}
           {activeSetting === "dashboard" && <Dashboard />}
           {activeSetting === "reservation" && <Reservation />}
-          {activeSetting === "customer" && <Customer />}
+          {activeSetting === "guest" && <Guest/>}
           {activeSetting === "foodOrders" && <FoodOrders />}
           {activeSetting === "report" && <Reports />}
           {activeSetting === "rProfile" && <RProfile />}

@@ -11,7 +11,7 @@ interface AvailableRoom {
 
 export interface ReservationData {
   res_id:number;
-  customer_idno: string;
+  guest_idno: string;
   room_type: string;
   room_no: string;
   room_price: string;
@@ -24,7 +24,7 @@ export default function BookRoom() {
   
   const [formData, setFormData] = useState<ReservationData>({
     res_id:0,
-    customer_idno: "",
+    guest_idno: "",
     room_type: "",
     room_no: "",
     room_price: "",
@@ -95,11 +95,11 @@ export default function BookRoom() {
   }, [formData.room_no]);
   
 
-  // Pre-fill customer ID if available in local storage
+  // Pre-fill guest ID if available in local storage
   useEffect(() => {
-    const storedCustomerIdNo = localStorage.getItem("customer_idno");
-    if (storedCustomerIdNo) {
-      setFormData((prev) => ({ ...prev, customer_idno: storedCustomerIdNo }));
+    const storedGuestIdNo = localStorage.getItem("guest_idno");
+    if (storedGuestIdNo) {
+      setFormData((prev) => ({ ...prev, guest_idno: storedGuestIdNo }));
     
     }
   }, []);
@@ -140,7 +140,7 @@ const validateForm = () => {
   const handleReset = () => {
     setFormData({
       res_id:0,
-      customer_idno: "",
+      guest_idno: "",
       room_type: "",
       room_no: "",
       room_price: "",
@@ -164,7 +164,7 @@ const validateForm = () => {
             };
   
           const response = await axios.post(
-              `http://localhost:8080/api/reservations/add?customer_idno=${formData.customer_idno}&roomNo=${formData.room_no}`, 
+              `http://localhost:8080/api/reservations/add?guest_idno=${formData.guest_idno}&roomNo=${formData.room_no}`, 
               reservationData,
               {
                   headers: {
@@ -194,10 +194,10 @@ const validateForm = () => {
         <form className="grid grid-cols-1 gap-4 mb-4" onSubmit={handleNext}>
           <input
             type="text"
-            name="customer_idno"
-            placeholder="Customer ID No."
+            name="guest_idno"
+            placeholder="guest ID No."
             className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-            value={formData.customer_idno}
+            value={formData.guest_idno}
             onChange={handleInputChange}
             readOnly
           />

@@ -300,14 +300,14 @@ export default function RoomManagement() {
       </div>          
 
 {/*Table */}
-<div id="" className="overflow-x-auto shadow-md rounded-lg mb-6">
+<div id="" className="overflow-x-auto shadow-md rounded-lg mb-5">
             <table className="w-full border-collapse bg-white">
-              <thead className="bg-gray-200 text-white">
+              <thead className="bg-gray-800 text-white">
             <tr>
-                <th className="p-3 text-center border ">Room No</th>
+                <th className="py-3 px-6 text-center border ">Room No</th>
                 <th className="py-3 px-6 text-center border ">Room Type</th>
-                <th className="p-3 px-6 text-center border ">Room Price</th>
-                <th className="p-3 text-center border ">Action</th>
+                <th className="py-3 px-6 text-center border ">Room Price</th>
+                <th className="py-3 px-6text-center border ">Action</th>
               </tr>
             </thead>
             <tbody>

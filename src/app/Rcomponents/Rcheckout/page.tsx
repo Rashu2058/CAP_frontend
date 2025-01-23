@@ -24,7 +24,7 @@ export default function Checkout() {
         roomPrice: "",
         checkInDate: "",
         checkOutDate: "",
-        customerName: "",
+        guestName: "",
     });
     const [foodCharge, setFoodCharge] = useState<number | null>(null); 
     
@@ -50,7 +50,7 @@ export default function Checkout() {
             roomPrice: "",
             checkInDate: "",
             checkOutDate: "",
-            customerName: "",
+            guestName: "",
         });
         return;
     }
@@ -68,7 +68,7 @@ export default function Checkout() {
             roomPrice: response.data.room_price,
             checkInDate: response.data.check_in_date,
             checkOutDate: response.data.check_out_date,
-            customerName: response.data.customer_name,
+            guestName: response.data.guest_name,
         });
     } catch (error) {
         console.error("Reservation not found", error);
@@ -79,7 +79,7 @@ export default function Checkout() {
           roomPrice: "",
           checkInDate: "",
           checkOutDate: "",
-          customerName: "",
+          guestName: "",
       });
 
     }
@@ -90,7 +90,7 @@ export default function Checkout() {
 const handlereset = () => {
   setReservation({
       res_id: "".toString(), // Ensure it's a string
-      customerName: "",
+      guestName: "",
       roomNo: "",
       roomType: "",
       roomPrice: "0", // Ensure it's a string
@@ -224,10 +224,10 @@ const SubtotalBill = useMemo(() => {
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
         />
 
-        <label className="block text-sm font-semibold">Customer Name</label>
+        <label className="block text-sm font-semibold">guest Name</label>
         <input
           type="text"
-          value={reservation.customerName}
+          value={reservation.guestName}
           placeholder="Robert Wilson"
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
           readOnly
@@ -369,13 +369,13 @@ const SubtotalBill = useMemo(() => {
         </div>
     <div className="flex justify-between items-start mb-6">
     
-{/* Left Section: Customer Details */}
+{/* Left Section: guest Details */}
     <div className="flex-1 mr-4">
       <label className="block text-sm font-semibold">Billed To:</label>
       <input
         type="text"
-        placeholder="Customer Name"
-        value={reservation.customerName}
+        placeholder="guest Name"
+        value={reservation.guestName}
         className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300 mb-2"
       />
      </div>

@@ -3,10 +3,10 @@
 import React, { useState, useEffect } from "react";
 
 type Report = {
-  customerId: number;
+  guestId: number;
   roomNo:number;
   roomType:string;
-  customerName: string;
+  guestName: string;
   receptionistName: string;
   checkInDate: string;
   checkOutDate: string;
@@ -54,9 +54,9 @@ const Reports = () => {
   // Filter reports based on user input
   const filteredReports = reports.filter((report) => {
     const matchesQuery =
-      (report.customerName?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
+      (report.guestName?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
       (report.receptionistName?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
-      String(report.customerId || "").toLowerCase().includes(searchQuery.toLowerCase());
+      String(report.guestId || "").toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesCheckIn = !checkInDate || report.checkInDate === checkInDate;
     const matchesCheckOut = !checkOutDate || report.checkOutDate === checkOutDate;
@@ -214,11 +214,11 @@ const Reports = () => {
           {/* Report Section */}
           <div id="report-container" className="overflow-x-auto shadow-md rounded-lg mb-6">
             <table className="w-full border-collapse bg-white">
-              <thead className="bg-gray-200 text-black-600 text-sm uppercase">
+              <thead className="bg-gray-800 text-white text-sm uppercase">
                 <tr>
                 
-                  <th className="p-3 border">Customer ID</th>
-                  <th className="p-3 border">Customer Name</th>
+                  <th className="p-3 border">guest ID</th>
+                  <th className="p-3 border">guest Name</th>
                   <th className="p-3 border">Room no</th>
                   <th className="p-3 border">Room Type</th>
                   <th className="p-3 border">Receptionist Name</th>
@@ -235,8 +235,8 @@ const Reports = () => {
                       className="text-gray-700 text-sm border-b hover:bg-gray-50"
                     >
                       
-                      <td className="p-3 text-center">{report.customerId}</td>
-                      <td className="p-3 text-center">{report.customerName}</td>
+                      <td className="p-3 text-center">{report.guestId}</td>
+                      <td className="p-3 text-center">{report.guestName}</td>
                       <td className="p-3 text-center">{report.roomNo}</td>
                       <td className="p-3 text-center">{report.roomType}</td>
                       <td className="p-3 text-center">{report.receptionistName}</td>

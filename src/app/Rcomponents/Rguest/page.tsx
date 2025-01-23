@@ -1,14 +1,14 @@
 "use client";
 import React, { useState,useEffect } from "react";
-import { fetchCustomers,deleteCustomer,updateCustomer } from "../Rreservation/AddCustomer";
-import type { Customer } from "../Rreservation/AddCustomer";
+import { fetchGuest,deleteGuest,updateGuest } from "../Rreservation/AddGuest";
+import type { Guest } from "../Rreservation/AddGuest";
 
-export default function Customer() {
+export default function Guest() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
-  const [formData, setFormData] = useState<Customer>({
-    c_id: 0,
+  const [guests, setGuests] = useState<Guest[]>([]);
+  const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
+  const [formData, setFormData] = useState<Guest>({
+    g_id: 0,
     id_type: "",
     id_no: null,
     name: "",
@@ -21,37 +21,39 @@ export default function Customer() {
     check_out_date:"",
     room_no:"",
     room_type:"",
+    institutionName:"",
+    purpose:"",
     receptionist_name:"",
   });
 
 
   useEffect(() => {
-    const loadCustomers = async () => {
+    const loadGuests = async () => {
       try {
-        const customerData = await fetchCustomers();
-        setCustomers(customerData);
+        const guestData = await fetchGuest();
+        setGuests(guestData);
       } catch (error) {
         console.error("Error loading customers:", error);
       }
     };
-    loadCustomers();
+    loadGuests();
   }, []);
 
 
   const handleDelete = async (id_no: number) => {
     try {
-      await deleteCustomer(id_no);
+      await deleteGuest(id_no);
       // Fetch the updated customer list after deletion
-      const updatedCustomers = await fetchCustomers();
-      setCustomers(updatedCustomers); // Update state with the new customer list
+      const updatedGuests = await fetchGuest();
+      setGuests(updatedGuests); // Update state with the new customer list
     } catch (error) {
       console.error("Error deleting customer:", error);
     }
   };
 
   // Open and close modal
-  const openModal = (customer:Customer) => {
-    setSelectedCustomer(customer);
+  const openModal = (guest:Guest) => {
+    setSelectedGuest(guest);
     setIsModalOpen(true);
   };
   const closeModal = () => setIsModalOpen(false);
@@ -59,31 +61,33 @@ export default function Customer() {
 
   const handleUpdate = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!selectedCustomer) return;
+    if (!selectedGuest) return;
   
-    const updatedCustomer = { ...selectedCustomer };
+    const updatedGuests = { ...selectedGuest };
     const formElements = event.target as HTMLFormElement;
   
-    updatedCustomer.id_type = formElements["id_type"].value;
-    updatedCustomer.phone_number = formElements["phone_number"].value;
-    updatedCustomer.address = formElements["address"].value;
-    updatedCustomer.gender_type = formElements["gender_type"].value;
-    updatedCustomer.email = formElements["email"].value;
-    updatedCustomer.nationality = formElements["nationality"].value;
+    updatedGuests.id_type = formElements["id_type"].value;
+    updatedGuests.phone_number = formElements["phone_number"].value;
+    updatedGuests.address = formElements["address"].value;
+    updatedGuests.gender_type = formElements["gender_type"].value;
+    updatedGuests.email = formElements["email"].value;
+    updatedGuests.nationality = formElements["nationality"].value;
+    updatedGuests.institutionName=formElements["institutionName"].value;
+    updatedGuests.purpose=formElements["purpose"].value;
   
-    if (!updatedCustomer.phone_number || !updatedCustomer.email) {
+    if (!updatedGuests.phone_number || !updatedGuests.email) {
       alert("Please fill in all required fields!");
       return;
     }
   
-    const { id_no } = selectedCustomer;  // Ensure this is correct
-    console.log("Updating customer with id_no:", id_no);
-    console.log("Updated customer:", updatedCustomer);
+    const { id_no } = selectedGuest;  // Ensure this is correct
+    console.log("Updating guest with id_no:", id_no);
+    console.log("Updated guest:", updateGuest);
   
     try {
-      await updateCustomer(id_no, updatedCustomer);  // Pass id_no and updated data
-      const updatedCustomers = await fetchCustomers();
-      setCustomers(updatedCustomers);
+      await updateGuest(id_no, selectedGuest);  // Pass id_no and updated data
+      const updatedGuests = await fetchGuest();
+      setGuests(updatedGuests);
       closeModal();
     } catch (error) {
       console.error("Error updating customer:", error);
@@ -92,10 +96,10 @@ export default function Customer() {
     
   
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    if (selectedCustomer) {
+    if (selectedGuest) {
       const { name, value } = event.target;
-    setSelectedCustomer((prevCustomer) => ({
-      ...prevCustomer!,
+    setSelectedGuest((prevGuest) => ({
+      ...prevGuest!,
       [name]: value,
     }));
   }
@@ -113,21 +117,25 @@ export default function Customer() {
             <h3 className="text-lg font-semibold mb-3 font-sans">Current Details</h3>
             <div className="text-sm text-gray-600 space-y-1 grid grid-cols-2 gap-2">
               <p>
-                <span className="font-semibold">ID Type:</span>{selectedCustomer?.id_type}</p> 
+                <span className="font-semibold">ID Type:</span>{selectedGuest?.id_type}</p> 
               <p>
-                <span className="font-semibold">ID No:</span>{selectedCustomer?.id_no}</p> 
+                <span className="font-semibold">ID No:</span>{selectedGuest?.id_no}</p> 
               <p>
-                <span className="font-semibold">Name:</span> {selectedCustomer?.name}</p>
+                <span className="font-semibold">Name:</span> {selectedGuest?.name}</p>
               <p>
-                <span className="font-semibold">Phone No:</span>{selectedCustomer?.phone_number}</p> 
+                <span className="font-semibold">Phone No:</span>{selectedGuest?.phone_number}</p> 
               <p>
-                <span className="font-semibold">Address:</span>{selectedCustomer?.address}</p> 
+                <span className="font-semibold">Address:</span>{selectedGuest?.address}</p> 
               <p>
-                <span className="font-semibold">Gender:</span>{selectedCustomer?.gender_type}</p> 
+                <span className="font-semibold">Gender:</span>{selectedGuest?.gender_type}</p> 
               <p>
-                <span className="font-semibold">Email:</span>{selectedCustomer?.email}</p> 
+                <span className="font-semibold">Email:</span>{selectedGuest?.email}</p> 
               <p>
-                <span className="font-semibold">Nationality:</span>{selectedCustomer?.nationality}</p>
+                <span className="font-semibold">Nationality:</span>{selectedGuest?.nationality}</p>
+              <p>
+                <span className="font-semibold">Institution name:</span>{selectedGuest?.institutionName}</p>
+              <p>
+                <span className="font-semibold">Purpose:</span>{selectedGuest?.purpose}</p>    
             </div>
           </div>
 
@@ -138,7 +146,7 @@ export default function Customer() {
               <select
                 name="id_type"
                 className="p-2 border rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
-                value={selectedCustomer?.id_type}
+                value={selectedGuest?.id_type}
                 onChange={handleInputChange}
               >
                 <option value="" disabled>
@@ -153,14 +161,14 @@ export default function Customer() {
                 type="text"
                 name="id_no"
                 placeholder="Enter ID No."
-                value={selectedCustomer?.id_no||""}
+                value={selectedGuest?.id_no||""}
                 onChange={handleInputChange}
                 className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
               />
               <input
                 type="text"
                 name="name"
-                value={selectedCustomer?.name||""}
+                value={selectedGuest?.name||""}
                 placeholder="Enter Name"
                 onChange={handleInputChange}
                 className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
@@ -168,7 +176,7 @@ export default function Customer() {
               <input
                 type="text"
                 name="phone_number"
-                value={selectedCustomer?.phone_number||""}
+                value={selectedGuest?.phone_number||""}
                 placeholder="Enter Phone No."
                 onChange={handleInputChange}
                 className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
@@ -176,7 +184,7 @@ export default function Customer() {
               <input
                 type="text"
                 name="address"
-                value={selectedCustomer?.address||""}
+                value={selectedGuest?.address||""}
                 placeholder="Enter Address"
                 onChange={handleInputChange}
                 className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
@@ -184,7 +192,7 @@ export default function Customer() {
               <select
                 name="gender_type"
                 className="p-2 border rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
-               value={selectedCustomer?.gender_type||""}
+               value={selectedGuest?.gender_type||""}
                 onChange={handleInputChange}
               >
                 <option value="" disabled>
@@ -197,7 +205,7 @@ export default function Customer() {
               <input
                 type="email"
                 name="email"
-                value={selectedCustomer?.email||""}
+                value={selectedGuest?.email||""}
                 placeholder="Enter Email"
                 onChange={handleInputChange}
                 className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
@@ -205,7 +213,23 @@ export default function Customer() {
               <input
                 type="text"
                 name="nationality"
-                value={selectedCustomer?.nationality||""}
+                value={selectedGuest?.nationality||""}
+                onChange={handleInputChange}
+                placeholder="Enter Nationality"
+                className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
+              />
+              <input
+                type="text"
+                name="institutionName"
+                value={selectedGuest?.institutionName||""}
+                onChange={handleInputChange}
+                placeholder="Enter Nationality"
+                className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
+              />
+              <input
+                type="text"
+                name="purpose"
+                value={selectedGuest?.purpose||""}
                 onChange={handleInputChange}
                 placeholder="Enter Nationality"
                 className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
@@ -235,9 +259,9 @@ export default function Customer() {
   );
 
 {/* Customer Details Component*/}
-  const CustomerDetails = () => (
+  const GuestDetails = () => (
     <div className="bg-white p-6 rounded-lg min-w-min">
-      <h1 className="text-xl font-bold">Customer Details</h1>
+      <h1 className="text-xl font-bold">Guest Details</h1>
       
 {/* Search bar with custom icon inside */}
       <div className="flex justify-center mb-4">
@@ -261,49 +285,53 @@ export default function Customer() {
       </div>
 
 {/*Table*/}
-      <div id="" className="overflow-x-auto shadow-md rounded-lg mb-6">
+      <div id="" className="overflow-x-auto shadow-md rounded-lg mb-6 ">
             <table className="w-full border-collapse bg-white">
-              <thead className="bg-gray-200 text-black-600 text-sm uppercase">
+              <thead className="bg-gray-800 text-white text-sm uppercase">
             <tr>
       
-            <th className="py-3 px-6 text-center border border-gray-300">ID Type</th>
-            <th className="py-3 px-6 text-center border border-gray-300">ID No.</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Name</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Phone No</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Address</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Gender</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Email</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Nationality</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Check In Date</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Check Out Date</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Entered By</th>
-            <th className="py-3 px-6 text-center border border-gray-300">Action</th>
+            <th className="p-3 border ">ID Type</th>
+            <th className="p-3 border ">ID No.</th>
+            <th className="p-3 border">Name</th>
+            <th className="p-3 border">Phone No</th>
+            <th className="p-3 border">Address</th>
+            <th className="p-3 border">Gender</th>
+            <th className="p-3 border">Email</th>
+            <th className="p-3 border">Nationality</th>
+            <th className="p-3 border">Institution Name</th>
+            <th className="p-3 border">Purpose</th>
+            <th className="p-3 border">Check In Date</th>
+            <th className="p-3 border">Check Out Date</th>
+            <th className="p-3 border">Entered By</th>
+            <th className="p-3 border">Action</th>
           </tr>
         </thead>
          <tbody>
-          {customers.map((customer) => (
-            <tr key={customer.c_id} className="hover:bg-purple-100">
-              <td className="py-3 px-6 border border-gray-300 text-center">{customer.id_type}</td>
-              <td className="py-3 px-6 border border-gray-300 text-center">{customer.id_no}</td>
-              <td className="py-3 px-6 border border-gray-300 text-center">{customer.name}</td>
-              <td className="py-3 px-6 border border-gray-300 text-center">{customer.phone_number}</td>
-              <td className="py-3 px-6 border border-gray-300 text-center">{customer.address}</td>
-              <td className="py-3 px-6 border border-gray-300 text-center">{customer.gender_type}</td>
-              <td className="py-3 px-6 border border-gray-300 text-center">{customer.email}</td>
-              <td className="py-3 px-6 border border-gray-300 text-center">{customer.nationality}</td>
-              <td className="py-3 px-6 border border-gray-300 text-center">{customer.check_in_date}</td>
-              <td className="py-3 px-6 border border-gray-300 text-center">{customer.check_out_date}</td>
-              <td className="py-3 px-6 border border-gray-300 text-center">{customer.receptionist_name}</td>              
-              <td className="py-3 px-6 border border-gray-300 text-center">
+          {guests.map((guest) => (
+            <tr key={guest.g_id} className="text-gray-700 text-sm border-b hover:bg-gray-50">
+              <td className="p-3 text-center">{guest.id_type}</td>
+              <td className="p-3 text-center">{guest.id_no}</td>
+              <td className="p-3 text-center">{guest.name}</td>
+              <td className="p-3 text-center">{guest.phone_number}</td>
+              <td className="p-3 text-center">{guest.address}</td>
+              <td className="p-3 text-center">{guest.gender_type}</td>
+              <td className="p-3 text-center">{guest.email}</td>
+              <td className="p-3 text-center">{guest.nationality}</td>
+              <td className="p-3 text-center">{guest.institutionName}</td>
+              <td className="p-3 text-center">{guest.purpose}</td>
+              <td className="p-3 text-center">{guest.check_in_date}</td>
+              <td className="p-3 text-center">{guest.check_out_date}</td>
+              <td className="p-3 text-center">{guest.receptionist_name}</td>              
+              <td className="p-3 text-center">
                 <a
                   href="#"
                   className="text-gray-600 hover:text-gray-700 mr-2"
-                  onClick={()=>openModal(customer)}
+                  onClick={()=>openModal(guest)}
                 >
                   Edit
                 </a>
                 <a href="#" className="text-red-600 hover:text-red-700" 
-                onClick={() => handleDelete(customer.id_no??0)}>
+                onClick={() => handleDelete(guest.id_no??0)}>
                   Delete
                 </a>
             </td>
@@ -318,7 +346,7 @@ export default function Customer() {
   return (
     <div>
       {/* Render Customer Details */}
-      <CustomerDetails />
+      <GuestDetails />
 
       {/* Modal */}
       <Modal />

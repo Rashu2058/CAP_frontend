@@ -1,20 +1,20 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { addCustomer } from "./AddCustomer";
+import { addGuest} from "./AddGuest";
 import BookRoom from "./BookRoom";
 import ConfirmedList from "./confirmedList";
 
 
 {/* Tab data and corresponding components */}
 const tabs = [
-  { id: "addCustomer", label: "Customer" },
+  { id: "addguest", label: "Guest" },
   { id: "bookRoom", label: "Reservation" },
   { id: "confirmedList", label: "Reserved" },
 ];
 
 export default function Reservation() {
-  const [activeTab, setActiveTab] = useState("addCustomer");
+  const [activeTab, setActiveTab] = useState("addguest");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
 {/* Open and close modal */}
@@ -36,7 +36,7 @@ export default function Reservation() {
                 <span className="font-semibold">ID No:</span> 
               </p>
               <p>
-                <span className="font-semibold">Customer Name:</span> 
+                <span className="font-semibold">guest Name:</span> 
               </p>
               <p>
                 <span className="font-semibold">Room No:</span> 
@@ -60,10 +60,10 @@ export default function Reservation() {
     )
   );
       
-{/* Add Customer Component */}
-  const AddCustomer = () => {
+{/* Add guest Component */}
+  const Addguest = () => {
     const [formData, setFormData] = useState<{
-      c_id: number;
+      g_id: number;
       id_type: string;
       id_no: number | null;
       name: string;
@@ -77,8 +77,10 @@ export default function Reservation() {
       room_no:string,
       room_type:string,
       receptionist_name:string,
+      institutionName:string,
+      purpose:string,
     }>({
-      c_id: 0,
+      g_id: 0,
       id_type: "",
       id_no: null,
       name: "",
@@ -92,6 +94,8 @@ export default function Reservation() {
       room_no:"",
       room_type:"",
       receptionist_name:"",
+      institutionName:"",
+      purpose:"",
     });
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -117,7 +121,7 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
 {/* Handle form reset*/}
     const handleReset = () => {
       setFormData({
-        c_id:0,
+        g_id:0,
         id_type: "",
         id_no: null,
         name: "",
@@ -131,6 +135,8 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
         room_no:"",
         room_type:"",
         receptionist_name:"",
+        institutionName:"",
+        purpose:"",
       });
     };
 {/*check valid email*/}
@@ -164,34 +170,34 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
     };
 
 {/* Handle form submission (Next button)*/}
-    const handleAddCustomer = async(e: React.FormEvent<HTMLFormElement>) => {
+    const handleAddguest = async(e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       if(!validateForm()) return;
 
       try {
         // Convert phoneNo to BigInt
-        const customerData = {
+        const guestData = {
             ...formData,
             phoneNo: Number(formData.phone_number),
             id_no: formData.id_no||0,
-            c_id:formData.c_id||0 // Convert to BigInt
+            g_id:formData.g_id||0 // Convert to BigInt
         };
         
-        await addCustomer(customerData);
+        await addGuest(guestData);
 
         handleReset();
         setActiveTab("bookRoom");
         
     } catch (error) {
-        console.error("Error adding customer", error);
-        alert("Failed to add customer.Please try again");
+        console.error("Error adding guest", error);
+        alert("Failed to add guest.Please try again");
     }
     };
 
     return (
       <div className="max-w-5xl mx-auto p-4">
         <div className="bg-white p-6 rounded-lg mb-6 align-right">
-          <form className="grid grid-cols-1 gap-4 mb-4" onSubmit={handleAddCustomer}>
+          <form className="grid grid-cols-1 gap-4 mb-4" onSubmit={handleAddguest}>
             <select
               name="id_type"
               className="p-2 border rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
@@ -221,7 +227,9 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
               value={formData.name}
               onChange={handleInputChange}
             />
+            
             {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+           
             <input
               type="text"
               name="phone_number"
@@ -271,6 +279,25 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
               value={formData.nationality}
               onChange={handleInputChange}
             />
+            <input
+              type="text"
+              name="institutionName"
+              placeholder="institution name"
+              className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
+              value={formData.institutionName}
+              onChange={handleInputChange}
+            />
+            {errors.institution && <p className="text-red-500 text-sm">{errors.nationality}</p>}
+
+            {errors.nationality && <p className="text-red-500 text-sm">{errors.nationality}</p>}
+            <input
+              type="text"
+              name="purpose"
+              placeholder="purpose"
+              className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
+              value={formData.purpose}
+              onChange={handleInputChange}
+            />
             {errors.nationality && <p className="text-red-500 text-sm">{errors.nationality}</p>}
 
             <div className="flex justify-end sm:justify-end px-2 py-2 space-x-2">
@@ -315,7 +342,7 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
 {/* Render active component based on the selected tab */}
       <div className="mt-6">
         
-        {activeTab === "addCustomer" && <AddCustomer />}
+        {activeTab === "addguest" && <Addguest />}
         {activeTab === "bookRoom" && <BookRoom/>}
         {activeTab === "confirmedList" && <ConfirmedList />}
       </div>

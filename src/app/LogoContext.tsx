@@ -1,4 +1,3 @@
-// src/app/LogoContext.tsx
 'use client';
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 
@@ -18,9 +17,15 @@ export const useLogo = () => {
 };
 
 export const LogoProvider = ({ children }: { children: ReactNode }) => {
-  // Try to get the logo from localStorage, otherwise fallback to a default logo
-  const storedLogoUrl = localStorage.getItem('logoUrl') || '/default-logo.png';
-  const [logoUrl, setLogoUrl] = useState(storedLogoUrl);
+  const [logoUrl, setLogoUrl] = useState('/default-logo.png'); // Default value
+
+  useEffect(() => {
+    // Load the logo URL from localStorage after the component mounts
+    const storedLogoUrl = localStorage.getItem('logoUrl');
+    if (storedLogoUrl) {
+      setLogoUrl(storedLogoUrl);
+    }
+  }, []);
 
   useEffect(() => {
     // Save the logo URL to localStorage whenever it changes
