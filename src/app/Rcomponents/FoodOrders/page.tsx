@@ -2,51 +2,39 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Select from 'react-select';
 
-interface FoodItems{
-  f_id:number,
-  food_name:string,
-  food_price:number,
-  imagePath:string,
+interface FoodItems {
+  f_id: number; // This is the ID for the food item
+  food_name: string;
+  food_price: number;
+  imagePath: string; // Ensure this property is included
 }
 
 type orderItem = {
-  o_id: number;
+  o_id: number; // This is the ID for the order item
   food_name: string;
   food_price: number;
   quantity: number;
-  image_path: string;
+  image_path: string; // Ensure this property is included
 };
 
 type ConfirmedOrder = {
-  o_id:number;
-  roomNo: string;
+  o_id: number; // Ensure this property is included
+  roomNo: string; // Ensure this is a string
   guestName: string;
-  res_id:number;
+  res_id: number; // Ensure this property is included
   items: orderItem[];
 };
 
-interface foodOrder {
-  o_id: number;
-  roomNo: number;
-  foodName: string;
-  quantity: number;
-  foodPrice: number;
-  totalPrice: number;
+interface Room {
+  roomNo: string;
   guestName: string;
+  resId: number;
 }
 
-interface Room{
-  roomNo:string;
-  guestName:string;
-  resId:number;
-};
-
 export default function FoodOrders() {
-//States for handling order items,rooms,food items and API responses
-  const [order, setorder] = useState<orderItem[]>([]);
+  const [order, setOrder] = useState<orderItem[]>([]);
   const [confirmedOrders, setConfirmedOrders] = useState<ConfirmedOrder[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [selectedRoomData, setSelectedRoom] = useState<string>('');
   const [roomNo, setRoomNo] = useState('');
   const [guestName, setGuestName] = useState('');
   const [orderConfirmed, setOrderConfirmed] = useState(false);
@@ -54,13 +42,52 @@ export default function FoodOrders() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [roomSearch, setRoomSearch] = useState('');
-  const [foodOrders, setFoodOrders] = useState<foodOrder[]>([]);  
-  
+  const [foodOrders, setFoodOrders] = useState<any[]>([]); // Adjusted type if necessary
+
   const token = localStorage.getItem('token');
 
- //Fetch food orders
-  
- useEffect(() => {
+  // Fetch food items
+  useEffect(() => {
+    const fetchFoodItems = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/api/foods', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch food items');
+        }
+        const data = await response.json();
+        setFoodItems(data);
+      } catch (err) {
+        setError('Error fetching food items');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFoodItems();
+  }, [token]);
+
+  // Fetch available rooms
+  useEffect(() => {
+    if (token) {
+      axios
+        .get('http://localhost:8080/api/reservations/reserved-rooms', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          setRooms(response.data);
+        })
+        .catch((error) => console.error('Error fetching rooms:', error));
+    }
+  }, [token]);
+
+  // Fetch food orders
   const fetchFoodOrders = async () => {
     try {
       if (token) {
@@ -81,85 +108,46 @@ export default function FoodOrders() {
     }
   };
 
-  fetchFoodOrders();
-}, [token]); 
-
-  
-//Fetch Food items 
   useEffect(() => {
-    const fetchFoodItems = async () => {
-      try {
-        const token = localStorage.getItem('token'); // Get the token
-        const response = await fetch('http://localhost:8080/api/foods', {
-          headers: {
-            'Authorization': `Bearer ${token}`, // Send the token
-          },
-        });
-        if (!response.ok) {
-          throw new Error('Failed to fetch food items');
-        }
-        const data = await response.json();
-        setFoodItems(data);
-      } catch (err) {
-        setError('Error fetching food items');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };    
-
-    fetchFoodItems();
+    fetchFoodOrders(); // Call fetchFoodOrders when the component mounts
   }, [token]);
 
-{/*fetch available rooms and customer names*/}
-useEffect(() => {
-  const token = localStorage.getItem('token'); // Assuming the token is stored in localStorage
-  if (token) {
-    axios
-      .get('http://localhost:8080/api/reservations/reserved-rooms', {
-        headers: {
-          Authorization: `Bearer ${token}`, // Send the token in the Authorization header
-        },
-      })
-      .then((response) => {
-        console.log('Rooms Respose:',response.data);
-        setRooms(response.data)
-      })
-      .catch((error) => console.error('Error fetching rooms:', error));
-  }
-}, [token]);
+  const roomOptions = rooms.map((room) => ({
+    value: room.roomNo,
+    label: `Room ${room.roomNo}`,
+  }));
 
-//Prepare room options for dropdown
-const roomOptions = rooms.map((room) => ({
-  value: room.roomNo,
-  label: `Room ${room.roomNo}`,
-}));
-//Add food item to the order
-  const addToorder = (item: orderItem) => {
-    const existingItem = order.find((orderItem) => orderItem.o_id === item.o_id);
+  const addToOrder = (item: FoodItems) => {
+    const existingItem = order.find((orderItem) => orderItem.o_id === item.f_id);
     if (existingItem) {
-      setorder(
+      setOrder(
         order.map((orderItem) =>
-          orderItem.o_id === item.o_id
+          orderItem.o_id === item.f_id
             ? { ...orderItem, quantity: orderItem.quantity + 1 }
             : orderItem
         )
       );
     } else {
-      setorder([...order, { ...item, quantity: 1 }]);
+      setOrder([...order, { 
+        o_id: item.f_id, 
+        food_name: item.food_name, 
+        food_price: item.food_price, 
+        quantity: 1, 
+        image_path: item.imagePath // Ensure this is included
+      } as orderItem]); // Cast the object to orderItem
     }
   };
-//Incease quantity of a food item
+
   const increaseQuantity = (id: number) => {
-    setorder(
+    setOrder(
       order.map((item) =>
         item.o_id === id ? { ...item, quantity: item.quantity + 1 } : item
       )
     );
   };
-//decreaseQuantity of food item
+
   const decreaseQuantity = (id: number) => {
-    setorder(
+    setOrder(
       order.map((item) =>
         item.o_id === id
           ? { ...item, quantity: item.quantity > 1 ? item.quantity - 1 : 1 }
@@ -167,185 +155,132 @@ const roomOptions = rooms.map((room) => ({
       )
     );
   };
-//Remove food item from the order
-  const removeFromorder = (id: number) => {
-    setorder(order.filter((item) => item.o_id !== id));
+
+  const removeFromOrder = (id: number) => {
+    setOrder(order.filter((item) => item.o_id !== id));
   };
 
   const totalAmount = order.reduce(
     (total, item) => total + item.food_price * item.quantity,
     0
   );
-  
+
   const onConfirmOrder = async () => {
-  
     if (!roomNo || !guestName) {
-      console.error('Validation Failed: Room number and customer name are required');
       setError('Room number and Guest name are required');
       return;
     }
-  
-    const selectedRoomData = rooms.find((room) => room.roomNo.toString() === roomNo.toString());
-    if (!selectedRoomData) {
-      console.error('Validation Failed: No room found for this number');
-      setError('No room found for this number');
-      return;
-    }
-    console.log('Selected room data:', selectedRoomData);
 
     const foodOrders = order.map((item) => ({
-      resId: selectedRoomData.resId, // Ensure res_id is fetched correctly
-      foodId: item.o_id, // Ensure o_id is correct
+      resId: rooms.find((room) => room.roomNo === roomNo)?.resId,
+      foodId: item.o_id,
       quantity: item.quantity,
     }));
-  
-    console.log('Payload to Submit:', foodOrders);
-  
-    if (foodOrders.length === 0) {
-      console.error('Validation Failed: No items in the order');
-      setError('No items in the order');
-      return;
-    }
-  
+
     try {
       const response = await axios.post(
         'http://localhost:8080/api/v1/food-orders/create',
         foodOrders,
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-  
+
       if (response.status === 200) {
-        console.log('Order confirmed:', response.data);
-        setorder([]); // Clear the order
+        setOrder([]); // Clear the order
         setRoomNo(''); // Reset room number
         setGuestName(''); // Reset customer name
         setOrderConfirmed(true);
         setTimeout(() => setOrderConfirmed(false), 3000);
+        // Fetch food orders again after confirming
+        fetchFoodOrders();
       }
     } catch (error) {
       console.error('Error placing food order:', error);
       setError('Error placing order');
     }
   };
-  
-    
-const handleroomChange = (selectedOption: { value: string; label: string } | null) => {
-  if (selectedOption) {
-    const selectedRoomData = rooms.find(room => room.roomNo === selectedOption.value);
-    if (selectedRoomData) {
-      setGuestName(selectedRoomData.guestName || ''); // Update customer name
-      setRoomNo(selectedRoomData.roomNo); // Update room number
-      setSelectedRoom(selectedRoomData.resId.toString()); // Store `res_id` for submission
-    } else {
-      setError('Selected room does not exist. Please refresh and try again.');
-    }
-  }
-};
 
-  const filteredRooms = rooms.filter((room) =>
-    room.roomNo.toString().toLowerCase().includes(roomSearch.toLowerCase())
-);
-   
-  const handleRoomChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const roomNo = event.target.value;
-    setSelectedRoom(roomNo);
-  
-    // Find the customer name for the selected room number and its reservation ID
-    const selectedRoomData = rooms.find((room) => room.roomNo.toString() === roomNo);
-    
-    if (selectedRoomData) {
-      setGuestName(selectedRoomData.guestName || ''); // Set customer name
-      setRoomNo(selectedRoomData.roomNo); // Set the selected room number
-      setSelectedRoom(roomNo); // Store full room data including reservation ID
-    }else {
-      setError('No room data found for the selected room number');
+  const handleRoomChange = (selectedOption: { value: string; label: string } | null) => {
+    if (selectedOption) {
+      const selectedRoomData = rooms.find(room => room.roomNo === selectedOption.value);
+      if (selectedRoomData) {
+        setGuestName(selectedRoomData.guestName || ''); // Update guest name
+        setRoomNo(selectedRoomData.roomNo); // Update room number
+      }
     }
   };
 
-  
-  const editOrder = (order: ConfirmedOrder) => {
-     //Populate order with items from the selected order
-  
-     setRoomNo(order.roomNo);
-     setGuestName(order.guestName);
+  // Function to group food orders by room number and guest name
+  const groupFoodOrders = () => {
+    const groupedOrders: { [key: string]: ConfirmedOrder } = {};
+
+    foodOrders.forEach(order => {
+      const key = `${order.roomNo}-${order.guestName}`;
+      if (!groupedOrders[key]) {
+        groupedOrders[key] = {
+          o_id: order.o_id, // Ensure this is included
+          roomNo: order.roomNo,
+          guestName: order.guestName,
+          res_id: order.res_id, // Ensure this is included
+          items: [],
+        };
+      }
+      // Check if the food item already exists in the grouped order
+      const existingItem = groupedOrders[key].items.find(item => item.food_name === order.foodName);
+      if (existingItem) {
+        existingItem.quantity += order.quantity; // Increment quantity if it exists
+      } else {
+        groupedOrders[key].items.push({
+          o_id: order.o_id,
+          food_name: order.foodName,
+          food_price: order.foodPrice,
+          quantity: order.quantity,
+          image_path: order.imagePath // Ensure this is included if needed
+        });
+      }
+    });
+
+    return Object.values(groupedOrders);
   };
+
+  const groupedConfirmedOrders = groupFoodOrders();
+
   return (
     <div className="p-4">
       <div className="flex">
-
-{/* Left Section - Menu */}
+        {/* Left Section - Menu */}
         <div className="w-2/3 p-4 bg-white rounded-lg mr-4">
           <h2 className="text-lg font-bold mb-4">Menu</h2>
 
-{/* Search bar */}
-          <div className="flex justify-center mb-4">
-            <div className="relative w-full max-w-md">
-              <input
-                type="text"
-                placeholder="Search..."
-                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent"
-              />
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-                <img
-                  src="/search.png"
-                  alt="Search"
-                  className="h-5 w-5 text-gray-400"
-                />
-              </div>
-            </div>
+          {/* Room No */}
+          <div className="flex flex-col mb-4">
+            <label className="block text-sm font-semibold">Room No</label>
+            <Select
+              value={roomOptions.find((option) => option.value === roomNo)}
+              onChange={handleRoomChange}
+              options={roomOptions.filter((option) =>
+                option.label.toLowerCase().includes(roomSearch.toLowerCase())
+              )}
+              onInputChange={(value) => setRoomSearch(value)}
+              placeholder="Select Room No"
+              className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
+              isSearchable
+            />
           </div>
 
-{/* Form for adding new food item */}
-        <form
-          className="grid grid-cols-2 gap-4 mb-4"
-          onSubmit={(e) => {
-            e.preventDefault(); // Prevent form submission
-          }}
-        >
-
-
-{/* Room No */}
-<div className="flex flex-col">
- <label className="block text-sm font-semibold">Room No</label>
-    <Select
-      value={roomOptions.find((option) => option.value === roomNo)}
-      onChange={(selectedOption) => {
-      const selectedRoomData = rooms.find(
-        (room) => room.roomNo === selectedOption?.value
-        );
-        if (selectedRoomData) {
-          setGuestName(selectedRoomData.guestName || "");
-          setRoomNo(selectedRoomData.roomNo || "");
-          setSelectedRoom(selectedOption?.value || "");
-        } else {
-          setError("Selected room does not exist. Please refresh and try again.");
-        }
-    }}
-  options={roomOptions.filter((option) =>
-    option.label.toLowerCase().includes(roomSearch.toLowerCase())
-  )}
-  onInputChange={(value) => setRoomSearch(value)}
-  placeholder="Select Room No"
-  className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
-  isSearchable
-/>
-  </div>
-
-{/* Customer Name */}
-          <div className="flex flex-col">
+          {/* Guest Name */}
+          <div className="flex flex-col mb-4">
             <label className="block text-sm font-semibold">Guest Name</label>
             <input
               type="text"
               value={guestName}
-              readOnly              
+              readOnly
               className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
             />
           </div>
-        </form>
 
-{/* Display food items */}
+          {/* Display food items */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {foodItems.map((item) => (
               <div
@@ -361,13 +296,7 @@ const handleroomChange = (selectedOption: { value: string; label: string } | nul
                 <p className="text-gray-600">Price: NPR {item.food_price}</p>
                 <button
                   className="mt-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
-                   onClick={() => addToorder({ 
-                      o_id: item.f_id, 
-                      food_name: item.food_name, 
-                      food_price: item.food_price, 
-                      quantity: 1, 
-                      image_path: item.imagePath 
-                  })}
+                  onClick={() => addToOrder(item)} // Pass the item directly
                 >
                   Add to order
                 </button>
@@ -410,7 +339,7 @@ const handleroomChange = (selectedOption: { value: string; label: string } | nul
                     </button>
                     <button
                       className="text-red-500 hover:text-red-700 ml-4"
-                      onClick={() => removeFromorder(item.o_id)}
+                      onClick={() => removeFromOrder(item.o_id)}
                     >
                       Delete
                     </button>
@@ -426,6 +355,7 @@ const handleroomChange = (selectedOption: { value: string; label: string } | nul
             <button
               type="button"
               className="bg-gray-800 text-white px-6 py-2 rounded-lg hover:bg-gray-600"
+              onClick={() => setOrder([])} // Clear the order
             >
               Cancel
             </button>
@@ -445,58 +375,38 @@ const handleroomChange = (selectedOption: { value: string; label: string } | nul
         </div>
       </div>
 
-{/* Confirmed Orders Table */}
-  {confirmedOrders.length > 0 && (
-  <div className="mt-8 bg-white rounded-lg p-4">
-    <h2 className="text-lg font-bold mb-4">Confirmed Orders</h2>
-    
-{/* Search bar */}
-          <div className="flex justify-center mb-4">
-            <div className="relative w-full max-w-md">
-              <input
-                type="text"
-                placeholder="Search..."
-                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent"
-              />
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-                <img
-                  src="/search.png"
-                  alt="Search"
-                  className="h-5 w-5 text-gray-400"
-                />
-              </div>
-            </div>
-          </div>
-{/*food orders details*/}
-
-          <table className="min-w-full bg-white border rounded-lg">
-          <thead className="bg-gray-100">
-          <tr>
-            <th className="py-2 px-4 border-b">Order ID</th>
-            <th className="py-2 px-4 border-b">Room Number</th>
-            <th className="py-2 px-4 border-b">Food Name</th>
-            <th className="py-2 px-4 border-b">Quantity</th>
-            <th className="py-2 px-4 border-b">Food Price</th>
-            <th className="py-2 px-4 border-b">Total Price</th>
-            <th className="py-2 px-4 border-b">Guest Name</th>
-          </tr>
-        </thead>
-       <tbody>
-      {foodOrders.map((order) => (
-      <tr key={order.o_id}>
-        <td className="border border-gray-300 px-4 py-2">{order.o_id}</td>
-        <td className="border border-gray-300 px-4 py-2">{order.roomNo}</td>
-        <td className="border border-gray-300 px-4 py-2">{order.guestName}</td>
-        <td className="border border-gray-300 px-4 py-2">{order.foodName}</td>
-        <td className="border border-gray-300 px-4 py-2">{order.quantity}</td>
-        <td className="border border-gray-300 px-4 py-2">{order.foodPrice}</td>
-        <td className="border border-gray-300 px-4 py-2">{order.totalPrice}</td>
-      </tr>
-    ))}
-  </tbody>
-</table>
-  </div>
-)}
-</div>
-);
+      {/* Confirmed Orders Table */}
+      <div className="mt-8 bg-white rounded-lg p-4">
+        <h2 className="text-lg font-bold mb-4">Confirmed Orders</h2>
+        <table className="min-w-full bg-white border rounded-lg">
+          <thead>
+            <tr>
+              <th className="border px-4 py-2">Room No</th>
+              <th className="border px-4 py-2">Guest Name</th>
+              <th className="border px-4 py-2">Food Items</th>
+              <th className="border px-4 py-2">Total Price</th>
+              <th className="border px-4 py-2">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {groupedConfirmedOrders.map((order, index) => (
+              <tr key={index}>
+                <td className="border px-4 py-2">{order.roomNo}</td>
+                <td className="border px-4 py-2">{order.guestName}</td>
+                <td className="border px-4 py-2">
+                  {order.items.map(item => `${item.food_name} (x${item.quantity})`).join(', ')}
+                </td>
+                <td className="border px-4 py-2">
+                  NPR {order.items.reduce((total, item) => total + item.food_price * item.quantity, 0)}
+                </td>
+                <td className="border px-4 py-2">
+                  <a href="#" className="text-red-600 hover:text-red-700">Delete</a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }

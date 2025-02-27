@@ -85,8 +85,6 @@ export default function Checkout() {
     }
 };
 
-
-
 const handlereset = () => {
   setReservation({
       res_id: "".toString(), // Ensure it's a string
@@ -224,7 +222,7 @@ const SubtotalBill = useMemo(() => {
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
         />
 
-        <label className="block text-sm font-semibold">guest Name</label>
+        <label className="block text-sm font-semibold">Guest Name</label>
         <input
           type="text"
           value={reservation.guestName}
