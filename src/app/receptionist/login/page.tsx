@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import axios from 'axios';
 import { useLogo } from '@/app/LogoContext';
-
 
 export default function Login() {
   const [username, setUsername] = useState<string>('');
@@ -12,7 +12,12 @@ export default function Login() {
   const [message, setMessage] = useState<string>('');
   const loginPanelRef = useRef<HTMLDivElement>(null);
   const [isInView, setIsInView] = useState(false);
-  const {logoUrl}=useLogo();
+  const { logoUrl } = useLogo();
+  const router = useRouter();
+
+  const handleForgotPassword = () => {
+    router.push('/receptionist/login/ForgotPassword'); // Redirect to ForgotPassword page
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -46,7 +51,7 @@ export default function Login() {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('role', response.data.role);
         setMessage('Signin successful!');
-        
+
         if (response.data.role === 'ADMIN') {
           window.location.href = '/admin/dashboard#';
         } else if (response.data.role === 'RECEPTIONIST') {
@@ -58,7 +63,7 @@ export default function Login() {
         setMessage('Signin failed. Please try again.');
       }
     } catch (error) {
-      console.error('Error signing in:', error);
+      console.error('Error signing in:', error); 
       setMessage('Signin failed. Please check your credentials.');
     }
   };
@@ -69,7 +74,7 @@ export default function Login() {
         
 {/* Main Content */}
         <main className="content flex flex-col items-center relative">
-
+          
 {/* Logo */}
           <div className="absolute top-5 left-5">
             <img
@@ -100,7 +105,6 @@ export default function Login() {
                 Control Panel Login
               </h2>
 
-
               <form className="login-form mt-6 relative z-10" onSubmit={handleLogin}>
                 <div className="input-field mb-4">
                   <label className="block text-black mb-2">Username</label>
@@ -119,11 +123,24 @@ export default function Login() {
                     type="password"
                     placeholder="Enter your password"
                     className="w-full p-2 border border-gray-300 rounded-lg mb-3"
-                    value={password} 
+                    value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    maxLength={8}
+                    maxLength={15}
                   />
+                  
+{/* Forgot Password Button */}
+                  <div className="text-right">
+                    <button
+                      type="button"
+                      onClick={handleForgotPassword}
+                      className="text-sm text-blue-600 hover:text-blue-800"
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
                 </div>
+
+{/* SignIn Button */}
                 <button
                   type="submit"
                   className="sign-in-btn w-full bg-gray-600 text-white py-3 rounded-md font-semibold shadow-lg"
@@ -182,13 +199,14 @@ export default function Login() {
                 .animate-wave-3 {
                   animation: wave-animation-3 4s ease-in-out infinite;
                 }
-                  .animate-wave-4 {
+                .animate-wave-4 {
                   animation: wave-animation-4 4s ease-in-out infinite;
                 }
               `}</style>
 
 {/* Wavy Background Layers */}
               <div
+                key="wave-1"
                 className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-r from-blue-400 via-gray-500 to-zinc-600 rounded-b-3xl animate-wave-1"
                 style={{
                   clipPath:
@@ -196,6 +214,7 @@ export default function Login() {
                 }}
               ></div>
               <div
+                key="wave-2"
                 className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-r from-blue-300 via-gray-400 to-zinc-500 opacity-80 animate-wave-2"
                 style={{
                   clipPath:
@@ -203,6 +222,7 @@ export default function Login() {
                 }}
               ></div>
               <div
+                key="wave-3"
                 className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-r from-blue-200 via-gray-300 to-zinc-400 opacity-60 animate-wave-3"
                 style={{
                   clipPath:
@@ -210,6 +230,7 @@ export default function Login() {
                 }}
               ></div>
               <div
+                key="wave-4"
                 className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-r from-blue-400 via-gray-500 to-zinc-600 opacity-40 animate-wave-4"
                 style={{
                   clipPath:
