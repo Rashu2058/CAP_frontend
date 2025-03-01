@@ -26,7 +26,6 @@ export default function Guest() {
     receptionist_name:"",
   });
 
-
   useEffect(() => {
     const loadGuests = async () => {
       try {
@@ -161,6 +160,7 @@ export default function Guest() {
                 type="text"
                 name="id_no"
                 placeholder="Enter ID No."
+                maxLength={30}
                 value={selectedGuest?.id_no||""}
                 onChange={handleInputChange}
                 className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
@@ -170,14 +170,16 @@ export default function Guest() {
                 name="name"
                 value={selectedGuest?.name||""}
                 placeholder="Enter Name"
+                maxLength={30}
                 onChange={handleInputChange}
                 className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
               />
               <input
-                type="text"
+                type="tel"
                 name="phone_number"
                 value={selectedGuest?.phone_number||""}
                 placeholder="Enter Phone No."
+                maxLength={14}
                 onChange={handleInputChange}
                 className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
               />
@@ -186,6 +188,7 @@ export default function Guest() {
                 name="address"
                 value={selectedGuest?.address||""}
                 placeholder="Enter Address"
+                maxLength={20}
                 onChange={handleInputChange}
                 className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
               />
@@ -207,6 +210,7 @@ export default function Guest() {
                 name="email"
                 value={selectedGuest?.email||""}
                 placeholder="Enter Email"
+                maxLength={20}
                 onChange={handleInputChange}
                 className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
               />
@@ -216,6 +220,7 @@ export default function Guest() {
                 value={selectedGuest?.nationality||""}
                 onChange={handleInputChange}
                 placeholder="Enter Nationality"
+                maxLength={15}
                 className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
               />
               <input
@@ -224,6 +229,7 @@ export default function Guest() {
                 value={selectedGuest?.institutionName||""}
                 onChange={handleInputChange}
                 placeholder="Enter Nationality"
+                maxLength={30}
                 className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
               />
               <input
@@ -232,6 +238,7 @@ export default function Guest() {
                 value={selectedGuest?.purpose||""}
                 onChange={handleInputChange}
                 placeholder="Enter Nationality"
+                maxLength={30}
                 className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-gray-300"
               />
             </div>
@@ -269,6 +276,7 @@ export default function Guest() {
           <input
             type="text"
             placeholder="Search..."
+            maxLength={15}
             className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 
             focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent"
           />

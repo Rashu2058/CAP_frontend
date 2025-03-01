@@ -47,7 +47,7 @@ useEffect(() => {
       <aside className="bg-gray-950 p-4 lg:p-8 sticky min-w-[220px]">
         <div className="flex flex-col space-y-16">
           <div className="flex items-center">
-          <img src={logoUrl} alt="Hotel Logo" width={100} height={100} />
+          <img src={logoUrl} alt="Hotel Logo" width={200} height={100} />
            </div>
           <nav className="space-y-4">
             <a href="#" onClick={() => setActiveSetting("revenue")}
@@ -63,7 +63,7 @@ useEffect(() => {
                 activeSetting === "receptionist" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
               }`}>
               <Image src="/receptionist.png" alt="receptionist" width={20} height={20} className="rounded-full" />
-              <span className="ml-2 hidden lg:inline-block">Receptionist</span>
+              <span className="ml-2 hidden lg:inline-block">Front Desk Representative</span>
             </a>
 
             <a href="#" onClick={() => setActiveSetting("room")}

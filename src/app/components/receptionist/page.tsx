@@ -20,7 +20,8 @@ export default function ReceptionistManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [receptionists, setReceptionists] = useState<Receptionist[]>([]);
   const [selectedReceptionist, setSelectedReceptionist] = useState<Receptionist | null>(null);
-  
+  const [searchQuery, setSearchQuery] = useState("");
+
   const [formData, setFormData] = useState<Receptionist>({
     id: 0,
     name: '',
@@ -181,15 +182,25 @@ const validateForm = () => {
     fetchReceptionists();
   }, []);
 
+{/*Filter reports based on user input*/}
+  const filteredReceptionists = receptionists.filter((recep) =>{
+    const matchesQuery=
+      (recep.name?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
+      (recep.email?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
+      String(recep.phoneno || "").toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesQuery;  
+    });
+
   return (
     <div>
       <div className="max-w-5xl mx-auto p-4">
         <div className="bg-white p-6 rounded-lg mb-6 align-right">
-          <h3 className="text-2xl text-gray-900 font-bold mb-4 font-sans">Receptionist</h3>
+          <h3 className="text-2xl text-gray-900 font-bold mb-4 font-sans">Front Desk Representative</h3>
           <form className="grid grid-cols-2 gap-4 mb-4" onSubmit={handleSubmit}>
             <input
               type="text"
               name="name"
+              maxLength={30}
               placeholder="Name"
               value={formData.name}
               onChange={handleChange}
@@ -199,8 +210,8 @@ const validateForm = () => {
             <input
               type="number"
               name="phoneno"
+              minLength={10} maxLength={14}
               placeholder="Phone No"
-              maxLength={10}
               value={formData.phoneno}
               onChange={handleChange}
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
@@ -225,6 +236,7 @@ const validateForm = () => {
             <input
               type="text"
               name="email"
+              maxLength={20}
               placeholder="Email"
               value={formData.email}
               onChange={handleChange}
@@ -234,6 +246,7 @@ const validateForm = () => {
             <input
               type="text"
               name="username"
+              maxLength={15}
               placeholder="Username"
               value={formData.username}
               onChange={handleChange}
@@ -242,6 +255,8 @@ const validateForm = () => {
             <input
               type="text"
               name="password"
+              minLength={6} 
+              maxLength={10}
               placeholder="Password"
               value={formData.password}
               onChange={handleChange}
@@ -251,6 +266,7 @@ const validateForm = () => {
             <input
               type="text"
               name="address"
+              maxLength={20}
               placeholder="Address"
               value={formData.address}
               onChange={handleChange}
@@ -269,14 +285,19 @@ const validateForm = () => {
         
 {/*Receptionist Details Section */}
         <div className="bg-white p-6 rounded-lg min-w-min">
-          <h3 className="text-lg text-black font-bold mb-8 font-sans bg-gray-200 p-3 px-8">Receptionist Details</h3>
+          <h3 
+          className="text-lg text-black font-bold mb-8 font-sans bg-gray-200 p-3 px-8">
+            Front Desk Representative Details</h3>
           
-          {/* Search bar with custom icon inside */}
+{/* Search bar*/}
       <div className="flex justify-center mb-4">
         <div className="relative w-full max-w-md">
           <input
             type="text"
+            maxLength={20}
             placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent"
           />
           
@@ -306,8 +327,10 @@ const validateForm = () => {
               </tr>
             </thead>
             <tbody>
-              {receptionists.map((receptionist) => (
-                <tr key={receptionist.id} className="hover:bg-purple-100">
+            {filteredReceptionists.length > 0 ? (
+                filteredReceptionists.map((receptionist,index) => (
+                <tr key={index} className="hover:bg-gray-100">
+
                   <td className="py-3 px-6  text-center">{receptionist.name}</td>
                   <td className="py-3 px-6  text-center">{receptionist.phoneno}</td>
                   <td className="py-3 px-6  text-center">{receptionist.gender}</td>
@@ -315,12 +338,19 @@ const validateForm = () => {
                   <td className="py-3 px-6  text-center">{receptionist.email}</td>
                   <td className="py-3 px-6  text-center">{receptionist.username}</td>
                   <td className="py-3 px-6  text-center">
-                    <a href="#" className="text-gray-600 hover:text-gray-700 mr-2" onClick={() => openModal(receptionist)}>Edit</a>
-                    <a href="#" className="text-red-600 hover:text-red-700 mr-2" onClick={() => deleteReceptionist(receptionist.id)}>Delete</a>
+                  <a href="#" className="text-gray-600 hover:text-gray-700 mr-2" onClick={() => openModal(receptionist)}>Edit</a>
+                  <a href="#" className="text-red-600 hover:text-red-700 mr-2" onClick={() => deleteReceptionist(receptionist.id)}>Delete</a>
                     {successMessage && <SuccessBox message={successMessage} onClose={() => setSuccessMessage("")} />}
                   </td>
                 </tr>
-              ))}
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="text-center py-3 text-gray-500">
+                    No matching receptionists found.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -382,8 +412,8 @@ const validateForm = () => {
                   type="password"
                   name="password"
                   placeholder="Password"
-                  minLength={5}
-                  maxLength={8}
+                  minLength={6}
+                  maxLength={10}
                   value={formData.password}
                   onChange={handleChange}
                   className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300 w-full"
@@ -394,9 +424,9 @@ const validateForm = () => {
           <div className="flex justify-end gap-x-4">
             <button
               type="submit"
-              className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700 "
+              className="bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-500 "
             >
-              Update
+              Save
             </button>
             <button
               type="button"

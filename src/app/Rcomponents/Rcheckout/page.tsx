@@ -1,12 +1,10 @@
 "use client";
-import React, { useEffect,useState,useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useLogo } from "@/app/LogoContext";
 import Image from "next/image";
 import axios from "axios";
 
-
 export default function Checkout() {
-
   const [idNo, setIdNo] = useState("");
   const [stayDuration, setStayDuration] = useState(0);
   const [totalBill, setTotalBill] = useState<number | null>(null);
@@ -14,179 +12,180 @@ export default function Checkout() {
   const [discountAmount, setDiscountAmount] = useState(0); // User input for fixed discount amount
   const [vatRate] = useState(13); // VAT rate of 13%
   const [total, setTotal] = useState(subtotal);
-  const{logoUrl}=useLogo()
+  const { logoUrl } = useLogo();
+  const [invoiceNo, setInvoiceNo] = useState(""); // State for invoice number
 
-  
   const [reservation, setReservation] = useState({
-        res_id:"",
+    res_id: "",
+    roomNo: "",
+    roomType: "",
+    roomPrice: "",
+    checkInDate: "",
+    checkOutDate: "",
+    guestName: "",
+  });
+  const [foodCharge, setFoodCharge] = useState<number | null>(null);
+  const token = localStorage.getItem("token");
+  const [todayDate, setTodayDate] = useState("");
+
+  useEffect(() => {
+    const currentDate = new Date().toISOString().split("T")[0];
+    setTodayDate(currentDate);
+  }, []);
+
+  // Fetch reservation details by ID
+  const handleIdNoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const enteredIdNo = e.target.value;
+    setIdNo(enteredIdNo);
+
+    if (!enteredIdNo) {
+      setReservation({
+        res_id: "",
         roomNo: "",
         roomType: "",
         roomPrice: "",
         checkInDate: "",
         checkOutDate: "",
         guestName: "",
-    });
-    const [foodCharge, setFoodCharge] = useState<number | null>(null); 
-    
-    const token = localStorage.getItem('token');
-
-    const [todayDate, setTodayDate] = useState("");
-
-    useEffect(() => {
-      const currentDate = new Date().toISOString().split("T")[0];
-      setTodayDate(currentDate);
-    }, []);
-
-   // Fetch reservation details by ID
-   const handleIdNoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const enteredIdNo = e.target.value;
-    setIdNo(enteredIdNo);
-
-    if (!enteredIdNo) {
-        setReservation({
-            res_id:"",
-            roomNo: "",
-            roomType: "",
-            roomPrice: "",
-            checkInDate: "",
-            checkOutDate: "",
-            guestName: "",
-        });
-        return;
+      });
+      return;
     }
 
     try {
-        const response = await axios.get(`http://localhost:8080/api/reservations/details`, {
-            params: { idNo: enteredIdNo },
-            headers: { Authorization: `Bearer ${token}` },
-        });
-
-        setReservation({
-            res_id:response.data.res_id,
-            roomNo: response.data.room_no,
-            roomType: response.data.room_type,
-            roomPrice: response.data.room_price,
-            checkInDate: response.data.check_in_date,
-            checkOutDate: response.data.check_out_date,
-            guestName: response.data.guest_name,
-        });
-    } catch (error) {
-        console.error("Reservation not found", error);
-        setReservation({
-          res_id: "",
-          roomNo: "",
-          roomType: "",
-          roomPrice: "",
-          checkInDate: "",
-          checkOutDate: "",
-          guestName: "",
+      const response = await axios.get(`http://localhost:8080/api/reservations/details`, {
+        params: { idNo: enteredIdNo },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
+      setReservation({
+        res_id: response.data.res_id,
+        roomNo: response.data.room_no,
+        roomType: response.data.room_type,
+        roomPrice: response.data.room_price,
+        checkInDate: response.data.check_in_date,
+        checkOutDate: response.data.check_out_date,
+        guestName: response.data.guest_name,
+      });
+    } catch (error) {
+      console.error("Reservation not found", error);
+      setReservation({
+        res_id: "",
+        roomNo: "",
+        roomType: "",
+        roomPrice: "",
+        checkInDate: "",
+        checkOutDate: "",
+        guestName: "",
+      });
     }
-};
+  };
 
-const handlereset = () => {
-  setReservation({
-      res_id: "".toString(), // Ensure it's a string
+  const handlereset = () => {
+    setReservation({
+      res_id: "".toString(),  // Ensure it's a string
       guestName: "",
       roomNo: "",
       roomType: "",
-      roomPrice: "0", // Ensure it's a string
+      roomPrice: "0",  // Ensure it's a string
       checkInDate: "",
       checkOutDate: "",
-  });
-  setFoodCharge(null);
-  setDiscountAmount(0);
-  setSubtotal(0);
-  setTotalBill(0);
-  setStayDuration(0);
-};
-
-// Call Billing API
-const handleBillingAPI = async () => {
-  console.log("checkout button clicked")
-  try {
-    const billingData = {
-      resId: reservation.res_id,
-      roomBill: roomBill,
-      foodCharge: foodCharge,
-      discountAmount: discountAmount,
-      vatRate: vatRate,
-      finalTotal: finalTotal,
-      checkInDate: reservation.checkInDate, 
-      checkOutDate: reservation.checkOutDate, 
-    };
-
-    const response = await axios.post(
-      "http://localhost:8080/api/v1/billing/generate",
-      billingData,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    if (response.status === 200) {
-      alert('Billing data saved successfully');
-      handlereset;
-    }
-  } catch (error) {
-    console.error("Error calling billing API:", error);
-    alert("Failed to process billing.");
-  }
-};
-
-useEffect(() => {
-  if (reservation.res_id) {
-    fetch(`http://localhost:8080/api/v1/food-orders/total-food-charge/${reservation.res_id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("API Response:", data);
-      setFoodCharge(data); // Assuming the response has 'totalFoodCharge'
-    })
-    .catch((error) => {
-      console.error('Error fetching food charge:', error);
     });
-  }
-}, [reservation.res_id]);  // Re-run when reservation.res_id changes
- // Re-run the effect when reservation.res_id changes
+    setFoodCharge(null);
+    setDiscountAmount(0);
+    setSubtotal(0);
+    setTotalBill(0);
+    setStayDuration(0);
+    setInvoiceNo(""); // Reset invoice number
+  };
 
+  // Call Billing API
+  const handleBillingAPI = async () => {
+    console.log("Checkout button clicked");
 
+    // Generate a unique invoice number
+    const generatedInvoiceNo = `INV-${Date.now()}`;
+    setInvoiceNo(generatedInvoiceNo);
 
-//calculate duration
-useEffect(() => {
-    if (reservation.checkInDate && reservation.checkOutDate) {
-        const checkInDate = new Date(reservation.checkInDate);
-        const checkOutDate = new Date(reservation.checkOutDate);
-        const duration = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 3600 * 24));
-        setStayDuration(duration);
+    try {
+      const billingData = {
+        resId: reservation.res_id,
+        roomBill: roomBill,
+        foodCharge: foodCharge,
+        discountAmount: discountAmount,
+        vatRate: vatRate,
+        finalTotal: finalTotal,
+        checkInDate: reservation.checkInDate,
+        checkOutDate: reservation.checkOutDate,
+        invoiceNo: generatedInvoiceNo, // Include invoice number in billing data
+      };
+
+      const response = await axios.post(
+        "http://localhost:8080/api/v1/billing/generate",
+        billingData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.status === 200) {
+        alert('Billing data saved successfully');
+        handlereset();
+      }
+    } catch (error) {
+      console.error("Error calling billing API:", error);
+      alert("Failed to process billing.");
     }
-}, [reservation.checkInDate, reservation.checkOutDate]);
+  };
 
+  // Fetch food charge
+  useEffect(() => {
+    if (reservation.res_id) {
+      fetch(`http://localhost:8080/api/v1/food-orders/total-food-charge/${reservation.res_id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("API Response:", data);
+          setFoodCharge(data);
+        })
+        .catch((error) => {
+          console.error('Error fetching food charge:', error);
+        });
+    }
+  }, [reservation.res_id]);
 
+  // Calculate duration
+  useEffect(() => {
+    if (reservation.checkInDate && reservation.checkOutDate) {
+      const checkInDate = new Date(reservation.checkInDate);
+      const checkOutDate = new Date(reservation.checkOutDate);
+      const duration = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 3600 * 24));
+      setStayDuration(duration);
+    }
+  }, [reservation.checkInDate, reservation.checkOutDate]);
 
-//calculate bill
-const roomBill = useMemo(() => {
-  const roomPrice = parseFloat(reservation.roomPrice) || 0;
-  return (stayDuration * roomPrice).toFixed(2);
-}, [stayDuration, reservation.roomPrice]);
+  // Calculate room bill
+  const roomBill = useMemo(() => {
+    const roomPrice = parseFloat(reservation.roomPrice) || 0;
+    return (stayDuration * roomPrice).toFixed(2);
+  }, [stayDuration, reservation.roomPrice]);
 
-// Calculate the total bill
-const SubtotalBill = useMemo(() => {
-  const foodChargeAmount = foodCharge || 0;
-  const roomBillAmount = parseFloat(roomBill) || 0;
-  return (foodChargeAmount + roomBillAmount).toFixed(2);
-}, [foodCharge, roomBill]);
+  // Calculate subtotal
+  const SubtotalBill = useMemo(() => {
+    const foodChargeAmount = foodCharge || 0;
+    const roomBillAmount = parseFloat(roomBill) || 0;
+    return (foodChargeAmount + roomBillAmount).toFixed(2);
+  }, [foodCharge, roomBill]);
 
- const finalTotal = useMemo(() => {
+  // Calculate final total
+  const finalTotal = useMemo(() => {
     const subtotalValue = parseFloat(SubtotalBill) || 0;
-    const discountedAmount = subtotalValue - discountAmount; // Subtract discount
-    const vatAmount = (discountedAmount * vatRate) / 100 // Add VAT on discounted amount
-    return (discountedAmount + vatAmount).toFixed(2); // Final total
+    const discountedAmount = subtotalValue - discountAmount;
+    const vatAmount = (discountedAmount * vatRate) / 100;
+    return (discountedAmount + vatAmount).toFixed(2);
   }, [SubtotalBill, discountAmount, vatRate]);
 
-
-{/* Printing Invoice*/}
+  // Handle print
   const handlePrint = () => {
     const printContent = document.getElementById("invoice-section");
     if (!printContent) return;
@@ -205,23 +204,21 @@ const SubtotalBill = useMemo(() => {
     window.print();
     document.body.innerHTML = originalContent;
   };
-  
+
   return (
     <div className="flex justify-between p-8">
-
-{/* Stay Duration Calculation */}
+      {/* Stay Duration Calculation */}
       <div className="w-1/2 border p-6 bg-gray-100 mr-4 rounded-lg shadow-lg">
         <h2 className="bg-gray-950 text-xl font-bold mb-6 text-white text-center h-12 flex justify-center items-center">Stay Duration Calculation</h2>
-      
         <label className="block text-sm font-semibold">ID No.</label>
         <input
           type="text"
           value={idNo}
           placeholder="1234"
+          maxLength={20}
           onChange={handleIdNoChange}
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
         />
-
         <label className="block text-sm font-semibold">Guest Name</label>
         <input
           type="text"
@@ -230,7 +227,6 @@ const SubtotalBill = useMemo(() => {
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
           readOnly
         />
-
         <label className="block text-sm font-semibold">Room Type</label>
         <input
           name="room_type"
@@ -238,7 +234,6 @@ const SubtotalBill = useMemo(() => {
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
           readOnly
         />
-         
         <label className="block text-sm font-semibold">Room No</label>
         <input
           name="Room No"
@@ -246,7 +241,6 @@ const SubtotalBill = useMemo(() => {
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
           readOnly
         />
-
         <label className="block text-sm font-semibold">Check In</label>
         <input
           type="text"
@@ -255,7 +249,6 @@ const SubtotalBill = useMemo(() => {
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
           readOnly
         />
-
         <label className="block text-sm font-semibold">Check Out</label>
         <input
           type="text"
@@ -264,7 +257,6 @@ const SubtotalBill = useMemo(() => {
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
           readOnly
         />
-
         <label className="block text-sm font-semibold">No. of Days</label>
         <input
           type="text"
@@ -273,7 +265,6 @@ const SubtotalBill = useMemo(() => {
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
           readOnly
         />
-
         <label className="block text-sm font-semibold">Room Price</label>
         <input
           type="text"
@@ -290,7 +281,6 @@ const SubtotalBill = useMemo(() => {
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
           readOnly
         />
-
         <label className="block text-sm font-semibold">Food Bill</label>
         <input
           type="text"
@@ -299,7 +289,6 @@ const SubtotalBill = useMemo(() => {
           readOnly
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
         />
-
         <label className="block text-sm font-semibold">Total</label>
         <input
           type="text"
@@ -308,106 +297,109 @@ const SubtotalBill = useMemo(() => {
           className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
         />
         <div className="flex justify-end sm:justify-end px-2 py-2">
-            <div className="flex space-x-2">
-              <button
-                type="button"
-                className="bg-gray-800 text-white px-6 py-3 rounded-lg hover:bg-gray-600 text-lg"
-                onClick={handleBillingAPI}
-              >
-                Check Out
-              </button>
+          <div className="flex space-x-2">
+            <button
+              type="button"
+              className="bg-gray-800 text-white px-6 py-3 rounded-lg hover:bg-gray-600 text-lg"
+              onClick={handleBillingAPI}
+            >
+              Check Out
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Invoice Section */}
+      <div id="invoice-section" className="w-full max-w-3xl bg-gray-100 p-8 rounded-lg shadow-lg">
+        {/* Invoice Header */}
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-950 font-serif">UniStay</h1>
+            <p className="text-base text-black">Gandaki, Nepal</p>
+            <p className="text-base text-black">Damauli, Tanahun</p>
+            <p className="text-base text-black">33900, Vyas-2</p>
+            <p className="text-base text-black"><b>Phone:</b> 065-560000</p>
+            <p className="text-base text-black"><b>Email:</b> unistay2024@gmail.com</p>
+            <p className="text-base text-black"><b>Website:</b> www.unistay.com</p>
+            <p className="text-base text-black"><b>VAT No:</b> 025841333025</p>
+          </div>
+          <div className="flex flex-col items-end space-y-2">
+            <div className="flex items-center space-x-2">
+              <label className="block text-sm font-semibold"><b>Date:</b></label>
+              <input
+                type="date"
+                value={todayDate}
+                className="border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
+              />
+            </div>
+            <div className="flex-shrink-0 mt-2">
+              <Image src={logoUrl} alt="Hotel Logo" width={100} height={100} className="rounded-full"/>
             </div>
           </div>
-      </div>
+        </div>
 
-{/* Invoice Section */}
-  <div id="invoice-section" className="w-full max-w-3xl bg-gray-100 p-8 rounded-lg shadow-lg">
-  
-{/* Invoice Header */}
-  <div className="flex justify-between items-center mb-6">
-    <div>
-      <h1 className="text-4xl font-bold text-gray-950 font-serif">Hotel Grace Inn</h1>
-      <p className="text-base text-black">Gandaki, Nepal</p>
-      <p className="text-base text-black">Damauli, Tanahun</p>
-      <p className="text-base text-black">33900, Vyas-2</p>
-      <p className="text-base text-black">Phone: 065-560000</p>
-      <p className="text-base text-black">Website: www.hotelgraceinn.com</p>
-    </div>
+        {/* Divider Line */}
+        <hr className="border-gray-300 my-4" />
 
-{/* Date and Logo */}
-    <div className="flex flex-col items-end space-y-2">
-      <div className="flex items-center space-x-2">
-        <label className="block text-sm font-semibold">Date:</label>
-        <input
-          type="date"
-          value={todayDate}
-          className="border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
-        />
-      </div>
-      <div className="flex-shrink-0 mt-2">
-        <Image src={logoUrl} alt="Hotel Logo" width={80} height={80} className="rounded-full"/>
-      </div>
-    </div>
-  </div>
-
-{/* Divider Line */}
-  <hr className="border-gray-300 my-4" />
-
-{/* Invoice Details */}
+        {/* Invoice Details */}
         <div className="flex justify-between mb-6">
           <div className="space-x-2">
-            <label>Invoice No:</label>
+            <label className="font-semibold">Invoice No:</label>
             <input
               type="text"
               name="invoice"
               placeholder="Invoice No"
+              value={invoiceNo} // Display the generated invoice number
+              className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
+              readOnly
+            />
+          </div>
+        </div>
+
+        {/* Billed To Section */}
+        <div className="flex justify-between mb-6">
+          <div className="space-x-2">
+            <label className="font-semibold">Billed To:</label>
+            <input
+              type="text"
+              placeholder="Guest Name"
+              value={reservation.guestName}
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
             />
           </div>
         </div>
-    <div className="flex justify-between items-start mb-6">
-    
-{/* Left Section: guest Details */}
-    <div className="flex-1 mr-4">
-      <label className="block text-sm font-semibold">Billed To:</label>
-      <input
-        type="text"
-        placeholder="guest Name"
-        value={reservation.guestName}
-        className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300 mb-2"
-      />
-     </div>
 
-{/* Right Section: Check In/Out */}
-    <div className="w-1/2 flex flex-col justify-end">
-      <div className=" space-x-2 mt-3">
-        <label>Check In:</label>
-        <input
-          type="text"
-          value={reservation.checkInDate}
-          placeholder="10/08/2024 06:36 PM"
-          className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-          readOnly
-        />
-      </div>
+                {/* Check In and Check Out */}
+                <div className="flex space-x-4 mt-3">
+          {/* Check In Section */}
+          <div className="flex-1">
+            <label className="block text-sm font-semibold">Check In:</label>
+            <input
+              type="text"
+              value={reservation.checkInDate}
+              placeholder="10/08/2024 06:36 PM"
+              className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
+              readOnly
+            />
+          </div>
 
-      <div className="space-x-2 mt-4">
-        <label>Check Out:</label>
-        <input
-          type="text"
-          value={reservation.checkOutDate}
-          placeholder="10/12/2024"
-          className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-          readOnly
-        />
-      </div>
-    </div>
-  </div>
+          {/* Check Out Section */}
+          <div className="flex-1">
+            <label className="block text-sm font-semibold">Check Out:</label>
+            <input
+              type="text"
+              value={reservation.checkOutDate}
+              placeholder="10/12/2024"
+              className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
+              readOnly
+            />
+          </div>
+        </div>
 
-{/* Divider Line */}
-<hr className="border-gray-300 my-4" />
+        {/* Divider Line */}
+        <hr className="border-gray-300 my-4" />
 
-{/* Item Table */}
+        {/* Item Table */}
         <table className="min-w-full bg-white border border-gray-300">
           <thead className="bg-gray-800 text-white">
             <tr>
@@ -420,28 +412,27 @@ const SubtotalBill = useMemo(() => {
           </thead>
           <tbody>
             <tr className="hover:bg-purple-100">
-            <td className="py-3 px-6 border border-gray-300 text-center">Room</td>
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center">{reservation.roomPrice}</td>
-            <td className="py-3 px-6 border border-gray-300 text-center">{roomBill}</td>
+              <td className="py-3 px-6 border border-gray-300 text-center">Room</td>
+              <td className="py-3 px-6 border border-gray-300 text-center"></td>
+              <td className="py-3 px-6 border border-gray-300 text-center"></td>
+              <td className="py-3 px-6 border border-gray-300 text-center">{reservation.roomPrice}</td>
+              <td className="py-3 px-6 border border-gray-300 text-center">{roomBill}</td>
             </tr>
           </tbody>
           <tbody>
             <tr className="hover:bg-purple-100">
-            <td className="py-3 px-6 border border-gray-300 text-center">Food</td>
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center"></td>
-            <td className="py-3 px-6 border border-gray-300 text-center">{foodCharge}</td>
+              <td className="py-3 px-6 border border-gray-300 text-center">Food</td>
+              <td className="py-3 px-6 border border-gray-300 text-center"></td>
+              <td className="py-3 px-6 border border-gray-300 text-center"></td>
+              <td className="py-3 px-6 border border-gray-300 text-center"></td>
+              <td className="py-3 px-6 border border-gray-300 text-center">{foodCharge}</td>
             </tr>
           </tbody>
-          
         </table>
 
-{/* Summary */}
-        <div className="text-right mb-6 mt-3 ">
-        <div className="space-x-2">
+        {/* Summary of total bill */}
+        <div className="text-right mb-6 mt-3">
+          <div className="space-x-2">
             <label>Sub Total:</label>
             <input
               type="text"
@@ -471,7 +462,7 @@ const SubtotalBill = useMemo(() => {
               value={(parseFloat(SubtotalBill) - discountAmount) * 0.13 || 0} // VAT calculation
               className="mb-2 p-1 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
               readOnly
-          />
+            />
           </div>
           <div className="space-x-2">
             <label>Total:</label>
@@ -482,18 +473,18 @@ const SubtotalBill = useMemo(() => {
               value={finalTotal} // Total calculation
               className="mb-2 p-1 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
               readOnly
-           />
+            />
           </div>
         </div>
 
-{/* Divider Line */}
-<hr className="border-gray-300 my-4" ></hr>
-        
-{/* Footer */}
-       <div id="footer" className="flex justify-end mb-5">
+        {/* Divider Line */}
+        <hr className="border-gray-300 my-4" />
+
+        {/* Footer */}
+        <div id="footer" className="flex justify-end mb-5">
           <button type="button" onClick={handlePrint}>
-           <Image src="/print.png" alt="Hotel Logo" width={50} height={50} className="rounded-full"/>
-           Print
+            <Image src="/print.png" alt="Hotel Logo" width={50} height={50} className="rounded-full" />
+            Print
           </button>
         </div>
       </div>

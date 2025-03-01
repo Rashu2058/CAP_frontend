@@ -146,6 +146,7 @@ const Reports = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search by name or ID"
+                    maxLength={25}
                     className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
                   />
                 </div>

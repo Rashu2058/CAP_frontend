@@ -28,6 +28,7 @@ export default function RoomManagement() {
   const [rooms, setRooms] = useState<Room[]>([]); // Store room details
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [successMessage, setSuccessMessage] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const openModal = (room:Room) => {
     setRoomDetails(room);
@@ -66,7 +67,7 @@ export default function RoomManagement() {
     }
   };
 
-  {/*validate form*/}
+{/*validate form*/}
   const validateForm = () => {
   const newErrors: { [key: string]: string } = {};
 
@@ -220,7 +221,14 @@ export default function RoomManagement() {
     }
   };
 
-
+{/*Filter reports based on user input*/}
+const filteredRooms = rooms.filter((room) =>{
+  const matchesQuery=
+    (room.room_type?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
+    String(room.room_price || "").toLowerCase().includes(searchQuery.toLowerCase())||
+    String(room.room_no || "").toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesQuery;  
+  });
 
   return (
     <div className="max-w-5xl mx-auto p-4">
@@ -230,7 +238,7 @@ export default function RoomManagement() {
 {/* Form for Adding Room */}
         <form className="grid grid-cols-1 gap-4 mb-4" onSubmit={handleAddRoom}>
           <input
-            type="number"
+            type="tel"
             name="room_no"
             placeholder="Room No"
             maxLength={3}
@@ -244,6 +252,7 @@ export default function RoomManagement() {
           <input
             type="text"
             name="room_type"
+            maxLength={10}
             placeholder="Room Type"
             value={roomDetails.room_type}
             onChange={handleInputChange}
@@ -252,7 +261,8 @@ export default function RoomManagement() {
           {errors.room_type && <p className="text-red-500 text-sm">{errors.room_type}</p>}
           
           <input
-            type="number"
+            type="tel"
+            maxLength={5}
             name="room_price"
             placeholder="Room Price"
             value={roomDetails.room_price}
@@ -284,6 +294,9 @@ export default function RoomManagement() {
         <div className="relative w-full max-w-md">
           <input
             type="text"
+            value={searchQuery}
+            maxLength={6}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search..."
             className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent"
           />
@@ -311,17 +324,26 @@ export default function RoomManagement() {
               </tr>
             </thead>
             <tbody>
-              {rooms.map((room, index)=>(
-              <tr className="hover:bg-purple-100">
+            {filteredRooms.length > 0 ? (
+                filteredRooms.map((room,index) => (
+              <tr key={index} className="hover:bg-purple-100">
                 <td className="py-3 px-6  text-center">{room.room_no}</td>
                 <td className="py-3 px-6  text-center">{room.room_type}</td>
                 <td className="py-3 px-6  text-center">NPR. {room.room_price}</td>
                 <td className="py-3 px-6  text-center">
                   <a href="#" className="text-gray-600 hover:text-gray-700 mr-2" onClick={()=> handleEditRoom(room)}>Edit</a>
                   <a href="#" className="text-red-600 hover:text-red-700 mr-2" onClick={()=>handleDeleteRoom(room.room_no)}>Delete</a>
+                {successMessage && <SuccessBox message={successMessage} onClose={() => setSuccessMessage("")} />}
                 </td>
               </tr>
-              ))}
+              ))
+            ) : (
+              <tr>
+                <td colSpan={7} className="text-center py-3 text-gray-500">
+                  No matching rooms found.
+                </td>
+              </tr>
+              )}
             </tbody>
           </table>
       </div>
@@ -373,13 +395,13 @@ export default function RoomManagement() {
         <div className="flex justify-end gap-x-4">
         <button
           type="submit"
-          className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700 "
+          className="bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-500 "
         >
-          Update
+          Save
         </button>
         <button
           type="button"
-          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-500"
+          className="bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-500"
           onClick={closeModal}
         >
           Cancel

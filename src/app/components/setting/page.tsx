@@ -143,6 +143,7 @@ export default function Settings() {
             <label className="block text-sm font-medium mb-1">Name</label>
             <input
               type="text"
+              maxLength={30}
               className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
               placeholder="Hotel Admin"
               defaultValue={adminDetails?.name||""}
@@ -154,6 +155,7 @@ export default function Settings() {
             <label className="block text-sm font-medium mb-1">Username</label>
             <input
               type="text"
+              maxLength={15}
               className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
               placeholder="admin123"
               defaultValue={adminDetails?.username||""}
@@ -165,6 +167,7 @@ export default function Settings() {
             <label className="block text-sm font-medium mb-1">Email</label>
             <input
               type="text"
+              maxLength={20}
               className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
               placeholder="admin123@gmail.com"
               defaultValue={adminDetails?.email||""}
@@ -175,7 +178,8 @@ export default function Settings() {
           <div>
             <label className="block text-sm font-medium mb-1">Phone No</label>
             <input
-              type="text"
+              type="tel"
+              maxLength={14}
               className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
               placeholder="9800000000"
               defaultValue={adminDetails?.phoneno||""}
@@ -217,6 +221,7 @@ export default function Settings() {
               type="password"
               className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
               placeholder="Enter current password"
+              maxLength={15}
             />
           </div>
           <div>
@@ -225,6 +230,7 @@ export default function Settings() {
               type="password"
               className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
               placeholder="Enter new password"
+              maxLength={15}
             />
           </div>
           <div>
@@ -233,6 +239,7 @@ export default function Settings() {
               type="password"
               className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
               placeholder="Re-enter new password"
+              maxLength={15}
             />
           </div>
           <div className="text-center mt-6">

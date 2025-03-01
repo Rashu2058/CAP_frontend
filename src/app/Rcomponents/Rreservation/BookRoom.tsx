@@ -195,7 +195,7 @@ const validateForm = () => {
           <input
             type="text"
             name="guest_idno"
-            placeholder="guest ID No."
+            placeholder="Guest ID No."
             className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
             value={formData.guest_idno}
             onChange={handleInputChange}

@@ -209,11 +209,13 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
               <option value="PASSPORT">Passport</option>
               <option value="DRIVING_LICENSE">Driving License</option>
               <option value="NID_CARD">National ID Card</option>
+              <option value="INSTITUTION_CARD">Institution Card</option>
             </select>
             <input
               type="text"
               name="id_no"
               placeholder="ID No."
+              maxLength={25}
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
               value={formData.id_no||""}
               onChange={handleInputChange}
@@ -223,6 +225,7 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
               type="text"
               name="name"
               placeholder="Name"
+              maxLength={25}
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
               value={formData.name}
               onChange={handleInputChange}
@@ -231,23 +234,23 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
             {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
            
             <input
-              type="text"
+              type="tel"
               name="phone_number"
               placeholder="Phone No"
+              maxLength={14}
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
               value={formData.phone_number||""}
               onChange={handleInputChange}
-              maxLength={10}
             />
             {errors.phone_number && <p className="text-red-500 text-sm">{errors.phone_number}</p>}
             <input
               type="text"
               name="address"
               placeholder="Address"
+              maxLength={25}
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
               value={formData.address}
               onChange={handleInputChange}
-              maxLength={20}
             />
             {errors.address && <p className="text-red-500 text-sm">{errors.address}</p>}
             <select
@@ -266,6 +269,7 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
               type="text"
               name="email"
               placeholder="Email"
+              maxLength={20}
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
               value={formData.email}
               onChange={handleInputChange}
@@ -282,7 +286,8 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
             <input
               type="text"
               name="institutionName"
-              placeholder="institution name"
+              placeholder="Institution name"
+              maxLength={30}
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
               value={formData.institutionName}
               onChange={handleInputChange}
@@ -293,7 +298,8 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEle
             <input
               type="text"
               name="purpose"
-              placeholder="purpose"
+              placeholder="Purpose"
+              maxLength={30}
               className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
               value={formData.purpose}
               onChange={handleInputChange}

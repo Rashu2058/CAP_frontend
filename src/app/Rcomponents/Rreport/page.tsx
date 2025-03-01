@@ -51,7 +51,7 @@ const Reports = () => {
     }
   };
 
-  // Filter reports based on user input
+  {/* Filter reports based on user input*/}
   const filteredReports = reports.filter((report) => {
     const matchesQuery =
       (report.guestName?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
@@ -141,6 +141,7 @@ const Reports = () => {
           {showFilters && (
             <div className="mb-6 p-4 bg-gray-100 rounded-lg shadow-md">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                
                 {/* Search Query */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Search</label>
@@ -149,6 +150,7 @@ const Reports = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search by name or ID"
+                    maxLength={25}
                     className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -232,8 +234,7 @@ const Reports = () => {
                   filteredReports.map((report, index) => (
                     <tr
                       key={index}
-                      className="text-gray-700 text-sm border-b hover:bg-gray-50"
-                    >
+                      className="text-gray-700 text-sm border-b hover:bg-gray-50">
                       
                       <td className="p-3 text-center">{report.guestId}</td>
                       <td className="p-3 text-center">{report.guestName}</td>
