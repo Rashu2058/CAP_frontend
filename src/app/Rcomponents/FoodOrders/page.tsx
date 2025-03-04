@@ -21,7 +21,7 @@ type ConfirmedOrder = {
   o_id: number; // Ensure this property is included
   roomNo: string; // Ensure this is a string
   guestName: string;
-  res_id: number; // Ensure this property is included
+  res_id: BigInt; // Ensure this property is included
   items: orderItem[];
 };
 
@@ -43,6 +43,8 @@ export default function FoodOrders() {
   const [error, setError] = useState<string | null>(null);
   const [roomSearch, setRoomSearch] = useState('');
   const [foodOrders, setFoodOrders] = useState<any[]>([]); // Adjusted type if necessary
+  const [editingOrder, setEditingOrder] = useState<ConfirmedOrder | null>(null); // State for editing
+  const [isEditing, setIsEditing] = useState(false); // State for edit mode
 
   const token = localStorage.getItem('token');
 
@@ -170,31 +172,56 @@ export default function FoodOrders() {
       setError('Room number and Guest name are required');
       return;
     }
+    const selectedRoom = rooms.find((room) => room.roomNo === roomNo);
+  if (!selectedRoom || !selectedRoom.resId) {
+    console.error('Room reservation ID (resId) is missing:', selectedRoom);
+    setError('Reservation ID is missing');
+    return;
+  }
 
     const foodOrders = order.map((item) => ({
-      resId: rooms.find((room) => room.roomNo === roomNo)?.resId,
+      resId: selectedRoom.resId,
       foodId: item.o_id,
       quantity: item.quantity,
     }));
+    
 
     try {
-      const response = await axios.post(
-        'http://localhost:8080/api/v1/food-orders/create',
-        foodOrders,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      if (isEditing) {
+        // Update existing order
+        const response = await axios.put(
+          `http://localhost:8080/api/v1/food-orders/update/${editingOrder?.res_id}`, 
+          foodOrders[0], // Send only the first order for update
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
-      if (response.status === 200) {
-        setOrder([]); // Clear the order
-        setRoomNo(''); // Reset room number
-        setGuestName(''); // Reset customer name
-        setOrderConfirmed(true);
-        setTimeout(() => setOrderConfirmed(false), 3000);
-        // Fetch food orders again after confirming
-        fetchFoodOrders();
+        if (response.status === 200) {
+          setEditingOrder(null); // Clear editing state
+          setIsEditing(false); // Reset edit mode
+        }
+      } else {
+        // Create new orders
+        const response = await axios.post(
+          'http://localhost:8080/api/v1/food-orders/create',
+          foodOrders, // Send the entire array of orders
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (response.status === 200) {
+          setOrder([]); // Clear the order
+          setRoomNo(''); // Reset room number
+          setGuestName(''); // Reset customer name
+          setOrderConfirmed(true);
+          setTimeout(() => setOrderConfirmed(false), 3000);
+        }
       }
+
+      // Fetch food orders again after confirming
+      fetchFoodOrders();
     } catch (error) {
       console.error('Error placing food order:', error);
       setError('Error placing order');
@@ -245,6 +272,20 @@ export default function FoodOrders() {
   };
 
   const groupedConfirmedOrders = groupFoodOrders();
+
+  const handleEditOrder = (order: ConfirmedOrder) => {
+    setEditingOrder(order);
+    setOrder(order.items.map(item => ({
+      o_id: item.o_id,
+      food_name: item.food_name,
+      food_price: item.food_price,
+      quantity: item.quantity,
+      image_path: item.image_path,
+    })));
+    setRoomNo(order.roomNo);
+    setGuestName(order.guestName);
+    setIsEditing(true); // Set edit mode to true
+  };
 
   return (
     <div className="p-4">
@@ -364,7 +405,7 @@ export default function FoodOrders() {
               className="bg-gray-900 text-white px-6 py-2 rounded-lg hover:bg-gray-700"
               onClick={onConfirmOrder}
             >
-              Confirm
+              {isEditing ? 'Save' : 'Confirm'} {/* Change button text based on edit mode */}
             </button>
           </div>
           {orderConfirmed && (
@@ -400,7 +441,13 @@ export default function FoodOrders() {
                   NPR {order.items.reduce((total, item) => total + item.food_price * item.quantity, 0)}
                 </td>
                 <td className="border px-4 py-2">
-                  <a href="#" className="text-red-600 hover:text-red-700">Delete</a>
+                  <button
+                    className="text-blue-600 hover:text-blue-700"
+                    onClick={() => handleEditOrder(order)} // Call the edit handler
+                  >
+                    Edit
+                  </button>
+                  <a href="#" className="text-red-600 hover:text-red-700 ml-2">Delete</a>
                 </td>
               </tr>
             ))}

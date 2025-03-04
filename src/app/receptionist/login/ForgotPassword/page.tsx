@@ -8,13 +8,24 @@ export default function ForgotPassword() {
   const [message, setMessage] = useState<string>('');
   const router = useRouter();
 
+  const validateEmail = (email: string): boolean => {
+    const regex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    return regex.test(email);
+  };
+
   const handleProceed = () => {
     if (!email) {
       setMessage('Please enter your email.');
       return;
     }
-    console.log('Proceed clicked'); // Debug log
-    router.push('/receptionist/login/OTP'); // Redirect to OTP page
+
+    if (!validateEmail(email)) {
+      setMessage('Please enter a valid gmail.');
+      return;
+    }
+
+    console.log('Proceed clicked'); 
+    router.push('/receptionist/login/Token'); 
   };
 
   return (
@@ -22,7 +33,7 @@ export default function ForgotPassword() {
       <div className="bg-white p-8 rounded-lg shadow-lg w-96">
         <h1 className="text-2xl font-bold text-center mb-6 text-blue-500">Forgot Password?</h1>
         <p className="text-gray-600 text-center mb-6">
-          A 6-digit verification code will be sent to your email.
+          A token will be sent to your email.
         </p>
 
         {/* Email Input */}
@@ -46,7 +57,7 @@ export default function ForgotPassword() {
         </button>
 
         {/* Error/Success Message */}
-        {message && <p className="text-center mt-4 text-red-600">{message}</p>}
+        {message && <p className="text-center mt-4">{message}</p>}
       </div>
     </div>
   );
