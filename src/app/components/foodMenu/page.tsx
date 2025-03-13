@@ -25,12 +25,10 @@ export default function FoodManagement() {
   const token = localStorage.getItem("token") || "";
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState<string>("");
-  
-{/*state and store added food items*/}
+
   const [newItem, setNewItem] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  
-{/* State to store added food items*/}
+
   const [foodItems, setFoodItems] = useState<Food[]>([]);
   const [foodName, setFoodName] = useState("");
   const [foodPrice, setFoodPrice] = useState("");
@@ -44,23 +42,25 @@ export default function FoodManagement() {
     fetchFoodItems();
   }, []);
 
-{/* fetch food items from the database */}
   const fetchFoodItems = async () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get("http://localhost:8080/api/foods", {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       console.log("Fetched food items:", response.data);
       setFoodItems(response.data);
     } catch (error) {
       console.error("Error fetching food items:", error);
+      setErrorMessage("Error fetching food items");
     }
   };
 
-  const handleFoodAction = async () => {
+  const handleFoodAction = async (e: React.FormEvent) => {
+    e.preventDefault(); // Prevent the default form submission behavior
+
     if (!foodName || !foodPrice || !foodCategory) {
       setErrorMessage("Please fill all fields");
       return;
@@ -75,8 +75,7 @@ export default function FoodManagement() {
     }
     if (editingIndex == null) {
       const duplicate = foodItems.some(
-        (food) => 
-          food.food_name.toLowerCase() === foodName.toLowerCase()
+        (food) => food.food_name.toLowerCase() === foodName.toLowerCase()
       );
       if (duplicate) {
         setErrorMessage("Food item already exists.");
@@ -153,10 +152,10 @@ export default function FoodManagement() {
       setSuccessMessage("Food item deleted Successfully");
     } catch (error) {
       console.error("Error deleting food item:", error);
+      setErrorMessage("Error deleting food item");
     }
   };
 
-{/* Add new food category*/}
   const addItem = () => {
     if (newItem.trim() && !items.includes(newItem)) {
       setItems([...items, newItem]);
@@ -164,7 +163,6 @@ export default function FoodManagement() {
     }
   };
 
-{/*Image Handling*/}
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -191,7 +189,7 @@ export default function FoodManagement() {
     <div className="max-w-5xl mx-auto p-4">
       <div className="bg-white p-6 rounded-lg mb-6 align-right">
         <h3 className="text-2xl text-gray-900 font-bold mb-4 font-sans">Food Menu</h3>
-        <form className="grid grid-cols-1 gap-4 mb-4" onSubmit={(e) => e.preventDefault()}>
+        <form className="grid grid-cols-1 gap-4 mb-4" onSubmit={handleFoodAction}>
           <input
             type="text"
             value={foodName}
@@ -209,7 +207,6 @@ export default function FoodManagement() {
             className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
           />
 
-{/*Food Category*/}
           <div className="relative">
             <button
               type="button"
@@ -238,7 +235,6 @@ export default function FoodManagement() {
           </div>
         </form>
 
-{/*Error pop up message */}
         <ErrorPopup message={errorMessage} onClose={() => setErrorMessage("")} />
         {successMessage && <SuccessBox message={successMessage} onClose={() => setSuccessMessage("")} />}
         <div className="flex flex-row items-center space-y-0 gap-x-4">
@@ -255,7 +251,6 @@ export default function FoodManagement() {
           </button>
         </div>
 
-{/*Food Photo adding*/}
         <div className="flex flex-col mt-6">
           <input
             type="file"
@@ -271,20 +266,18 @@ export default function FoodManagement() {
           )}
         </div>
 
-{/*Add Button */}
         <div className="flex justify-end px-6 py-4">
-          <button onClick={handleFoodAction} className="bg-gray-900 text-white px-8 py-4 rounded-lg">
-            Add
+          <button type="submit" className="bg-gray-900 text-white px-8 py-4 rounded-lg">
+            {editingIndex === null ? "Add" : "Update"}
           </button>
         </div>
       </div>
 
-{/* Modal for Editing Food Items */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg w-1/3">
             <h3 className="text-2xl font-bold mb-4">Edit Food Item</h3>
-            <form className="grid grid-cols-1 gap-4">
+            <form className="grid grid-cols-1 gap-4" onSubmit={handleFoodAction}>
               <input
                 type="text"
                 value={foodName}
@@ -340,20 +333,18 @@ export default function FoodManagement() {
                 )}
               </div>
               <div className="flex justify-end space-x-4">
-              <button onClick={handleFoodAction} className="bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-500">
+                <button type="submit" className="bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-500">
                   Save
                 </button>
-                <button onClick={closeModal} className="bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-500">
+                <button type="button" onClick={closeModal} className="bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-500">
                   Cancel
                 </button>
-                
               </div>
             </form>
           </div>
         </div>
       )}
 
-{/* Food Displaying cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {foodItems.map((food, index) => (
           <div key={index} className="bg-white p-4 rounded-lg shadow-lg">

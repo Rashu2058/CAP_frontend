@@ -236,7 +236,7 @@ const validateForm = () => {
             <input
               type="text"
               name="email"
-              maxLength={20}
+              maxLength={45}
               placeholder="Email"
               value={formData.email}
               onChange={handleChange}

@@ -219,7 +219,6 @@ const Reports = () => {
                   <th className="p-3 border">guest Name</th>
                   <th className="p-3 border">Room no</th>
                   <th className="p-3 border">Room Type</th>
-                  <th className="p-3 border">Receptionist Name</th>
                   <th className="p-3 border">Check-In Date</th>
                   <th className="p-3 border">Check-Out Date</th>
                   <th className="p-3 border">Total Amount</th>
@@ -237,7 +236,6 @@ const Reports = () => {
                       <td className="p-3 text-center">{report.guestName}</td>
                       <td className="p-3 text-center">{report.roomNo}</td>
                       <td className="p-3 text-center">{report.roomType}</td>
-                      <td className="p-3 text-center">{report.receptionistName}</td>
                       <td className="p-3 text-center">{report.checkInDate}</td>
                       <td className="p-3 text-center">{report.checkOutDate}</td>
                       <td className="p-3 text-center">{report.totalBill}</td>

@@ -2,59 +2,65 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
 
 export default function TokenVerification() {
   const [token, setToken] = useState<string>('');  
-  const [newPassword, setNewPassword] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
-  const [message, setMessage] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
   const router = useRouter();
 
-  const handleVerifyToken = () => { 
-    if (!token) {
-      setMessage('Please enter the token.');
-      return false; 
-    }
-    if (token.length < 1 || token.length > 30) {  
-      setMessage('Please enter a valid token.');
-      return false; 
-    }
-    return true;  
-  };
+  interface ResponseMessage {
+    error?: string;
+    message?: string;
+  }
 
-  const validatePassword = (password: string): boolean => {  // Password validation function
+  const validatePassword = (password: string): boolean => {
     const regex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,}$/;
     return regex.test(password);
   };
 
-  const handleResetPassword = () => {
-    if (!newPassword || !confirmPassword) {
-      setMessage('Please enter both password and confirm password.');
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!token || !password || !confirmPassword) {
+      setErrorMessage('Token, password, and confirm password are required.');
       return;
     }
 
-    if (newPassword !== confirmPassword) {   // Check if passwords match
-      setMessage('Passwords do not match.');
+    if (!validatePassword(password)) {
+      setErrorMessage('Password must be at least 6 characters long and include at least one number and one special character.');
       return;
     }
 
-{/* Validate password strength*/}
-    if (!validatePassword(newPassword)) {
-      setMessage(
-        'Password must be at least 6 characters long and include at least one number and one special character.'
-      );
+    if (password !== confirmPassword) {
+      setErrorMessage('Passwords do not match.');
       return;
     }
 
-    console.log('Password Reset:', newPassword); 
-    setMessage('Password reset successfully!');
-    router.push('/receptionist/login'); 
-  };
+    try {
+      // Sending POST request to the backend using axios
+      const response = await axios.post<ResponseMessage>('http://localhost:8080/api/v1/auth/reset-password', {
+        token,
+        password,
+      });
 
-  const handleConfirm = () => {
-    const isTokenValid = handleVerifyToken();  
-    if (isTokenValid) {
-      handleResetPassword();
+      toast.success('Password has been successfully reset.');
+      // Handling response
+      setSuccessMessage('Password has been successfully reset.');
+      setTimeout(() => {
+        router.push('/receptionist/login'); // Redirect to login page after successful reset
+      }, 4000);
+    } catch (error: any) {
+      // Handling errors
+      if (error.response) {
+        setErrorMessage(error.response.data.error || 'Failed to reset password. Please try again.');
+      } else {
+        setErrorMessage('An unexpected error occurred. Please try again.');
+      }
     }
   };
 
@@ -66,7 +72,7 @@ export default function TokenVerification() {
           Enter the token sent to your email.
         </p>
 
-{/* Token Input */}
+        {/* Token Input */}
         <div className="mb-6">
           <label className="block text-gray-700 mb-2">Verification Token</label>
           <input
@@ -78,7 +84,7 @@ export default function TokenVerification() {
           />
         </div>
 
-{/* New Password Input */}
+        {/* New Password Input */}
         <div className="mb-6">
           <label className="block text-gray-700 mb-2">New Password</label>
           <input
@@ -87,12 +93,12 @@ export default function TokenVerification() {
             maxLength={15}
             placeholder="Enter new password"
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </div>
 
-{/* Confirm Password Input */}
+        {/* Confirm Password Input */}
         <div className="mb-6">
           <label className="block text-gray-700 mb-2">Confirm Password</label>
           <input
@@ -106,16 +112,17 @@ export default function TokenVerification() {
           />
         </div>
 
-{/* Confirm Button */}
+        {/* Confirm Button */}
         <button
-          onClick={handleConfirm} 
+          onClick={handleResetPassword} 
           className="w-full bg-zinc-800 text-white py-3 rounded-lg font-semibold hover:bg-gray-700 transition duration-300"
         >
           Confirm
         </button>
 
-{/* Error/Success Message */}
-        {message && <p className="text-center mt-4">{message}</p>}
+        {/* Error/Success Message */}
+        {errorMessage && <p className="text-center mt-4 text-red-500">{errorMessage}</p>}
+        {successMessage && <p className="text-center mt-4 text-green-500">{successMessage}</p>}
       </div>
     </div>
   );

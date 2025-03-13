@@ -1,9 +1,10 @@
-"use client";
 import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import Image from "next/image";
 import axios from "axios";
 import ConfirmedList from "./confirmedList";
 import jwt_decode from 'jwt-decode';
+import ErrorPopup from "@/app/popup.tsx/ErrorPopup";
+import SuccessBox from "@/app/popup.tsx/SuccessBox";
 
 interface AvailableRoom {
   room_no: number;
@@ -35,6 +36,10 @@ export default function BookRoom() {
   const [availableRooms, setAvailableRooms] = useState<AvailableRoom[]>([]);
   const [activeTab, setActiveTab] = useState("ConfirmedList");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [showSuccessBox, setShowSuccessBox] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
   // Fetch available rooms
   useEffect(() => {
     const fetchAvailableRooms = async () => {
@@ -175,9 +180,11 @@ const validateForm = () => {
           console.log("Reservation added successfully", response.data);
           setActiveTab("ConfirmedList");
           handleReset();
+          setShowSuccessBox(true);
       } catch (error:any) {
           console.error("Error adding reservation", error);
-          
+          setErrorMessage("Failed to add reservation. Please try again.");
+          setShowErrorPopup(true);
       }
   };
   
@@ -291,7 +298,8 @@ const validateForm = () => {
           </div>
         </form>
       </div>
-     
+      {showErrorPopup && <ErrorPopup message={errorMessage} onClose={() => setShowErrorPopup(false)} />}
+      {showSuccessBox && <SuccessBox message="Reservation added successfully!" onClose={() => setShowSuccessBox(false)} />}
     </div>
   );
 }

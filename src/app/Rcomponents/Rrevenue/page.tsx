@@ -52,10 +52,11 @@ export default function Revenue() {
 
   // State for Room Occupancy Section with placeholder data
   const [occupancyData, setOccupancyData] = useState<OccupancyDataType>({
-    totalRooms: 50,
-    occupiedRooms: 30,
-    availableRooms: 20,
+    totalRooms: 0,
+    occupiedRooms: 0,
+    availableRooms: 50,
   });
+  
 
   // State for Chart Data with placeholder data
   const [chartData, setChartData] = useState<ChartDataType>({
@@ -83,6 +84,58 @@ export default function Revenue() {
   const [totalRevenue, setTotalRevenue] = useState<number | null>(null); // Initialize as null
   const [monthlyRevenue, setMonthlyRevenue] = useState<number[]>([]);  // Monthly revenue data
 
+  useEffect(() => {
+    const fetchTotalRooms = async () => {
+      try {
+        const token = localStorage.getItem("token");
+  
+        // Fetching total rooms and total reservations
+        const totalRoomsResponse = await fetch("http://localhost:8080/api/rooms/count", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+
+        console.log("Total Rooms API Response:", totalRoomsResponse);
+  
+        if (totalRoomsResponse.ok) {
+          const totalRoomsData = await totalRoomsResponse.json();
+          console.log("Total Rooms API Response:", totalRoomsData);
+  
+          // Fetch total reservations after getting the total rooms
+          const totalReservationsResponse = await fetch("http://localhost:8080/api/reservations/total-reservations", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`,
+            },
+          });
+  
+          if (totalReservationsResponse.ok) {
+            const totalReservationsData = await totalReservationsResponse.json();
+  
+            // Update state for occupancy data
+            setOccupancyData(prev => ({
+              ...prev,
+              totalRooms: totalRoomsData,
+              availableRooms: totalRoomsData - totalReservationsData,
+            }));
+          } else {
+            console.error("Failed to fetch total reservations.");
+          }
+        } else {
+          console.error("Failed to fetch total rooms.");
+        }
+      } catch (error) {
+        console.error("Error fetching total rooms and reservations:", error);
+      }
+    };
+  
+    fetchTotalRooms();
+  }, []); // Run once when the component mounts
+  
   // Fetching data for total reservations, total revenue, and monthly revenue
   useEffect(() => {
     const fetchOverviewData = async () => {
@@ -94,7 +147,7 @@ export default function Revenue() {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`, // Add token to Authorization header
+            "Authorization": `Bearer ${token}`,
           },
         });
 
@@ -170,7 +223,46 @@ export default function Revenue() {
     fetchOverviewData();
   }, []);
 
+  useEffect(() => {
+    const fetchCheckInCheckOutData = async () => {
+      try {
+        const token = localStorage.getItem("token");
   
+        // Fetching check-ins and check-outs
+        const checkInOutResponse = await fetch("http://localhost:8080/api/reservations/check-in-check-out", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+  
+        if (checkInOutResponse.ok) {
+          const checkInOutData = await checkInOutResponse.json();
+          setOverviewData(prevData => ({
+            ...prevData,
+            checkIn: checkInOutData.checkIn,
+            checkOut: checkInOutData.checkOut,
+          }));
+        } else {
+          console.error("Failed to fetch check-in and check-out data.");
+        }
+      } catch (error) {
+        console.error("Error fetching check-in and check-out data:", error);
+      }
+    };
+  
+    // Fetch the check-in and check-out data
+    fetchCheckInCheckOutData();
+  }, []);  // Only run once when the component mounts
+  
+  useEffect(() => {
+    setOccupancyData((prev) => ({
+       ...prev,
+       occupiedRooms: totalReservations || 0, // Ensure it's properly fetched
+       availableRooms: prev.totalRooms - (totalReservations || 0),
+    }));
+ }, [totalReservations]);
 
   return (
     <div className="min-h-screen bg-gray-200 p-6">
@@ -187,7 +279,7 @@ export default function Revenue() {
               <p className="text-2xl font-bold"> NPR. {totalRevenue === null ? 'Loading...':totalRevenue }</p>
             </div>
             <div className="bg-gray-600 p-4 rounded-lg">
-              <p>New Reservations</p>
+              <p> Reservations</p>
               <p className="text-2xl font-bold">{totalReservations}</p> 
             </div>
             <div className="bg-gray-600 p-4 rounded-lg">

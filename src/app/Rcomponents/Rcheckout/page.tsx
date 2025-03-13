@@ -3,6 +3,8 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useLogo } from "@/app/LogoContext";
 import Image from "next/image";
 import axios from "axios";
+import ErrorPopup from "@/app/popup.tsx/ErrorPopup";
+import SuccessBox from "@/app/popup.tsx/SuccessBox";
 
 export default function Checkout() {
   const [idNo, setIdNo] = useState("");
@@ -13,6 +15,7 @@ export default function Checkout() {
   const [vatRate] = useState(13); // VAT rate of 13%
   const [total, setTotal] = useState(subtotal);
   const { logoUrl } = useLogo();
+  
   const [invoiceNo, setInvoiceNo] = useState(""); // State for invoice number
 
   const [reservation, setReservation] = useState({
@@ -27,6 +30,10 @@ export default function Checkout() {
   const [foodCharge, setFoodCharge] = useState<number | null>(null);
   const token = localStorage.getItem("token");
   const [todayDate, setTodayDate] = useState("");
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [showSuccessBox, setShowSuccessBox] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const[successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     const currentDate = new Date().toISOString().split("T")[0];
@@ -126,7 +133,7 @@ export default function Checkout() {
       );
 
       if (response.status === 200) {
-        alert('Billing data saved successfully');
+        setSuccessMessage("Checked out successfully");
         handlereset();
       }
     } catch (error) {
@@ -488,6 +495,8 @@ export default function Checkout() {
           </button>
         </div>
       </div>
+       {showErrorPopup && <ErrorPopup message={errorMessage} onClose={() => setShowErrorPopup(false)} />}
+      {showSuccessBox && <SuccessBox message="Order confirmed successfully!" onClose={() => setShowSuccessBox(false)} />} 
     </div>
   );
 }

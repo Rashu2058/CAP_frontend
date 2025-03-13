@@ -1,27 +1,29 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Select from 'react-select';
+import ErrorPopup from "@/app/popup.tsx/ErrorPopup";
+import SuccessBox from "@/app/popup.tsx/SuccessBox";
 
 interface FoodItems {
-  f_id: number; // This is the ID for the food item
+  f_id: number;
   food_name: string;
   food_price: number;
-  imagePath: string; // Ensure this property is included
+  imagePath: string;
 }
 
 type orderItem = {
-  o_id: number; // This is the ID for the order item
+  o_id: number;
   food_name: string;
   food_price: number;
   quantity: number;
-  image_path: string; // Ensure this property is included
+  image_path: string;
 };
 
 type ConfirmedOrder = {
-  o_id: number; // Ensure this property is included
-  roomNo: string; // Ensure this is a string
+  o_id: number;
+  roomNo: string;
   guestName: string;
-  res_id: BigInt; // Ensure this property is included
+  res_id: BigInt;
   items: orderItem[];
 };
 
@@ -42,13 +44,16 @@ export default function FoodOrders() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [roomSearch, setRoomSearch] = useState('');
-  const [foodOrders, setFoodOrders] = useState<any[]>([]); // Adjusted type if necessary
-  const [editingOrder, setEditingOrder] = useState<ConfirmedOrder | null>(null); // State for editing
-  const [isEditing, setIsEditing] = useState(false); // State for edit mode
+  const [foodOrders, setFoodOrders] = useState<any[]>([]);
+  const [editingOrder, setEditingOrder] = useState<ConfirmedOrder | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [showSuccessBox, setShowSuccessBox] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const token = localStorage.getItem('token');
 
-  // Fetch food items
   useEffect(() => {
     const fetchFoodItems = async () => {
       try {
@@ -64,6 +69,7 @@ export default function FoodOrders() {
         setFoodItems(data);
       } catch (err) {
         setError('Error fetching food items');
+        setShowErrorPopup(true);
         console.error(err);
       } finally {
         setLoading(false);
@@ -73,7 +79,6 @@ export default function FoodOrders() {
     fetchFoodItems();
   }, [token]);
 
-  // Fetch available rooms
   useEffect(() => {
     if (token) {
       axios
@@ -89,7 +94,6 @@ export default function FoodOrders() {
     }
   }, [token]);
 
-  // Fetch food orders
   const fetchFoodOrders = async () => {
     try {
       if (token) {
@@ -101,17 +105,19 @@ export default function FoodOrders() {
         setFoodOrders(response.data);
       } else {
         setError('Authorization token not found');
+        setShowErrorPopup(true);
       }
     } catch (err) {
       console.error('Error fetching food orders:', err);
       setError('Failed to fetch food orders');
+      setShowErrorPopup(true);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchFoodOrders(); // Call fetchFoodOrders when the component mounts
+    fetchFoodOrders();
   }, [token]);
 
   const roomOptions = rooms.map((room) => ({
@@ -135,8 +141,8 @@ export default function FoodOrders() {
         food_name: item.food_name, 
         food_price: item.food_price, 
         quantity: 1, 
-        image_path: item.imagePath // Ensure this is included
-      } as orderItem]); // Cast the object to orderItem
+        image_path: item.imagePath 
+      } as orderItem]);
     }
   };
 
@@ -170,61 +176,77 @@ export default function FoodOrders() {
   const onConfirmOrder = async () => {
     if (!roomNo || !guestName) {
       setError('Room number and Guest name are required');
+      setShowErrorPopup(true);
       return;
     }
     const selectedRoom = rooms.find((room) => room.roomNo === roomNo);
-  if (!selectedRoom || !selectedRoom.resId) {
-    console.error('Room reservation ID (resId) is missing:', selectedRoom);
-    setError('Reservation ID is missing');
-    return;
-  }
+    if (!selectedRoom || !selectedRoom.resId) {
+      console.error('Room reservation ID (resId) is missing:', selectedRoom);
+      setError('Reservation ID is missing');
+      setShowErrorPopup(true);
+      return;
+    }
 
     const foodOrders = order.map((item) => ({
+      resId: selectedRoom.resId,
+      oId: item.o_id,
+      quantity: item.quantity,
+    }));
+    console.log('Food orders:', foodOrders);
+
+    const dataOrders = order.map((item) => ({
       resId: selectedRoom.resId,
       foodId: item.o_id,
       quantity: item.quantity,
     }));
-    
+    console.log('Food orders:', dataOrders);
 
     try {
       if (isEditing) {
-        // Update existing order
         const response = await axios.put(
-          `http://localhost:8080/api/v1/food-orders/update/${editingOrder?.res_id}`, 
-          foodOrders[0], // Send only the first order for update
+          `http://localhost:8080/api/v1/food-orders/update/by-room/${selectedRoom.roomNo}`, 
+          foodOrders, 
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
 
         if (response.status === 200) {
-          setEditingOrder(null); // Clear editing state
-          setIsEditing(false); // Reset edit mode
+          setEditingOrder(null);
+          setIsEditing(false);
+          setOrder([]);
+          setRoomNo('');
+          setGuestName('');
+          setOrderConfirmed(true);
+          setShowSuccessBox(true);
+          setSuccessMessage("Order updated successfully!");
+          setTimeout(() => setOrderConfirmed(false), 3000);
         }
       } else {
-        // Create new orders
         const response = await axios.post(
           'http://localhost:8080/api/v1/food-orders/create',
-          foodOrders, // Send the entire array of orders
+          dataOrders, 
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
 
         if (response.status === 200) {
-          setOrder([]); // Clear the order
-          setRoomNo(''); // Reset room number
-          setGuestName(''); // Reset customer name
+          setOrder([]);
+          setRoomNo('');
+          setGuestName('');
           setOrderConfirmed(true);
+          setShowSuccessBox(true);
+          setSuccessMessage("Order confirmed successfully!");
           setTimeout(() => setOrderConfirmed(false), 3000);
         }
       }
 
-      // Fetch food orders again after confirming
       fetchFoodOrders();
     } catch (error) {
       console.error('Error placing food order:', error);
       setError('Error placing order');
+      setShowErrorPopup(true);
     }
   };
 
@@ -232,13 +254,12 @@ export default function FoodOrders() {
     if (selectedOption) {
       const selectedRoomData = rooms.find(room => room.roomNo === selectedOption.value);
       if (selectedRoomData) {
-        setGuestName(selectedRoomData.guestName || ''); // Update guest name
-        setRoomNo(selectedRoomData.roomNo); // Update room number
+        setGuestName(selectedRoomData.guestName || '');
+        setRoomNo(selectedRoomData.roomNo);
       }
     }
   };
 
-  // Function to group food orders by room number and guest name
   const groupFoodOrders = () => {
     const groupedOrders: { [key: string]: ConfirmedOrder } = {};
 
@@ -246,24 +267,23 @@ export default function FoodOrders() {
       const key = `${order.roomNo}-${order.guestName}`;
       if (!groupedOrders[key]) {
         groupedOrders[key] = {
-          o_id: order.o_id, // Ensure this is included
+          o_id: order.o_id,
           roomNo: order.roomNo,
           guestName: order.guestName,
-          res_id: order.res_id, // Ensure this is included
+          res_id: order.res_id,
           items: [],
         };
       }
-      // Check if the food item already exists in the grouped order
       const existingItem = groupedOrders[key].items.find(item => item.food_name === order.foodName);
       if (existingItem) {
-        existingItem.quantity += order.quantity; // Increment quantity if it exists
+        existingItem.quantity += order.quantity;
       } else {
         groupedOrders[key].items.push({
           o_id: order.o_id,
           food_name: order.foodName,
           food_price: order.foodPrice,
           quantity: order.quantity,
-          image_path: order.imagePath // Ensure this is included if needed
+          image_path: order.imagePath
         });
       }
     });
@@ -284,17 +304,22 @@ export default function FoodOrders() {
     })));
     setRoomNo(order.roomNo);
     setGuestName(order.guestName);
-    setIsEditing(true); // Set edit mode to true
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setOrder([]);
+    setRoomNo('');
+    setGuestName('');
+    setIsEditing(false);
   };
 
   return (
     <div className="p-4">
       <div className="flex">
-        {/* Left Section - Menu */}
         <div className="w-2/3 p-4 bg-white rounded-lg mr-4">
           <h2 className="text-lg font-bold mb-4">Menu</h2>
 
-          {/* Room No */}
           <div className="flex flex-col mb-4">
             <label className="block text-sm font-semibold">Room No</label>
             <Select
@@ -310,7 +335,6 @@ export default function FoodOrders() {
             />
           </div>
 
-          {/* Guest Name */}
           <div className="flex flex-col mb-4">
             <label className="block text-sm font-semibold">Guest Name</label>
             <input
@@ -321,7 +345,6 @@ export default function FoodOrders() {
             />
           </div>
 
-          {/* Display food items */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {foodItems.map((item) => (
               <div
@@ -337,7 +360,7 @@ export default function FoodOrders() {
                 <p className="text-gray-600">Price: NPR {item.food_price}</p>
                 <button
                   className="mt-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
-                  onClick={() => addToOrder(item)} // Pass the item directly
+                  onClick={() => addToOrder(item)}
                 >
                   Add to order
                 </button>
@@ -346,7 +369,6 @@ export default function FoodOrders() {
           </div>
         </div>
 
-        {/* Right Section - Cart */}
         <div className="w-1/3 p-4 bg-white rounded-lg">
           <h2 className="text-lg font-bold mb-4">Orders</h2>
           {order.length === 0 ? (
@@ -396,7 +418,7 @@ export default function FoodOrders() {
             <button
               type="button"
               className="bg-gray-800 text-white px-6 py-2 rounded-lg hover:bg-gray-600"
-              onClick={() => setOrder([])} // Clear the order
+              onClick={handleCancelEdit}
             >
               Cancel
             </button>
@@ -405,18 +427,12 @@ export default function FoodOrders() {
               className="bg-gray-900 text-white px-6 py-2 rounded-lg hover:bg-gray-700"
               onClick={onConfirmOrder}
             >
-              {isEditing ? 'Save' : 'Confirm'} {/* Change button text based on edit mode */}
+              {isEditing ? 'Save' : 'Confirm'}
             </button>
           </div>
-          {orderConfirmed && (
-            <div className="mt-4 text-green-600 font-semibold">
-              Order confirmed!
-            </div>
-          )}
         </div>
       </div>
 
-      {/* Confirmed Orders Table */}
       <div className="mt-8 bg-white rounded-lg p-4">
         <h2 className="text-lg font-bold mb-4">Confirmed Orders</h2>
         <table className="min-w-full bg-white border rounded-lg">
@@ -443,7 +459,7 @@ export default function FoodOrders() {
                 <td className="border px-4 py-2">
                   <button
                     className="text-blue-600 hover:text-blue-700"
-                    onClick={() => handleEditOrder(order)} // Call the edit handler
+                    onClick={() => handleEditOrder(order)}
                   >
                     Edit
                   </button>
@@ -454,6 +470,9 @@ export default function FoodOrders() {
           </tbody>
         </table>
       </div>
+
+      {showErrorPopup && <ErrorPopup message={errorMessage} onClose={() => setShowErrorPopup(false)} />}
+      {showSuccessBox && <SuccessBox message={successMessage} onClose={() => setShowSuccessBox(false)} />}
     </div>
   );
 }

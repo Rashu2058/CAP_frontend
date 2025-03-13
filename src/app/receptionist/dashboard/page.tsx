@@ -49,7 +49,7 @@ export default function Dashboard() {
       <aside className="bg-gray-950 p-4 lg:p-8 sticky min-w-[220px]">
         <div className="flex flex-col space-y-16">
           <div className="flex items-center">
-          <img src={logoUrl} alt="Hotel Logo" width={200} height={100} />
+          <img src={logoUrl} alt="Hotel Logo" width={100} height={100} />
           </div>
           <nav className="space-y-4">
             <a href="#" onClick={() => setActiveSetting("revenue")}
