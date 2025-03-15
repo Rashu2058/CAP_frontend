@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { deleteGuest } from "./AddGuest";
-
+import ErrorPopup from "@/app/popup.tsx/ErrorPopup";
+import SuccessBox from "@/app/popup.tsx/SuccessBox";
 
 interface Reservation {
   res_id: number;
@@ -15,6 +16,9 @@ interface Reservation {
 }
 
 const ConfirmedList = () => {
+  
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
   const [reservations, setReservations] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -95,7 +99,7 @@ const fetchRoomPrice = async (room_no: number) => {
     }));
   } catch (error) {
     console.error("Error fetching room price", error);
-    alert("Error fetching room price");
+    setErrorMessage("Error fetching room price");
   }
 };
 
@@ -157,7 +161,7 @@ const handleUpdateSubmit = async (e: React.FormEvent) => {
     console.log("Response Data:", response.data);
 
     if (response.status === 200) {
-      alert("Reservation updated successfully");
+      setSuccessMessage("Reservation updated successfully");
       fetchReservations(); // Reload the updated list of reservations
       setEditReservation(null); // Close the edit form
     } else {
@@ -376,6 +380,8 @@ const handleUpdateSubmit = async (e: React.FormEvent) => {
           </button>
         </form>
       )}
+      <ErrorPopup message={errorMessage} onClose={() => setErrorMessage("")} />
+      {successMessage && <SuccessBox message={successMessage} onClose={() => setSuccessMessage("")} />}
     </div>
   );
 };

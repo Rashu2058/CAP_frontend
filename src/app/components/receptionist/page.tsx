@@ -208,9 +208,9 @@ const validateForm = () => {
             />
               {errors.name && <span className="text-red-500">{errors.name}</span>}
             <input
-              type="number"
+              type="text"
               name="phoneno"
-              minLength={10} maxLength={14}
+              pattern="\d{10,14}"
               placeholder="Phone No"
               value={formData.phoneno}
               onChange={handleChange}

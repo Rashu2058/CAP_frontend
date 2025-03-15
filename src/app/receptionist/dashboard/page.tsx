@@ -25,7 +25,7 @@ export default function Dashboard() {
 {/*handle logout*/}
   const handlelogout=()=>{
     localStorage.removeItem("authtoken");
-    router.push("/");
+    router.push("/login");
   };
 
 {/* Close the dropdown when clicking outside of it*/}

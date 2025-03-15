@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import axios from "axios";
 import ErrorPopup from "@/app/popup.tsx/ErrorPopup";
 import SuccessBox from "@/app/popup.tsx/SuccessBox";
@@ -28,6 +27,7 @@ export default function FoodManagement() {
 
   const [newItem, setNewItem] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [foodItems, setFoodItems] = useState<Food[]>([]);
   const [foodName, setFoodName] = useState("");
@@ -58,7 +58,7 @@ export default function FoodManagement() {
     }
   };
 
-  const handleFoodAction = async (e: React.FormEvent) => {
+  const handleAddFood = async (e: React.FormEvent) => {
     e.preventDefault(); // Prevent the default form submission behavior
 
     if (!foodName || !foodPrice || !foodCategory) {
@@ -69,55 +69,81 @@ export default function FoodManagement() {
       setErrorMessage("Please enter valid data ");
       return;
     }
-    if (!previewImage && editingIndex === null) {
+    if (!selectedFile) {
       setErrorMessage("Please upload an image");
       return;
     }
-    if (editingIndex == null) {
-      const duplicate = foodItems.some(
-        (food) => food.food_name.toLowerCase() === foodName.toLowerCase()
-      );
-      if (duplicate) {
-        setErrorMessage("Food item already exists.");
-        clearInputs();
-        return;
-      }
+
+    const duplicate = foodItems.some(
+      (food) => food.food_name.toLowerCase() === foodName.toLowerCase()
+    );
+    if (duplicate) {
+      setErrorMessage("Food item already exists.");
+      clearInputs();
+      return;
     }
+
     const formData = new FormData();
     formData.append("food_name", foodName);
     formData.append("food_price", foodPrice);
     formData.append("food_category", foodCategory);
-
-    const imageInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-    if (imageInput?.files?.[0]) {
-      console.log("File added:", imageInput.files[0].name);
-      formData.append("image", imageInput.files[0]);
-    } else {
-      console.error("No image file selected");
-    }
-
-    const url = editingIndex === null ? "http://localhost:8080/api/foods" : `http://localhost:8080/api/foods/${foodItems[editingIndex].f_id}`;
-    const method = editingIndex === null ? "POST" : "PUT";
+    formData.append("image", selectedFile);
 
     try {
-      const response = await axios({
-        method,
-        url,
-        data: formData,
+      const response = await axios.post("http://localhost:8080/api/foods", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });
-      if (editingIndex === null) {
-        setFoodItems([...foodItems, response.data]);
-        setSuccessMessage("Food added successfully");
-      } else {
-        const updatedFoodItems = [...foodItems];
-        updatedFoodItems[editingIndex] = response.data;
-        setFoodItems(updatedFoodItems);
-        setSuccessMessage("Food item updated successfully");
-      }
+      setFoodItems([...foodItems, response.data]);
+      setSuccessMessage("Food added successfully");
+      clearInputs();
+      setErrorMessage("");
+    } catch (error) {
+      console.error("Error saving food item:", error);
+      setErrorMessage("Error Saving Food items");
+    }
+  };
+
+  const handleUpdateFood = async (e: React.FormEvent) => {
+    e.preventDefault(); // Prevent the default form submission behavior
+
+    if (!foodName || !foodPrice || !foodCategory) {
+      setErrorMessage("Please fill all fields");
+      return;
+    }
+    if (isNaN(Number(foodPrice)) || Number(foodPrice) <= 0) {
+      setErrorMessage("Please enter valid data ");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("food_name", foodName);
+    formData.append("food_price", foodPrice);
+    formData.append("food_category", foodCategory);
+
+    if (selectedFile) {
+      console.log("File added:", selectedFile.name);
+      formData.append("image", selectedFile);
+    } else {
+      console.log("No image file selected, skipping image update");
+    }
+
+    const url = `http://localhost:8080/api/foods/${foodItems[editingIndex!].f_id}`;
+
+    try {
+      const response = await axios.put(url, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      const updatedFoodItems = [...foodItems];
+      updatedFoodItems[editingIndex!] = response.data;
+      setFoodItems(updatedFoodItems);
+      console.log("Updated food items:", updatedFoodItems);
+      setSuccessMessage("Food item updated successfully");
       clearInputs();
       setErrorMessage("");
       setIsModalOpen(false); // Close the modal after saving
@@ -132,10 +158,9 @@ export default function FoodManagement() {
     setFoodPrice("");
     setfoodCategory("");
     setPreviewImage(null);
+    setSelectedFile(null);
     setEditingIndex(null);
-    const imageInput = document.querySelector(
-      'input[type="file"]'
-    ) as HTMLInputElement;
+    const imageInput = document.querySelector('input[type="file"]') as HTMLInputElement;
     if (imageInput) {
       imageInput.value = "";
     }
@@ -166,7 +191,9 @@ export default function FoodManagement() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setPreviewImage(URL.createObjectURL(file));
+      const imageUrl = URL.createObjectURL(file);
+      setPreviewImage(imageUrl);
+      setSelectedFile(file);
     }
   };
 
@@ -189,7 +216,7 @@ export default function FoodManagement() {
     <div className="max-w-5xl mx-auto p-4">
       <div className="bg-white p-6 rounded-lg mb-6 align-right">
         <h3 className="text-2xl text-gray-900 font-bold mb-4 font-sans">Food Menu</h3>
-        <form className="grid grid-cols-1 gap-4 mb-4" onSubmit={handleFoodAction}>
+        <form className="grid grid-cols-1 gap-4 mb-4" onSubmit={handleAddFood}>
           <input
             type="text"
             value={foodName}
@@ -233,51 +260,50 @@ export default function FoodManagement() {
               </div>
             )}
           </div>
+
+          <div className="flex flex-row items-center space-y-0 gap-x-4">
+            <input
+              type="text"
+              value={newItem}
+              onChange={(e) => setNewItem(e.target.value)}
+              placeholder="Add new category"
+              maxLength={20}
+              className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
+            />
+            <button onClick={addItem} className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+              Add Category
+            </button>
+          </div>
+          <div className="flex flex-col mt-6">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="mb-4 text-sm text-gray-700 border rounded-lg p-2"
+            />
+            {previewImage && (
+              <div>
+                <img src={previewImage} alt="Preview" className="w-40 h-40 object-cover rounded-lg border" />
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-end px-6 py-4">
+            <button type="submit" className="bg-gray-900 text-white px-8 py-4 rounded-lg">
+              Add food
+            </button>
+          </div>
         </form>
-
-        <ErrorPopup message={errorMessage} onClose={() => setErrorMessage("")} />
-        {successMessage && <SuccessBox message={successMessage} onClose={() => setSuccessMessage("")} />}
-        <div className="flex flex-row items-center space-y-0 gap-x-4">
-          <input
-            type="text"
-            value={newItem}
-            onChange={(e) => setNewItem(e.target.value)}
-            placeholder="Add new category"
-            maxLength={20}
-            className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
-          />
-          <button onClick={addItem} className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
-            Add Category
-          </button>
-        </div>
-
-        <div className="flex flex-col mt-6">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="mb-4 text-sm text-gray-700 border rounded-lg p-2"
-          />
-          {previewImage && (
-            <div>
-              <img src={previewImage} alt="Preview" className="w-40 h-40 object-cover rounded-lg border" />
-              <p className="mt-2 text-sm text-gray-700">Image: {previewImage.split('/').pop()}</p>
-            </div>
-          )}
-        </div>
-
-        <div className="flex justify-end px-6 py-4">
-          <button type="submit" className="bg-gray-900 text-white px-8 py-4 rounded-lg">
-            {editingIndex === null ? "Add" : "Update"}
-          </button>
-        </div>
       </div>
+
+      <ErrorPopup message={errorMessage} onClose={() => setErrorMessage("")} />
+      {successMessage && <SuccessBox message={successMessage} onClose={() => setSuccessMessage("")} />}
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg w-1/3">
             <h3 className="text-2xl font-bold mb-4">Edit Food Item</h3>
-            <form className="grid grid-cols-1 gap-4" onSubmit={handleFoodAction}>
+            <form className="grid grid-cols-1 gap-4" onSubmit={handleUpdateFood}>
               <input
                 type="text"
                 value={foodName}
@@ -328,7 +354,6 @@ export default function FoodManagement() {
                 {previewImage && (
                   <div>
                     <img src={previewImage} alt="Preview" className="w-40 h-40 object-cover rounded-lg border" />
-                    <p className="mt-2 text-sm text-gray-700">Image: {previewImage.split('/').pop()}</p>
                   </div>
                 )}
               </div>

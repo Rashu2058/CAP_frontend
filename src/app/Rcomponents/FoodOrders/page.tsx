@@ -314,6 +314,22 @@ export default function FoodOrders() {
     setIsEditing(false);
   };
 
+  const deleteFoodOrder = async (oId: number) => {
+    try {
+      await axios.delete(`http://localhost:8080/api/v1/food-orders/delete/${oId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchFoodOrders();
+      setShowSuccessBox(true);
+      setSuccessMessage("Order deleted successfully!");
+      setTimeout(() => setShowSuccessBox(false), 3000);
+    } catch (error) {
+      console.error('Error deleting food order:', error);
+      setError('Error deleting order');
+      setShowErrorPopup(true);
+    }
+  };
+
   return (
     <div className="p-4">
       <div className="flex">
@@ -463,7 +479,12 @@ export default function FoodOrders() {
                   >
                     Edit
                   </button>
-                  <a href="#" className="text-red-600 hover:text-red-700 ml-2">Delete</a>
+                  <button
+                    className="text-red-600 hover:text-red-700 ml-2"
+                    onClick={() => deleteFoodOrder(order.o_id)}
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}

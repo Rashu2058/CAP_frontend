@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import axios from 'axios';
 import { useLogo } from '@/app/LogoContext';
+import ErrorPopup from '../popup.tsx/ErrorPopup';
+import SuccessBox from '../popup.tsx/SuccessBox';
 
 export default function Login() {
   const [username, setUsername] = useState<string>('');
@@ -11,6 +13,8 @@ export default function Login() {
   const [message, setMessage] = useState<string>('');
   const loginPanelRef = useRef<HTMLDivElement>(null);
   const [isInView, setIsInView] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
   const { logoUrl } = useLogo();
   const router = useRouter();
 
@@ -49,21 +53,21 @@ export default function Login() {
       if (response.status === 200 && response.data.token && response.data.role) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('role', response.data.role);
-        setMessage('Signin successful!');
+        setSuccessMessage('Signin successful!');
 
         if (response.data.role === 'ADMIN') {
           window.location.href = '/admin/dashboard#';
         } else if (response.data.role === 'RECEPTIONIST') {
           window.location.href = '/receptionist/dashboard#';
         } else {
-          setMessage('Unauthorized login');
+          setErrorMessage('Unauthorized login');
         }
       } else {
         setMessage('Signin failed. Please try again.');
       }
     } catch (error) {
       console.error('Error signing in:', error); 
-      setMessage('Signin failed. Please check your credentials.');
+      setErrorMessage('Signin failed. Please check your credentials.');
     }
   };
 
@@ -240,6 +244,9 @@ export default function Login() {
           </div>
         </main>
       </div>
+      <ErrorPopup message={errorMessage} onClose={() => setErrorMessage("")} />
+        {successMessage && <SuccessBox message={successMessage} onClose={() => setSuccessMessage("")} />}
+        
     </div>
   );
 }
