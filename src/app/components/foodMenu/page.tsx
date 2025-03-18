@@ -28,6 +28,7 @@ export default function FoodManagement() {
   const [newItem, setNewItem] = useState("");
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [foodItems, setFoodItems] = useState<Food[]>([]);
   const [foodName, setFoodName] = useState("");
@@ -212,6 +213,16 @@ export default function FoodManagement() {
     clearInputs();
   };
 
+{/*Search Query*/}
+const filteredFoods = foodItems.filter((food) => {
+  const query = searchQuery.toLowerCase();
+  return (
+    food.food_name.toLowerCase().includes(query) ||
+    food.foodCategory.toLowerCase().includes(query) ||
+    String(food.food_price).toLowerCase().includes(query)
+  );
+});
+
   return (
     <div className="max-w-5xl mx-auto p-4">
       <div className="bg-white p-6 rounded-lg mb-6 align-right">
@@ -296,6 +307,29 @@ export default function FoodManagement() {
         </form>
       </div>
 
+{/* Search bar*/}
+<div className="flex justify-center mb-4 bg-white p-3 rounded-lg">
+        <div className="relative w-full max-w-md">
+          <input
+            type="text"
+            value={searchQuery}
+            maxLength={15}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by food name, category or price..."
+            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent"
+          />
+          
+{/* Search Icon */}
+          <div className="absolute inset-y-0 left-0 flex items-center pl-3">
+            <img
+              src="/search.png"
+              alt="Search"
+              className="h-5 w-5 text-gray-400"
+            />
+          </div>
+        </div>
+      </div>   
+
       <ErrorPopup message={errorMessage} onClose={() => setErrorMessage("")} />
       {successMessage && <SuccessBox message={successMessage} onClose={() => setSuccessMessage("")} />}
 
@@ -370,43 +404,58 @@ export default function FoodManagement() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {foodItems.map((food, index) => (
-          <div key={index} className="bg-white p-4 rounded-lg shadow-lg">
-            {food.imagePath ? (
-              <img
-                src={`http://localhost:8080/api/files/${food.imagePath}`}
-                alt={food.food_name}
-                className="w-full h-40 object-cover rounded-lg"
-              />
-            ) : (
-              <img
-                src="/placeholder-image.jpg"
-                alt="No Image Available"
-                className="w-full h-40 object-cover rounded-lg"
-              />
-            )}
-            <div className="mt-4">
-              <h4 className="text-lg font-bold">{food.food_name}</h4>
-              <p className="text-gray-700">
-                Category: {food.foodCategory ? food.foodCategory : "No category specified"}
-              </p>
-              <p className="text-gray-900 font-semibold mt-1">Price: NPR.{food.food_price}</p>
-              <div className="flex items-center justify-end mt-4 space-x-2">
-                <button
-                  onClick={() => editFoodItem(index)}
-                  className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
-                >
-                  Edit
-                </button>
-                <button onClick={() => deleteFoodItem(index)} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-700">
-                  Delete
-                </button>
-              </div>
+       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {filteredFoods.length === 0 && searchQuery ? (
+          <div className="col-span-full text-center py-8">
+            <div className="text-gray-500 text-lg font-medium">
+              No food items found matching "{searchQuery}"
+            </div>
+            <div className="mt-2 text-sm text-gray-400">
+              Try searching for a different item or check the spelling
             </div>
           </div>
-        ))}
+        ) : (
+          filteredFoods.map((food, index) => (
+            <div key={index} className="bg-white p-4 rounded-lg shadow-lg">
+              {food.imagePath ? (
+                <img
+                  src={`http://localhost:8080/api/files/${food.imagePath}`}
+                  alt={food.food_name}
+                  className="w-full h-40 object-cover rounded-lg"
+                />
+              ) : (
+                <img
+                  src="/placeholder-image.jpg"
+                  alt="No Image Available"
+                  className="w-full h-40 object-cover rounded-lg"
+                />
+              )}
+              <div className="mt-4">
+                <h4 className="text-lg font-bold">{food.food_name}</h4>
+                <p className="text-gray-700">
+                  Category: {food.foodCategory || "No category specified"}
+                </p>
+                <p className="text-gray-900 font-semibold mt-1">Price: NPR.{food.food_price}</p>
+                <div className="flex items-center justify-end mt-4 space-x-2">
+                  <button
+                    onClick={() => editFoodItem(index)}
+                    className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+                  >
+                    Edit
+                  </button>
+                  <button 
+                    onClick={() => deleteFoodItem(index)} 
+                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
+
     </div>
   );
 }

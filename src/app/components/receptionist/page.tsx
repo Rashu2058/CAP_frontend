@@ -182,7 +182,7 @@ const validateForm = () => {
     fetchReceptionists();
   }, []);
 
-{/*Filter reports based on user input*/}
+{/*Search query for receptionist*/}
   const filteredReceptionists = receptionists.filter((recep) =>{
     const matchesQuery=
       (recep.name?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
@@ -295,7 +295,7 @@ const validateForm = () => {
           <input
             type="text"
             maxLength={20}
-            placeholder="Search..."
+            placeholder="Search by name, phone.no or email.."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent"
@@ -347,7 +347,10 @@ const validateForm = () => {
               ) : (
                 <tr>
                   <td colSpan={7} className="text-center py-3 text-gray-500">
-                    No matching receptionists found.
+                    No front desk representative found matching "{searchQuery}"
+                    <div className="mt-2 text-sm text-gray-400">
+                      Try searching for a different item or check the spelling.
+                    </div>
                   </td>
                 </tr>
               )}

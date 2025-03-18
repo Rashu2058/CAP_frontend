@@ -214,7 +214,7 @@ const Reports = () => {
           )}
 
           {/* Report Section */}
-          <div id="report-container" className="overflow-x-auto shadow-md rounded-lg mb-6">
+          <div id="print-section" className="overflow-x-auto shadow-md rounded-lg mb-6">
             <table className="w-full border-collapse bg-white">
               <thead className="bg-gray-800 text-white text-sm uppercase">
                 <tr>

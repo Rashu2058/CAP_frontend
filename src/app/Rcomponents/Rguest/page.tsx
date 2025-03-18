@@ -8,6 +8,8 @@ export default function Guest() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [guests, setGuests] = useState<Guest[]>([]);
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  
   const [formData, setFormData] = useState<Guest>({
     g_id: 0,
     id_type: "",
@@ -93,17 +95,40 @@ export default function Guest() {
     }));
   };
 
-  const GuestDetails = () => (
+  {/*Search Query*/}
+const filteredGuests = guests.filter((guest) =>{
+  const matchesQuery=
+    (guest.name?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
+    (guest.email?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
+    (guest.institutionName?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
+    String(guest.id_no || "").toLowerCase().includes(searchQuery.toLowerCase())||
+    String(guest.phone_number || "").toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesQuery;  
+  });
+  
+ {/* Modal */}
+ <Modal
+ isModalOpen={isModalOpen}
+ selectedGuest={selectedGuest}
+ formData={formData}
+ handleInputChange={handleInputChange}
+ handleUpdate={handleUpdate}
+ closeModal={closeModal}
+/>
+
+  return (
     <div className="bg-white p-6 rounded-lg min-w-min">
       <h1 className="text-xl font-bold">Guest Details</h1>
 
-      {/* Search bar with custom icon inside */}
+{/* Search bar with custom icon inside */}
       <div className="flex justify-center mb-4">
         <div className="relative w-full max-w-md">
           <input
             type="text"
-            placeholder="Search..."
+            value={searchQuery}
             maxLength={15}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by ID, name, email, phone.no, or institution..."
             className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 
             focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent"
           />
@@ -141,8 +166,9 @@ export default function Guest() {
             </tr>
           </thead>
           <tbody>
-            {guests.map((guest) => (
-              <tr key={guest.g_id} className="text-gray-700 text-sm border-b hover:bg-gray-50">
+          {filteredGuests.length > 0 ? (
+            filteredGuests.map((guest,index) => (
+              <tr key={index} className="text-gray-700 text-sm border-b hover:bg-gray-50">
                 <td className="p-3 text-center">{guest.id_type}</td>
                 <td className="p-3 text-center">{guest.id_no}</td>
                 <td className="p-3 text-center">{guest.name}</td>
@@ -170,27 +196,23 @@ export default function Guest() {
                   </a>
                 </td>
               </tr>
-            ))}
+            ))
+          ) : (
+            <tr>
+              <td colSpan={14} className="text-center py-3 text-gray-500">
+              No guest found matching "{searchQuery}"
+                <div className="mt-2 text-sm text-gray-400">
+                 Try searching for a different item or check the spelling.
+                </div>
+              </td>
+            </tr>
+            )}
           </tbody>
         </table>
       </div>
     </div>
   );
-
-  return (
-    <div>
-      {/* Render Customer Details */}
-      <GuestDetails />
-
-      {/* Modal */}
-      <Modal
-        isModalOpen={isModalOpen}
-        selectedGuest={selectedGuest}
-        formData={formData}
-        handleInputChange={handleInputChange}
-        handleUpdate={handleUpdate}
-        closeModal={closeModal}
-      />
-    </div>
-  );
 }
+ 
+
+  

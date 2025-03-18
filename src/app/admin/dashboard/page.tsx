@@ -16,10 +16,11 @@ export default function Dashboard() {
   const [activeSetting, setActiveSetting] = useState("revenue");
   const { logoUrl } = useLogo();
   const [isOpen, setIsOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null); // Reference for dropdown menu
   const router=useRouter();
  
-{/*handle logout*/}
+{/*Handle logout*/}
   const handlelogout=()=>{
     localStorage.removeItem("authtoken");
     router.push("/login");
@@ -39,64 +40,57 @@ useEffect(() => {
   };
 }, [dropdownRef]);
 
-
   return (
     <div className="min-h-screen flex bg-gray-200">
 
 {/* Sidebar section */}
-      <aside className="bg-gray-950 p-4 lg:p-8 sticky min-w-[220px]">
-        <div className="flex flex-col space-y-16">
-          <div className="flex items-center">
-          <img src={logoUrl} alt="Hotel Logo" width={100} height={100} />
-           </div>
+<aside className={`bg-gray-950 p-4 lg:p-4 sticky transition-all duration-300 ${
+        isSidebarCollapsed ? 'lg:w-20' : 'lg:w-64'
+      }`}>
+        <div className="flex flex-col space-y-8">
+
+          <div className="flex items-center justify-center">
+
+{/*Logo */}
+          <img 
+              src={logoUrl} 
+              alt="Hotel Logo" 
+              className="w-20 h-20 transition-all duration-300"
+            />
+          </div>
+
+{/*Navigation Items*/}
           <nav className="space-y-4">
-            <a href="#" onClick={() => setActiveSetting("revenue")}
-               className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
-                activeSetting === "revenue" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
-              }`}>
-              <Image src="/dashboard.png" alt="dashboard" width={20} height={20} className="rounded-full" />
-              <span className="ml-2 hidden lg:inline-block">Dashboard</span>
-            </a>
-
-            <a href="#" onClick={() => setActiveSetting("receptionist")}
-               className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
-                activeSetting === "receptionist" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
-              }`}>
-              <Image src="/receptionist.png" alt="receptionist" width={20} height={20} className="rounded-full" />
-              <span className="ml-2 hidden lg:inline-block">Front Desk Representative</span>
-            </a>
-
-            <a href="#" onClick={() => setActiveSetting("room")}
-              className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
-                activeSetting === "room" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
-              }`}>
-              <Image src="/rooom.png" alt="room" width={20} height={20} className="rounded-full" />
-              <span className="ml-2 hidden lg:inline-block">Room</span>
-            </a>
-
-            <a href="#" onClick={() => setActiveSetting("food")}
-               className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
-                activeSetting === "food" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
-              }`}>
-              <Image src="/food.png" alt="food" width={20} height={20} className="rounded-full" />
-              <span className="ml-2 hidden lg:inline-block">Food Menu</span>
-            </a>
-
-            <a href="#" onClick={() => setActiveSetting("settings")}
-              className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
-                activeSetting === "settings" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
-              }`}>
-              <Image src="/settings.png" alt="settings" width={20} height={20} className="rounded-full" />
-              <span className="ml-2 hidden lg:inline-block">Settings</span>
-            </a>
-
-            <a href="#" onClick={() => setActiveSetting("report")}
-               className={`flex items-center px-4 py-2 text-xs font-sans text-white ${
-                activeSetting === "report" ? "bg-gray-800 text-white" : "hover:bg-gray-900"
-              }`}>
-              <Image src="/report.png" alt="report" width={20} height={20} className="rounded-full" />
-              <span className="ml-2 hidden lg:inline-block">Report</span>
-            </a>
+            {[
+              { id: "revenue", icon: "/dashboard.png", text: "Dashboard" },
+              { id: "receptionist", icon: "/receptionist.png", text: "Front Desk Representative" },
+              { id: "room", icon: "/rooom.png", text: "Room" },
+              { id: "food", icon: "/food.png", text: "Food Menu" },
+              { id: "settings", icon: "/settings.png", text: "Settings" },
+              { id: "report", icon: "/report.png", text: "Report" },
+            ].map((item) => (
+              <a
+                key={item.id}
+                href="#"
+                onClick={() => setActiveSetting(item.id)}
+                className={`flex items-center px-2 py-3 text-sm font-sans text-white ${
+                  activeSetting === item.id ? "bg-gray-800" : "hover:bg-gray-900"
+                }`}
+              >
+                <Image 
+                  src={item.icon} 
+                  alt={item.id} 
+                  width={24} 
+                  height={24} 
+                  className="min-w-6" 
+                />
+               <span className={`ml-3 transition-all duration-300 ${
+                  isSidebarCollapsed ? 'lg:opacity-0 lg:w-0' : 'opacity-100 w-full'
+                }`}>
+               {item.text}
+                </span>
+              </a>
+            ))}
           </nav>
         </div>
       </aside>
@@ -104,8 +98,28 @@ useEffect(() => {
 {/* Main Content Area */}
       <div className="flex-grow h-screen overflow-y-auto">
 
-{/* Navigation bar */}
-        <nav className="bg-white p-2 flex justify-end items-center shadow">
+{/* Top Navigation bar */}
+        <nav className="bg-white p-2 flex justify-between items-center shadow">
+
+{/* Hamburger Icon for Desktop */}
+          <button
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            className="hidden lg:inline-block ml-4 p-2 hover:bg-gray-100 rounded"
+          >
+            <svg 
+              className="w-6 h-6" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M4 6h16M4 12h16M4 18h16" 
+              />
+            </svg>
+          </button>
 
 {/* Profile and Dropdown */}
           <div className="relative" ref={dropdownRef}>

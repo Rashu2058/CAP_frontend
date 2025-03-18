@@ -51,6 +51,7 @@ export default function FoodOrders() {
   const [showSuccessBox, setShowSuccessBox] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const token = localStorage.getItem('token');
 
@@ -330,6 +331,15 @@ export default function FoodOrders() {
     }
   };
 
+{/*Search Query*/}
+const filteredOrders = groupedConfirmedOrders.filter((order) => {
+  const query = searchQuery.toLowerCase();
+  return (
+    order.roomNo.toLowerCase().includes(query) ||
+    order.guestName.toLowerCase().includes(query)
+  );
+});
+
   return (
     <div className="p-4">
       <div className="flex">
@@ -385,6 +395,7 @@ export default function FoodOrders() {
           </div>
         </div>
 
+{/*Right Section*/}
         <div className="w-1/3 p-4 bg-white rounded-lg">
           <h2 className="text-lg font-bold mb-4">Orders</h2>
           {order.length === 0 ? (
@@ -449,10 +460,37 @@ export default function FoodOrders() {
         </div>
       </div>
 
+{/*Confirmed Orders*/}
       <div className="mt-8 bg-white rounded-lg p-4">
         <h2 className="text-lg font-bold mb-4">Confirmed Orders</h2>
-        <table className="min-w-full bg-white border rounded-lg">
-          <thead>
+
+{/* Search bar*/}
+      <div className="flex justify-center mb-4 bg-white p-3 rounded-lg">
+        <div className="relative w-full max-w-md">
+          <input
+            type="text"
+            value={searchQuery}
+            maxLength={15}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by room number or guest name..."
+            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent"
+          />
+          
+{/* Search Icon */}
+          <div className="absolute inset-y-0 left-0 flex items-center pl-3">
+            <img
+              src="/search.png"
+              alt="Search"
+              className="h-5 w-5 text-gray-400"
+            />
+          </div>
+        </div>
+      </div>   
+
+{/*Table*/}
+    <div id="" className="overflow-x-auto shadow-md rounded-lg mb-5">
+        <table className="w-full bg-white border-collapse">
+          <thead className="bg-gray-800 text-white">
             <tr>
               <th className="border px-4 py-2">Room No</th>
               <th className="border px-4 py-2">Guest Name</th>
@@ -462,38 +500,50 @@ export default function FoodOrders() {
             </tr>
           </thead>
           <tbody>
-            {groupedConfirmedOrders.map((order, index) => (
-              <tr key={index}>
-                <td className="border px-4 py-2">{order.roomNo}</td>
-                <td className="border px-4 py-2">{order.guestName}</td>
-                <td className="border px-4 py-2">
-                  {order.items.map(item => `${item.food_name} (x${item.quantity})`).join(', ')}
-                </td>
-                <td className="border px-4 py-2">
-                  NPR {order.items.reduce((total, item) => total + item.food_price * item.quantity, 0)}
-                </td>
-                <td className="border px-4 py-2">
-                  <button
-                    className="text-blue-600 hover:text-blue-700"
-                    onClick={() => handleEditOrder(order)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="text-red-600 hover:text-red-700 ml-2"
-                    onClick={() => deleteFoodOrder(order.o_id)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+    {filteredOrders.length > 0 ? (
+      filteredOrders.map((order, index) => (
+      <tr key={index} className="hover:bg-purple-100">
+      <td className="border px-4 py-2">{order.roomNo}</td>
+      <td className="border px-4 py-2">{order.guestName}</td>
+      <td className="border px-4 py-2">
+        {order.items.map(item => `${item.food_name} (x${item.quantity})`).join(', ')}
+      </td>
+      <td className="border px-4 py-2">
+        NPR {order.items.reduce((total, item) => total + item.food_price * item.quantity, 0)}
+      </td>
+      <td className="border px-4 py-2">
+        <button
+          className="text-blue-600 hover:text-blue-700"
+          onClick={() => handleEditOrder(order)}
+        >
+          Edit
+        </button>
+        <button
+          className="text-red-600 hover:text-red-700 ml-2"
+          onClick={() => deleteFoodOrder(order.o_id)}
+        >
+          Delete
+        </button>
+      </td>
+    </tr>
+  ))
+) : (
+  <tr>
+    <td colSpan={7} className="text-center py-3 text-gray-500">
+    No order found matching "{searchQuery}"
+      <div className="mt-2 text-sm text-gray-400">
+       Try searching for a different order.
+      </div>
+    </td>
+  </tr>
+    )}
+      </tbody>
         </table>
       </div>
 
       {showErrorPopup && <ErrorPopup message={errorMessage} onClose={() => setShowErrorPopup(false)} />}
       {showSuccessBox && <SuccessBox message={successMessage} onClose={() => setShowSuccessBox(false)} />}
+    </div>
     </div>
   );
 }

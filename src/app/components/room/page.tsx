@@ -51,13 +51,13 @@ export default function RoomManagement() {
       }
     }
   
-    
     setErrorMessage(""); // Clear error message
     setRoomDetails((prevDetails) => ({
       ...prevDetails,
       [name]: value,
     }));
   };
+  
   const checkRoomExists=async(room_no:string)=>{
     try{
       const response=await axios.get(`http://localhost:8080/api/rooms/${room_no}`);
@@ -221,7 +221,7 @@ export default function RoomManagement() {
     }
   };
 
-{/*Filter reports based on user input*/}
+{/*Search Query*/}
 const filteredRooms = rooms.filter((room) =>{
   const matchesQuery=
     (room.room_type?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
@@ -289,16 +289,17 @@ const filteredRooms = rooms.filter((room) =>{
         <div className="bg-white p-6 rounded-lg">
           <h3 className="text-lg text-black font-bold mb-8 bg-gray-200 p-3 px-8">Room Details</h3>
 
-{/* Search bar with custom icon inside */}
-<div className="flex justify-center mb-4">
+{/* Search bar*/}
+      <div className="flex justify-center mb-4">
         <div className="relative w-full max-w-md">
           <input
             type="text"
             value={searchQuery}
-            maxLength={6}
+            maxLength={8}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search..."
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent"
+            placeholder="Search by room number, type or price.."
+            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 
+            focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent"
           />
           
 {/* Search Icon */}
@@ -340,7 +341,10 @@ const filteredRooms = rooms.filter((room) =>{
             ) : (
               <tr>
                 <td colSpan={7} className="text-center py-3 text-gray-500">
-                  No matching rooms found.
+                No room found matching "{searchQuery}"
+                  <div className="mt-2 text-sm text-gray-400">
+                   Try searching for a different item.
+                  </div>
                 </td>
               </tr>
               )}
