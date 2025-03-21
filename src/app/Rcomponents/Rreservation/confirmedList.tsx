@@ -225,7 +225,8 @@ const handleUpdateSubmit = async (e: React.FormEvent) => {
             type="text"
             placeholder="Search by ID or Name..."
             maxLength={15}
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 
+            focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -287,7 +288,12 @@ const handleUpdateSubmit = async (e: React.FormEvent) => {
             ))
           ) : (
             <tr>
-              <td colSpan={7} className="p-3 text-center">No reports found</td>
+              <td colSpan={7} className="p-3 text-center">
+              No reservation found matching "{searchTerm}
+              <div className="mt-2 text-sm text-gray-400">
+                Try searching for a different reservation.
+             </div>
+              </td>
             </tr>
           )}
         </tbody>

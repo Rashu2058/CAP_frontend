@@ -1,244 +1,135 @@
 "use client";
-import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import axios from 'axios';
-import { useLogo } from '@/app/LogoContext';
 
-export default function Login() {
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
+
+export default function TokenVerification() {
+  const [token, setToken] = useState<string>('');  
+  const [newPassword, setNewPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [message, setMessage] = useState<string>('');
-  const loginPanelRef = useRef<HTMLDivElement>(null);
-  const [isInView, setIsInView] = useState(false);
-  const { logoUrl } = useLogo();
   const router = useRouter();
 
-  const handleForgotPassword = () => {
-    router.push('/receptionist/login/ForgotPassword'); // Redirect to ForgotPassword page
+  const handleVerifyToken = () => { 
+    if (!token) {
+      setMessage('Please enter the token.');
+      return false; 
+    }
+   
   };
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => setIsInView(entry.isIntersecting));
-      },
-      { threshold: 0.3 }
-    );
+  const validatePassword = (password: string): boolean => {  // Password validation function
+    const regex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,}$/;
+    return regex.test(password);
+  };
 
-    if (loginPanelRef.current) {
-      observer.observe(loginPanelRef.current);
+  const handleResetPassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      setMessage('Please enter both password and confirm password.');
+      return;
     }
 
-    return () => {
-      if (loginPanelRef.current) {
-        observer.unobserve(loginPanelRef.current);
-      }
-    };
-  }, []);
+    if (newPassword !== confirmPassword) {
+      setMessage('Passwords do not match.');
+      return;
+    }
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+    // if (!validatePassword(newPassword)) {
+    //   setMessage(
+    //     'Password must be at least 6 characters long and include at least one number and one special character.'
+    //   );
+    //   return;
+    // }
+
+    const requestBody = {
+      token: token,
+      password: newPassword,
+    };
 
     try {
-      const response = await axios.post('http://localhost:8080/api/v1/auth/signin', {
-        username,
-        password,
+      const response = await axios.post('http://localhost:8080/api/v1/auth/reset-password', requestBody, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
 
-      if (response.status === 200 && response.data.token && response.data.role) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('role', response.data.role);
-        setMessage('Signin successful!');
-
-        if (response.data.role === 'ADMIN') {
-          window.location.href = '/admin/dashboard#';
-        } else if (response.data.role === 'RECEPTIONIST') {
-          window.location.href = '/receptionist/dashboard#';
-        } else {
-          setMessage('Unauthorized login');
-        }
+      if (response.status === 200) {
+        setMessage('Password reset successfully!');
+        router.push('/login');
       } else {
-        setMessage('Signin failed. Please try again.');
+        setMessage(response.data.message || 'Failed to reset password.');
       }
-    } catch (error) {
-      console.error('Error signing in:', error); 
-      setMessage('Signin failed. Please check your credentials.');
+    } catch (error: any) {
+      setMessage(error.response?.data?.message || 'An error occurred. Please try again.');
+    }
+  };
+
+  const handleConfirm = () => {
+    const isTokenValid = handleVerifyToken();  
+    if (isTokenValid) {
+      handleResetPassword();
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-600 p-14">
-      <div className="min-h-screen rounded-xl bg-gray-200 px-8 relative">
-        
-{/* Main Content */}
-        <main className="content flex flex-col items-center relative">
-          
-{/* Logo */}
-          <div className="absolute top-5 left-5">
-            <img
-              src={logoUrl}
-              alt="Logo"
-              width={80}
-              height={80}
-              className="rounded-full shadow-md"
-            />
-          </div>
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-96">
+        <h1 className="text-2xl font-bold text-center mb-6 text-blue-500">Verify Token</h1> 
+        <p className="text-gray-600 text-center mb-6">
+          Enter the token sent to your email.
+        </p>
 
-{/* Main Login Image */}
-          <img
-            src="/image.png"
-            alt="LogInImage"
-            width={600}
-            height={600}
-            className="z-10"
+{/* Token Input */}
+        <div className="mb-6">
+          <label className="block text-gray-700 mb-2">Verification Token</label>
+          <input
+            type="text"
+            placeholder="Enter Token"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+            value={token} 
+            onChange={(e) => setToken(e.target.value)}  
           />
+        </div>
 
-{/* Login Panel */}
-          <div className="login-panel-container flex justify-center items-center py-20 w-4/5">
-            <div className="rounded-3xl bg-white shadow-lg p-10 w-[350px] h-[550px] relative overflow-hidden">
-              <h1 className="text-black text-3xl text-center font-mono">
-                Login Panel
-              </h1>
-              <h2 className="text-black text-center italic">
-                Control Panel Login
-              </h2>
+{/* New Password Input */}
+        <div className="mb-6">
+          <label className="block text-gray-700 mb-2">New Password</label>
+          <input
+            type="password"
+            minLength={6}
+            maxLength={15}
+            placeholder="Enter new password"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+          />
+        </div>
 
-              <form className="login-form mt-6 relative z-10" onSubmit={handleLogin}>
-                <div className="input-field mb-4">
-                  <label className="block text-black mb-2">Username</label>
-                  <input
-                    type="text"
-                    placeholder="Enter your username"
-                    className="w-full p-2 border border-gray-300 rounded-lg"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    maxLength={15}
-                  />
-                </div>
-                <div className="input-field mb-4">
-                  <label className="block text-black mb-2">Password</label>
-                  <input
-                    type="password"
-                    placeholder="Enter your password"
-                    className="w-full p-2 border border-gray-300 rounded-lg mb-3"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    maxLength={15}
-                  />
-                  
-{/* Forgot Password Button */}
-                  <div className="text-right">
-                    <button
-                      type="button"
-                      onClick={handleForgotPassword}
-                      className="text-sm text-blue-600 hover:text-blue-800"
-                    >
-                      Forgot Password?
-                    </button>
-                  </div>
-                </div>
+{/* Confirm Password Input */}
+        <div className="mb-6">
+          <label className="block text-gray-700 mb-2">Confirm Password</label>
+          <input
+            type="password"
+            minLength={6}
+            maxLength={15}
+            placeholder="Confirm new password"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+        </div>
 
-{/* SignIn Button */}
-                <button
-                  type="submit"
-                  className="sign-in-btn w-full bg-gray-600 text-white py-3 rounded-md font-semibold shadow-lg"
-                >
-                  Sign In
-                </button>
-                {message && <p>{message}</p>}
-              </form>
+{/* Confirm Button */}
+        <button
+          onClick={handleResetPassword} 
+          className="w-full bg-zinc-800 text-white py-3 rounded-lg font-semibold hover:bg-gray-700 transition duration-300"
+        >
+          Confirm
+        </button>
 
-{/* Inline Style Animation */}
-              <style jsx global>{`
-                @keyframes wave-animation-1 {
-                  0% {
-                    transform: translateY(0);
-                  }
-                  50% {
-                    transform: translateY(20px);
-                  }
-                  100% {
-                    transform: translateY(0);
-                  }
-                }
-
-                @keyframes wave-animation-2 {
-                  0% {
-                    transform: translateY(0);
-                  }
-                  50% {
-                    transform: translateY(-15px);
-                  }
-                  100% {
-                    transform: translateY(0);
-                  }
-                }
-
-                @keyframes wave-animation-3 {
-                  0% {
-                    transform: translateY(0);
-                  }
-                  50% {
-                    transform: translateY(10px);
-                  }
-                  100% {
-                    transform: translateY(0);
-                  }
-                }
-
-                .animate-wave-1 {
-                  animation: wave-animation-1 4s ease-in-out infinite;
-                }
-
-                .animate-wave-2 {
-                  animation: wave-animation-2 4s ease-in-out infinite;
-                }
-
-                .animate-wave-3 {
-                  animation: wave-animation-3 4s ease-in-out infinite;
-                }
-                .animate-wave-4 {
-                  animation: wave-animation-4 4s ease-in-out infinite;
-                }
-              `}</style>
-
-{/* Wavy Background Layers */}
-              <div
-                key="wave-1"
-                className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-r from-blue-400 via-gray-500 to-zinc-600 rounded-b-3xl animate-wave-1"
-                style={{
-                  clipPath:
-                    "path('M0,100 C150,120 350,40 500,100 L500,200 L0,200 Z')",
-                }}
-              ></div>
-              <div
-                key="wave-2"
-                className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-r from-blue-300 via-gray-400 to-zinc-500 opacity-80 animate-wave-2"
-                style={{
-                  clipPath:
-                    "path('M0,90 C120,110 300,50 500,90 L500,200 L0,200 Z')",
-                }}
-              ></div>
-              <div
-                key="wave-3"
-                className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-r from-blue-200 via-gray-300 to-zinc-400 opacity-60 animate-wave-3"
-                style={{
-                  clipPath:
-                    "path('M0,80 C100,100 250,70 500,80 L500,200 L0,200 Z')",
-                }}
-              ></div>
-              <div
-                key="wave-4"
-                className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-r from-blue-400 via-gray-500 to-zinc-600 opacity-40 animate-wave-4"
-                style={{
-                  clipPath:
-                    "path('M0,70 C100,90 200,90 500,70 L500,200 L0,200 Z')",
-                }}
-              ></div>
-            </div>
-          </div>
-        </main>
+{/* Error/Success Message */}
+        {message && <p className="text-center mt-4">{message}</p>}
       </div>
     </div>
   );

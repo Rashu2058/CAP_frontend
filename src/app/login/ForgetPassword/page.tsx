@@ -16,10 +16,10 @@ export default function ForgotPassword() {
   const [successMessage, setSuccessMessage] = useState<string>("");
   const router = useRouter();
 
-  const validateEmail = (email: string): boolean => {
-    const regex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
-    return regex.test(email);
-  };
+  // const validateEmail = (email: string): boolean => {
+  //   const regex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+  //   return regex.test(email);
+  // };
 
   const handleForgotPassword = async (e: FormEvent) => {
     e.preventDefault();
@@ -29,10 +29,10 @@ export default function ForgotPassword() {
       return;
     }
 
-    if (!validateEmail(email)) {
-      setErrorMessage('Invalid email format. Only Gmail addresses are allowed.');
-      return;
-    }
+    // if (!validateEmail(email)) {
+    //   setErrorMessage('Invalid email format. Only Gmail addresses are allowed.');
+    //   return;
+    // }
 
     try {
       // Sending the email to the backend API to initiate the reset process
@@ -43,7 +43,7 @@ export default function ForgotPassword() {
       setSuccessMessage('Password reset email sent successfully. Please check your inbox.');
       setEmail(''); // Clear the email input field
       setTimeout(() => {
-        router.push('/receptionist/login/Token'); // Redirect to reset password page after successful reset
+        router.push('/login/Token'); // Redirect to reset password page after successful reset
       }, 2000);
     } catch (error: any) {
       // Handling error response

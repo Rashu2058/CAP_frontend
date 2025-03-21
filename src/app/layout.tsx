@@ -3,7 +3,7 @@ import './globals.css';
 import { LogoProvider } from './LogoContext';
 
 export const metadata = {
-  title: 'Hotel Grace Inn',
+  title: 'UniStay',
   description: 'Ease your work',
 };
 

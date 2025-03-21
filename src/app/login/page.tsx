@@ -19,7 +19,7 @@ export default function Login() {
   const router = useRouter();
 
   const handleForgotPassword = () => {
-    router.push('/receptionist/login/ForgotPassword'); // Redirect to ForgotPassword page
+    router.push('/login/ForgetPassword'); // Redirect to ForgotPassword page
   };
 
   useEffect(() => {

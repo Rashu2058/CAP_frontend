@@ -233,7 +233,7 @@ const filteredFoods = foodItems.filter((food) => {
             value={foodName}
             onChange={(e) => setFoodName(e.target.value)}
             placeholder="Name"
-            maxLength={20}
+            maxLength={40}
             className="p-2 border rounded-md focus:outline-none focus:ring focus:ring-gray-300"
           />
           <input

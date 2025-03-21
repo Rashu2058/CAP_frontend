@@ -335,10 +335,11 @@ export default function FoodOrders() {
 const filteredOrders = groupedConfirmedOrders.filter((order) => {
   const query = searchQuery.toLowerCase();
   return (
-    order.roomNo.toLowerCase().includes(query) ||
+    String(order.roomNo || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
     order.guestName.toLowerCase().includes(query)
   );
 });
+
 
   return (
     <div className="p-4">
