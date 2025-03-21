@@ -52,6 +52,7 @@ export default function FoodOrders() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [search, setSearch] = useState("");
 
   const token = localStorage.getItem('token');
 
@@ -331,33 +332,39 @@ export default function FoodOrders() {
     }
   };
 
-{/*Search Query*/}
+{/*Search Query for food order*/}
 const filteredOrders = groupedConfirmedOrders.filter((order) => {
   const query = searchQuery.toLowerCase();
   return (
-    String(order.roomNo || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    order.roomNo.toLowerCase().includes(query) ||
     order.guestName.toLowerCase().includes(query)
   );
 });
 
+{/*Search Query for food menu*/}
+const filteredFood = foodItems.filter((food) => {
+  const query = search.toLowerCase();
+  return food.food_name.toLowerCase().includes(query);
+});
 
   return (
     
     <div className="p-4">
       <div className="flex">
-        
+
+{/* View Order Button */}         
         <div className="w-2/3 p-4 bg-white rounded-lg mr-4">
         <div className="flex justify-end mb-4">
         <button
          className="mt-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
           onClick={() => document.getElementById('confirmed-orders-table')?.scrollIntoView({ behavior: 'smooth' })}
           >
-          View Confirmed Orders
+          View Orders
         </button>
       </div>
-          <h2 className="text-lg font-bold mb-4">Menu</h2>
+          <div className="flex grid-cols-2 gap-4 mb-4 items-center">
 
-          <div className="flex flex-col mb-4">
+{/* Room No */}           
             <label className="block text-sm font-semibold">Room No</label>
             <Select
               value={roomOptions.find((option) => option.value === roomNo)}
@@ -370,9 +377,8 @@ const filteredOrders = groupedConfirmedOrders.filter((order) => {
               className="w-full border rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring focus:ring-gray-300"
               isSearchable
             />
-          </div>
 
-          <div className="flex flex-col mb-4">
+ {/* Guest Name */}         
             <label className="block text-sm font-semibold">Guest Name</label>
             <input
               type="text"
@@ -382,8 +388,36 @@ const filteredOrders = groupedConfirmedOrders.filter((order) => {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {foodItems.map((item) => (
+          <b><u><i><h1 className="text-2xl font-serif mb-4">Food Menu</h1></i></u></b>
+
+      {/* Search bar*/}
+      <div className="flex justify-center mb-4 bg-white p-3 rounded-lg">
+        <div className="relative w-full max-w-md">
+          <input
+            type="text"
+            value={search}
+            maxLength={40}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by food name..."
+            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 
+            focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-transparent"
+          />
+
+{/* Search Icon */}
+          <div className="absolute inset-y-0 left-0 flex items-center pl-3">
+            <img
+              src="/search.png"
+              alt="Search"
+              className="h-5 w-5 text-gray-400"
+            />
+          </div>
+        </div>
+      </div>
+
+{/* Food Menu */}
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredFood.length > 0 ? (
+            filteredFood.map((item) => (
               <div
                 key={item.f_id}
                 className="p-4 border rounded-lg shadow-sm hover:shadow-md transition"
@@ -394,7 +428,7 @@ const filteredOrders = groupedConfirmedOrders.filter((order) => {
                   className="w-full h-32 object-cover rounded-md mb-2"
                 />
                 <h3 className="font-semibold">{item.food_name}</h3>
-                <p className="text-gray-600">Price: NPR {item.food_price}</p>
+                <p className="text-gray-600">Price: NPR.{item.food_price}</p>
                 <button
                   className="mt-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
                   onClick={() => addToOrder(item)}
@@ -402,13 +436,18 @@ const filteredOrders = groupedConfirmedOrders.filter((order) => {
                   Add to order
                 </button>
               </div>
-            ))}
+            ))
+          ):(
+            <div className="mt-2 text-sm text-gray-400">
+              No food found matching "{search}"
+            </div>
+          )}
           </div>
         </div>
 
 {/*Right Section*/}
         <div className="w-1/3 p-4 bg-white rounded-lg">
-          <h2 className="text-lg font-bold mb-4">Orders</h2>
+        <b><u><i><h1 className="text-2xl font-serif mb-4">Orders</h1></i></u></b>
           {order.length === 0 ? (
             <p className="text-gray-500">Your order is empty.</p>
           ) : (
@@ -421,7 +460,7 @@ const filteredOrders = groupedConfirmedOrders.filter((order) => {
                   <div>
                     <h3 className="font-medium">{item.food_name}</h3>
                     <p className="text-sm text-gray-500">
-                      Price: NPR {item.food_price} x {item.quantity}
+                      Price: NPR.{item.food_price} x {item.quantity}
                     </p>
                   </div>
                   <div className="flex items-center">
@@ -448,7 +487,7 @@ const filteredOrders = groupedConfirmedOrders.filter((order) => {
                 </div>
               ))}
               <div className="mt-4 text-lg font-bold">
-                Total Amount: NPR {totalAmount}
+                Total Amount: NPR.{totalAmount}
               </div>
             </>
           )}
@@ -520,7 +559,7 @@ const filteredOrders = groupedConfirmedOrders.filter((order) => {
         {order.items.map(item => `${item.food_name} (x${item.quantity})`).join(', ')}
       </td>
       <td className="border px-4 py-2">
-        NPR {order.items.reduce((total, item) => total + item.food_price * item.quantity, 0)}
+        NPR.{order.items.reduce((total, item) => total + item.food_price * item.quantity, 0)}
       </td>
       <td className="border px-4 py-2">
         <button
@@ -541,7 +580,7 @@ const filteredOrders = groupedConfirmedOrders.filter((order) => {
 ) : (
   <tr>
     <td colSpan={7} className="text-center py-3 text-gray-500">
-    No order found matching "{searchQuery}"
+      No order found matching "{searchQuery}"
       <div className="mt-2 text-sm text-gray-400">
        Try searching for a different order.
       </div>

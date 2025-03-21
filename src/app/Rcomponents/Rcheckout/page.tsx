@@ -110,7 +110,7 @@ export default function Checkout() {
     console.log("Checkout button clicked");
 
     // Generate a unique invoice number
-    const generatedInvoiceNo = `INV-${Date.now()}`;
+    const generatedInvoiceNo = `${Math.floor(1000 + Math.random() * 9000)}`;
     setInvoiceNo(generatedInvoiceNo);
 
     try {
@@ -123,7 +123,7 @@ export default function Checkout() {
         finalTotal: finalTotal,
         checkInDate: reservation.checkInDate,
         checkOutDate: reservation.checkOutDate,
-        invoiceNo: generatedInvoiceNo, // Include invoice number in billing data
+        invoiceNo: generatedInvoiceNo, 
       };
 
       const response = await axios.post(
