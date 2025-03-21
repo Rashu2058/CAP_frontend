@@ -9,7 +9,7 @@ export default function Guest() {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   const [formData, setFormData] = useState<Guest>({
     g_id: 0,
     id_type: "",
@@ -52,6 +52,7 @@ export default function Guest() {
   };
 
   const openModal = (guest: Guest) => {
+    console.log("Opening modal for guest:", guest);
     setSelectedGuest(guest);
     setFormData(guest);
     setIsModalOpen(true);
@@ -95,32 +96,21 @@ export default function Guest() {
     }));
   };
 
-  {/*Search Query*/}
-const filteredGuests = guests.filter((guest) =>{
-  const matchesQuery=
-    (guest.name?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
-    (guest.email?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
-    (guest.institutionName?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
-    String(guest.id_no || "").toLowerCase().includes(searchQuery.toLowerCase())||
-    String(guest.phone_number || "").toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesQuery;  
+  const filteredGuests = guests.filter((guest) => {
+    const matchesQuery =
+      (guest.name?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
+      (guest.email?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
+      (guest.institutionName?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
+      String(guest.id_no || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      String(guest.phone_number || "").toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesQuery;
   });
-  
- {/* Modal */}
- <Modal
- isModalOpen={isModalOpen}
- selectedGuest={selectedGuest}
- formData={formData}
- handleInputChange={handleInputChange}
- handleUpdate={handleUpdate}
- closeModal={closeModal}
-/>
 
   return (
     <div className="bg-white p-6 rounded-lg min-w-min">
       <h1 className="text-xl font-bold">Guest Details</h1>
 
-{/* Search bar with custom icon inside */}
+      {/* Search bar with custom icon inside */}
       <div className="flex justify-center mb-4">
         <div className="relative w-full max-w-md">
           <input
@@ -166,53 +156,63 @@ const filteredGuests = guests.filter((guest) =>{
             </tr>
           </thead>
           <tbody>
-          {filteredGuests.length > 0 ? (
-            filteredGuests.map((guest,index) => (
-              <tr key={index} className="text-gray-700 text-sm border-b hover:bg-gray-50">
-                <td className="p-3 text-center">{guest.id_type}</td>
-                <td className="p-3 text-center">{guest.id_no}</td>
-                <td className="p-3 text-center">{guest.name}</td>
-                <td className="p-3 text-center">{guest.phone_number}</td>
-                <td className="p-3 text-center">{guest.address}</td>
-                <td className="p-3 text-center">{guest.gender_type}</td>
-                <td className="p-3 text-center">{guest.email}</td>
-                <td className="p-3 text-center">{guest.nationality}</td>
-                <td className="p-3 text-center">{guest.institutionName}</td>
-                <td className="p-3 text-center">{guest.purpose}</td>
-                <td className="p-3 text-center">{guest.check_in_date}</td>
-                <td className="p-3 text-center">{guest.check_out_date}</td>
-                <td className="p-3 text-center">{guest.receptionist_name}</td>
-                <td className="p-3 text-center">
-                  <a
-                    href="#"
-                    className="text-gray-600 hover:text-gray-700 mr-2"
-                    onClick={() => openModal(guest)}
-                  >
-                    Edit
-                  </a>
-                  <a href="#" className="text-red-600 hover:text-red-700"
-                    onClick={() => handleDelete(guest.id_no ?? 0)}>
-                    Delete
-                  </a>
+            {filteredGuests.length > 0 ? (
+              filteredGuests.map((guest, index) => (
+                <tr key={index} className="text-gray-700 text-sm border-b hover:bg-gray-50">
+                  <td className="p-3 text-center">{guest.id_type}</td>
+                  <td className="p-3 text-center">{guest.id_no}</td>
+                  <td className="p-3 text-center">{guest.name}</td>
+                  <td className="p-3 text-center">{guest.phone_number}</td>
+                  <td className="p-3 text-center">{guest.address}</td>
+                  <td className="p-3 text-center">{guest.gender_type}</td>
+                  <td className="p-3 text-center">{guest.email}</td>
+                  <td className="p-3 text-center">{guest.nationality}</td>
+                  <td className="p-3 text-center">{guest.institutionName}</td>
+                  <td className="p-3 text-center">{guest.purpose}</td>
+                  <td className="p-3 text-center">{guest.check_in_date}</td>
+                  <td className="p-3 text-center">{guest.check_out_date}</td>
+                  <td className="p-3 text-center">{guest.receptionist_name}</td>
+                  <td className="p-3 text-center">
+                    <a
+                      href="#"
+                      className="text-gray-600 hover:text-gray-700 mr-2"
+                      onClick={() => openModal(guest)}
+                    >
+                      Edit
+                    </a>
+                    <a
+                      href="#"
+                      className="text-red-600 hover:text-red-700"
+                      onClick={() => handleDelete(guest.id_no ?? 0)}
+                    >
+                      Delete
+                    </a>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={14} className="text-center py-3 text-gray-500">
+                  No guest found matching "{searchQuery}"
+                  <div className="mt-2 text-sm text-gray-400">
+                    Try searching for a different item or check the spelling.
+                  </div>
                 </td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan={14} className="text-center py-3 text-gray-500">
-              No guest found matching "{searchQuery}"
-                <div className="mt-2 text-sm text-gray-400">
-                 Try searching for a different item or check the spelling.
-                </div>
-              </td>
-            </tr>
             )}
           </tbody>
         </table>
       </div>
+
+      {/* Modal */}
+      <Modal
+        isModalOpen={isModalOpen}
+        selectedGuest={selectedGuest}
+        formData={formData}
+        handleInputChange={handleInputChange}
+        handleUpdate={handleUpdate}
+        closeModal={closeModal}
+      />
     </div>
   );
 }
- 
-
-  

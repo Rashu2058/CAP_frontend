@@ -18,7 +18,11 @@ const Modal: React.FC<ModalProps> = ({
   handleUpdate,
   closeModal,
 }) => {
-  if (!isModalOpen) return null;
+  if (!isModalOpen){
+    console.log("Modal is not open");
+    return null;    
+  };
+  console.log("Modal is open");
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

@@ -342,9 +342,19 @@ const filteredOrders = groupedConfirmedOrders.filter((order) => {
 
 
   return (
+    
     <div className="p-4">
       <div className="flex">
+        
         <div className="w-2/3 p-4 bg-white rounded-lg mr-4">
+        <div className="flex justify-end mb-4">
+        <button
+         className="mt-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+          onClick={() => document.getElementById('confirmed-orders-table')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+          View Confirmed Orders
+        </button>
+      </div>
           <h2 className="text-lg font-bold mb-4">Menu</h2>
 
           <div className="flex flex-col mb-4">
@@ -462,7 +472,7 @@ const filteredOrders = groupedConfirmedOrders.filter((order) => {
       </div>
 
 {/*Confirmed Orders*/}
-      <div className="mt-8 bg-white rounded-lg p-4">
+      <div id="confirmed-orders-table"className="mt-8 bg-white rounded-lg p-4">
         <h2 className="text-lg font-bold mb-4">Confirmed Orders</h2>
 
 {/* Search bar*/}
